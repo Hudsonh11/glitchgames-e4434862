@@ -28,8 +28,8 @@ const Navbar: React.FC = () => {
             <div className="w-10 h-10 rounded-lg bg-gradient-hero flex items-center justify-center shadow-neon-cyan group-hover:animate-pulse-glow transition-all">
               <Gamepad2 className="w-6 h-6 text-primary-foreground" />
             </div>
-            <span className="font-display text-xl font-bold text-gradient hidden sm:block">
-              NEXUS GAMES
+            <span className="font-display text-xl font-bold text-gradient hidden sm:block animate-glitch">
+              GLITCH GAMES
             </span>
           </Link>
 
