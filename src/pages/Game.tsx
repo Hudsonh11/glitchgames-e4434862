@@ -5,6 +5,10 @@ import ClickerGame from '@/components/games/ClickerGame';
 import GeometryDash from '@/components/games/GeometryDash';
 import RacingGame from '@/components/games/RacingGame';
 import PacMan from '@/components/games/PacMan';
+import SnakeGame from '@/components/games/SnakeGame';
+import TetrisGame from '@/components/games/TetrisGame';
+import MemoryGame from '@/components/games/MemoryGame';
+import FlappyGame from '@/components/games/FlappyGame';
 import { useGame } from '@/contexts/GameContext';
 
 const games: Record<string, React.FC> = {
@@ -13,6 +17,10 @@ const games: Record<string, React.FC> = {
   'geometry-dash': GeometryDash,
   'racing': RacingGame,
   'pac-man': PacMan,
+  'snake': SnakeGame,
+  'tetris': TetrisGame,
+  'memory': MemoryGame,
+  'flappy': FlappyGame,
 };
 
 const Game: React.FC = () => {

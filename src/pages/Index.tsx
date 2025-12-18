@@ -57,6 +57,46 @@ const games = [
     players: '30.2K',
     color: 'hsl(45, 100%, 55%)',
   },
+  {
+    id: 'snake',
+    title: 'Snake',
+    description: 'Grow your snake by eating food, but don\'t hit the walls or yourself!',
+    image: 'https://images.unsplash.com/photo-1531525645387-7f14be1bdbbd?w=400&h=300&fit=crop',
+    category: 'Arcade',
+    rating: 4.7,
+    players: '18.3K',
+    color: 'hsl(142, 76%, 50%)',
+  },
+  {
+    id: 'tetris',
+    title: 'Tetris',
+    description: 'Stack falling blocks to clear lines in this timeless puzzle classic!',
+    image: 'https://images.unsplash.com/photo-1493711662062-fa541f7f3d24?w=400&h=300&fit=crop',
+    category: 'Puzzle',
+    rating: 4.9,
+    players: '35.7K',
+    color: 'hsl(280, 100%, 60%)',
+  },
+  {
+    id: 'memory',
+    title: 'Memory Match',
+    description: 'Test your memory by matching pairs of cards in the fewest moves!',
+    image: 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=400&h=300&fit=crop',
+    category: 'Puzzle',
+    rating: 4.5,
+    players: '9.1K',
+    color: 'hsl(185, 100%, 50%)',
+  },
+  {
+    id: 'flappy',
+    title: 'Flappy Bird',
+    description: 'Tap to fly through pipes in this challenging endless runner!',
+    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&h=300&fit=crop',
+    category: 'Arcade',
+    rating: 4.6,
+    players: '22.4K',
+    color: 'hsl(45, 100%, 55%)',
+  },
 ];
 
 const Index: React.FC = () => {
@@ -120,7 +160,7 @@ const Index: React.FC = () => {
           <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mt-16">
             {[
               { value: '50K+', label: 'Players' },
-              { value: '5', label: 'Games' },
+              { value: '9', label: 'Games' },
               { value: '$10K', label: 'In Rewards' },
             ].map(({ value, label }) => (
               <div key={label} className="text-center p-4 rounded-xl bg-card/50 border border-border backdrop-blur-sm">
