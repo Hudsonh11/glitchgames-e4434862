@@ -47,6 +47,16 @@ const games = [
     players: '15.8K',
     color: 'hsl(280, 100%, 60%)',
   },
+  {
+    id: 'pac-man',
+    title: 'Pac-Man',
+    description: 'Eat all the dots and avoid ghosts in this classic arcade adventure!',
+    image: 'https://images.unsplash.com/photo-1579309401389-a2476dddf3d4?w=400&h=300&fit=crop',
+    category: 'Arcade',
+    rating: 4.9,
+    players: '30.2K',
+    color: 'hsl(45, 100%, 55%)',
+  },
 ];
 
 const Index: React.FC = () => {
@@ -72,7 +82,7 @@ const Index: React.FC = () => {
             </div>
             
             <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-black mb-6">
-              <span className="text-gradient">NEXUS</span>
+              <span className="text-gradient animate-glitch">GLITCH</span>
               <br />
               <span className="text-foreground">GAMES</span>
             </h1>
@@ -110,7 +120,7 @@ const Index: React.FC = () => {
           <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mt-16">
             {[
               { value: '50K+', label: 'Players' },
-              { value: '4', label: 'Games' },
+              { value: '5', label: 'Games' },
               { value: '$10K', label: 'In Rewards' },
             ].map(({ value, label }) => (
               <div key={label} className="text-center p-4 rounded-xl bg-card/50 border border-border backdrop-blur-sm">
@@ -165,7 +175,7 @@ const Index: React.FC = () => {
       <section className="py-16 px-4 bg-card/50">
         <div className="container mx-auto">
           <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-12">
-            Why Choose <span className="text-gradient">Nexus Games</span>?
+            Why Choose <span className="text-gradient">Glitch Games</span>?
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -206,10 +216,10 @@ const Index: React.FC = () => {
         <div className="container mx-auto text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Gamepad2 className="w-6 h-6 text-primary" />
-            <span className="font-display text-xl font-bold text-gradient">NEXUS GAMES</span>
+            <span className="font-display text-xl font-bold text-gradient">GLITCH GAMES</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2024 Nexus Games. All rights reserved. Play responsibly.
+            © 2024 Glitch Games. All rights reserved. Play responsibly.
           </p>
         </div>
       </footer>

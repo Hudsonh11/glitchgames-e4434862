@@ -4,6 +4,7 @@ import BlockBlast from '@/components/games/BlockBlast';
 import ClickerGame from '@/components/games/ClickerGame';
 import GeometryDash from '@/components/games/GeometryDash';
 import RacingGame from '@/components/games/RacingGame';
+import PacMan from '@/components/games/PacMan';
 import { useGame } from '@/contexts/GameContext';
 
 const games: Record<string, React.FC> = {
@@ -11,6 +12,7 @@ const games: Record<string, React.FC> = {
   'clicker': ClickerGame,
   'geometry-dash': GeometryDash,
   'racing': RacingGame,
+  'pac-man': PacMan,
 };
 
 const Game: React.FC = () => {

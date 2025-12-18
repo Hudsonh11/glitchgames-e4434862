@@ -143,6 +143,15 @@
     background-size: 200% 100%;
   }
 
+  .animate-gradient-x {
+    background-size: 200% 100%;
+    animation: gradient-x 3s ease infinite;
+  }
+
+  .animate-glitch {
+    animation: glitch 2s ease-in-out infinite;
+  }
+
   @keyframes pulse-glow {
     0%, 100% {
       opacity: 1;
@@ -169,6 +178,38 @@
     }
     100% {
       background-position: 200% 0;
+    }
+  }
+
+  @keyframes gradient-x {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes glitch {
+    0%, 90%, 100% {
+      transform: translate(0);
+      text-shadow: none;
+    }
+    92% {
+      transform: translate(-2px, 1px);
+      text-shadow: 2px 0 hsl(var(--primary)), -2px 0 hsl(var(--accent));
+    }
+    94% {
+      transform: translate(2px, -1px);
+      text-shadow: -2px 0 hsl(var(--primary)), 2px 0 hsl(var(--secondary));
+    }
+    96% {
+      transform: translate(-1px, 2px);
+      text-shadow: 2px 0 hsl(var(--secondary)), -2px 0 hsl(var(--accent));
+    }
+    98% {
+      transform: translate(1px, -2px);
+      text-shadow: -2px 0 hsl(var(--accent)), 2px 0 hsl(var(--primary));
     }
   }
 
