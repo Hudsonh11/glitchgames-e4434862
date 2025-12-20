@@ -246,7 +246,7 @@ const Index: React.FC = () => {
             <Gamepad2 className="w-6 h-6 text-primary" />
             <span className="font-display text-xl font-bold text-gradient">GLITCH GAMES</span>
           </div>
-          <p className="text-sm text-muted-foreground">© 2025 Glitch Games. All rights reserved. Play responsibly.</p>
+          <p className="text-sm text-muted-foreground">© 2025 Glitch Games. All rights reserved. Created by Hudson.</p>
         </div>
       </footer>
     </div>;
