@@ -15,22 +15,33 @@ const Admin: React.FC = () => {
   const { 
     user, 
     isLoggedIn, 
+    isLoading,
     gamesShutdown, 
     setGamesShutdown, 
     bannedUsers, 
     banUser, 
     unbanUser, 
     deleteUser,
-    leaderboard
+    leaderboard,
+    allUsers,
+    fetchAllUsers,
   } = useGame();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
-  const [allUsers, setAllUsers] = useState<any[]>([]);
 
   useEffect(() => {
-    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    setAllUsers(users);
-  }, []);
+    if (user?.isAdmin) {
+      fetchAllUsers();
+    }
+  }, [user?.isAdmin]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!isLoggedIn || !user?.isAdmin) {
     return <Navigate to="/" />;
@@ -40,25 +51,24 @@ const Admin: React.FC = () => {
     u.username.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleBanUser = (userId: string, username: string) => {
-    banUser(userId);
+  const handleBanUser = async (userId: string, username: string) => {
+    await banUser(userId);
     toast({
       title: 'User Banned',
       description: `${username} has been banned from the platform.`,
     });
   };
 
-  const handleUnbanUser = (userId: string, username: string) => {
-    unbanUser(userId);
+  const handleUnbanUser = async (userId: string, username: string) => {
+    await unbanUser(userId);
     toast({
       title: 'User Unbanned',
       description: `${username} has been unbanned.`,
     });
   };
 
-  const handleDeleteUser = (userId: string, username: string) => {
-    deleteUser(userId);
-    setAllUsers(prev => prev.filter(u => u.id !== userId));
+  const handleDeleteUser = async (userId: string, username: string) => {
+    await deleteUser(userId);
     toast({
       title: 'User Deleted',
       description: `${username}'s account has been permanently deleted.`,
@@ -66,8 +76,8 @@ const Admin: React.FC = () => {
     });
   };
 
-  const toggleGamesShutdown = () => {
-    setGamesShutdown(!gamesShutdown);
+  const toggleGamesShutdown = async () => {
+    await setGamesShutdown(!gamesShutdown);
     toast({
       title: gamesShutdown ? 'Games Enabled' : 'Games Disabled',
       description: gamesShutdown 
@@ -79,7 +89,7 @@ const Admin: React.FC = () => {
   const stats = {
     totalUsers: allUsers.length,
     bannedUsers: bannedUsers.length,
-    activeGames: gamesShutdown ? 0 : 4,
+    activeGames: gamesShutdown ? 0 : 9,
     totalScores: leaderboard.length,
   };
 
@@ -175,7 +185,7 @@ const Admin: React.FC = () => {
               
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <span>Database</span>
+                  <span>Cloud Database</span>
                   <span className="text-success flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
                     Healthy
@@ -243,7 +253,7 @@ const Admin: React.FC = () => {
                             />
                             <div>
                               <p className="font-medium">{u.username}</p>
-                              <p className="text-xs text-muted-foreground">{u.id}</p>
+                              <p className="text-xs text-muted-foreground truncate max-w-[150px]">{u.id}</p>
                             </div>
                           </div>
                         </td>

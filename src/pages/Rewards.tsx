@@ -7,18 +7,26 @@ import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
 
 const Rewards: React.FC = () => {
-  const { isLoggedIn, dailyRewards, claimDailyReward, currentStreak, lastClaimDate, addCoins, addGems } = useGame();
+  const { isLoggedIn, isLoading, dailyRewards, claimDailyReward, currentStreak, lastClaimDate } = useGame();
   const { toast } = useToast();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!isLoggedIn) {
     return <Navigate to="/login" />;
   }
 
-  const today = new Date().toDateString();
+  const today = new Date().toISOString().split('T')[0];
   const canClaim = lastClaimDate !== today;
   const nextRewardDay = currentStreak < 7 ? currentStreak + 1 : 1;
 
-  const handleClaim = (day: number) => {
+  const handleClaim = async (day: number) => {
     if (!canClaim) {
       toast({
         title: 'Already Claimed',
@@ -37,11 +45,11 @@ const Rewards: React.FC = () => {
       return;
     }
 
-    const success = claimDailyReward(day);
+    const success = await claimDailyReward(day);
     if (success) {
       const reward = dailyRewards.find(r => r.day === day);
       toast({
-        title: '🎉 Reward Claimed!',
+        title: 'Reward Claimed!',
         description: `You received ${reward?.coins} coins${reward?.gems ? ` and ${reward.gems} gems` : ''}!`,
       });
     }
@@ -100,7 +108,6 @@ const Rewards: React.FC = () => {
           {/* Rewards Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
             {dailyRewards.map((reward) => {
-              const isClaimed = reward.day <= currentStreak && lastClaimDate === today;
               const isPast = reward.day < nextRewardDay;
               const isCurrent = reward.day === nextRewardDay;
               const isFuture = reward.day > nextRewardDay;
