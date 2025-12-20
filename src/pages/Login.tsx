@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Gamepad2, Mail, Lock, User, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,22 +9,29 @@ import { useToast } from '@/hooks/use-toast';
 const Login: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const { login, register, bannedUsers } = useGame();
+  const { login, register, isLoggedIn, isLoading } = useGame();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (!isLoading && isLoggedIn) {
+      navigate('/');
+    }
+  }, [isLoggedIn, isLoading, navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsSubmitting(true);
 
     try {
       if (isLogin) {
-        const success = login(username, password);
-        if (success) {
+        const result = await login(email, password);
+        if (result.success) {
           toast({
             title: 'Welcome back!',
             description: 'You have successfully logged in.',
@@ -33,7 +40,7 @@ const Login: React.FC = () => {
         } else {
           toast({
             title: 'Login failed',
-            description: 'Invalid username or password, or account is banned.',
+            description: result.error || 'Invalid email or password.',
             variant: 'destructive',
           });
         }
@@ -65,25 +72,33 @@ const Login: React.FC = () => {
           return;
         }
 
-        const success = register(username, password);
-        if (success) {
+        const result = await register(username, email, password);
+        if (result.success) {
           toast({
             title: 'Account created!',
-            description: 'Welcome to Nexus Games!',
+            description: 'Welcome to Glitch Games!',
           });
           navigate('/');
         } else {
           toast({
             title: 'Registration failed',
-            description: 'Username already exists.',
+            description: result.error || 'Could not create account.',
             variant: 'destructive',
           });
         }
       }
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
@@ -99,7 +114,7 @@ const Login: React.FC = () => {
           <div className="w-12 h-12 rounded-xl bg-gradient-hero flex items-center justify-center shadow-neon-cyan">
             <Gamepad2 className="w-7 h-7 text-primary-foreground" />
           </div>
-          <span className="font-display text-2xl font-bold text-gradient">NEXUS GAMES</span>
+          <span className="font-display text-2xl font-bold text-gradient">GLITCH GAMES</span>
         </Link>
 
         {/* Form Card */}
@@ -112,13 +127,27 @@ const Login: React.FC = () => {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {!isLogin && (
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="pl-10 h-12 bg-muted border-border"
+                  required
+                />
+              </div>
+            )}
+
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="pl-10 h-12 bg-muted border-border"
                 required
               />
@@ -155,9 +184,9 @@ const Login: React.FC = () => {
               variant="gaming"
               size="lg"
               className="w-full"
-              disabled={isLoading}
+              disabled={isSubmitting}
             >
-              {isLoading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
+              {isSubmitting ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </form>
@@ -180,10 +209,10 @@ const Login: React.FC = () => {
             </div>
           )}
 
-          {/* Demo Account Hint */}
+          {/* Info */}
           <div className="mt-6 p-4 rounded-xl bg-muted/50 border border-border">
             <p className="text-xs text-muted-foreground text-center">
-              <strong className="text-primary">Tip:</strong> Create an account with username "admin" to access the admin panel!
+              <strong className="text-primary">Cloud Sync:</strong> Your progress syncs across all devices automatically!
             </p>
           </div>
         </div>

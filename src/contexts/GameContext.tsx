@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { User, Session } from '@supabase/supabase-js';
 
 interface UserProfile {
   id: string;
@@ -49,45 +51,48 @@ interface LeaderboardEntry {
 
 interface GameContextType {
   user: UserProfile | null;
+  session: Session | null;
   setUser: (user: UserProfile | null) => void;
   isLoggedIn: boolean;
-  login: (username: string, password: string) => boolean;
-  logout: () => void;
-  register: (username: string, password: string) => boolean;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  register: (username: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   
   coins: number;
   gems: number;
-  addCoins: (amount: number) => void;
-  addGems: (amount: number) => void;
-  spendCoins: (amount: number) => boolean;
-  spendGems: (amount: number) => boolean;
+  addCoins: (amount: number) => Promise<void>;
+  addGems: (amount: number) => Promise<void>;
+  spendCoins: (amount: number) => Promise<boolean>;
+  spendGems: (amount: number) => Promise<boolean>;
   
   soundSettings: SoundSettings;
   updateSoundSettings: (settings: Partial<SoundSettings>) => void;
   
   gameStats: Record<string, GameStats>;
-  updateGameStats: (gameId: string, score: number, timePlayed: number) => void;
+  updateGameStats: (gameId: string, score: number, timePlayed: number) => Promise<void>;
   
   dailyRewards: DailyReward[];
-  claimDailyReward: (day: number) => boolean;
+  claimDailyReward: (day: number) => Promise<boolean>;
   currentStreak: number;
   lastClaimDate: string | null;
   
   leaderboard: LeaderboardEntry[];
-  updateLeaderboard: (gameId: string, score: number) => void;
+  fetchLeaderboard: (gameId?: string) => Promise<void>;
   
   achievements: string[];
-  unlockAchievement: (achievementId: string) => void;
+  unlockAchievement: (achievementId: string) => Promise<void>;
   
   gamesShutdown: boolean;
-  setGamesShutdown: (shutdown: boolean) => void;
+  setGamesShutdown: (shutdown: boolean) => Promise<void>;
   
   bannedUsers: string[];
-  banUser: (userId: string) => void;
-  unbanUser: (userId: string) => void;
+  banUser: (userId: string) => Promise<void>;
+  unbanUser: (userId: string) => Promise<void>;
   
   allUsers: UserProfile[];
-  deleteUser: (userId: string) => void;
+  fetchAllUsers: () => Promise<void>;
+  deleteUser: (userId: string) => Promise<void>;
 }
 
 const defaultSoundSettings: SoundSettings = {
@@ -111,6 +116,8 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [soundSettings, setSoundSettings] = useState<SoundSettings>(defaultSoundSettings);
   const [gameStats, setGameStats] = useState<Record<string, GameStats>>({});
   const [dailyRewards, setDailyRewards] = useState<DailyReward[]>(defaultDailyRewards);
@@ -118,289 +125,479 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [lastClaimDate, setLastClaimDate] = useState<string | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [achievements, setAchievements] = useState<string[]>([]);
-  const [gamesShutdown, setGamesShutdown] = useState(false);
+  const [gamesShutdown, setGamesShutdownState] = useState(false);
   const [bannedUsers, setBannedUsers] = useState<string[]>([]);
   const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
 
-  // Load from localStorage on mount
+  // Load sound settings from localStorage
   useEffect(() => {
-    const savedUser = localStorage.getItem('gameUser');
     const savedSound = localStorage.getItem('soundSettings');
-    const savedStats = localStorage.getItem('gameStats');
-    const savedRewards = localStorage.getItem('dailyRewards');
-    const savedStreak = localStorage.getItem('currentStreak');
-    const savedLastClaim = localStorage.getItem('lastClaimDate');
-    const savedLeaderboard = localStorage.getItem('leaderboard');
-    const savedAchievements = localStorage.getItem('achievements');
-    const savedShutdown = localStorage.getItem('gamesShutdown');
-    const savedBanned = localStorage.getItem('bannedUsers');
-    const savedAllUsers = localStorage.getItem('allUsers');
-
-    if (savedUser) setUser(JSON.parse(savedUser));
     if (savedSound) setSoundSettings(JSON.parse(savedSound));
-    if (savedStats) setGameStats(JSON.parse(savedStats));
-    if (savedRewards) setDailyRewards(JSON.parse(savedRewards));
-    if (savedStreak) setCurrentStreak(JSON.parse(savedStreak));
-    if (savedLastClaim) setLastClaimDate(savedLastClaim);
-    if (savedLeaderboard) setLeaderboard(JSON.parse(savedLeaderboard));
-    if (savedAchievements) setAchievements(JSON.parse(savedAchievements));
-    if (savedShutdown) setGamesShutdown(JSON.parse(savedShutdown));
-    if (savedBanned) setBannedUsers(JSON.parse(savedBanned));
-    if (savedAllUsers) setAllUsers(JSON.parse(savedAllUsers));
   }, []);
-
-  // Save to localStorage on changes
-  useEffect(() => {
-    if (user) localStorage.setItem('gameUser', JSON.stringify(user));
-    else localStorage.removeItem('gameUser');
-  }, [user]);
 
   useEffect(() => {
     localStorage.setItem('soundSettings', JSON.stringify(soundSettings));
   }, [soundSettings]);
 
+  // Initialize auth and fetch user data
   useEffect(() => {
-    localStorage.setItem('gameStats', JSON.stringify(gameStats));
-  }, [gameStats]);
-
-  useEffect(() => {
-    localStorage.setItem('dailyRewards', JSON.stringify(dailyRewards));
-  }, [dailyRewards]);
-
-  useEffect(() => {
-    localStorage.setItem('currentStreak', JSON.stringify(currentStreak));
-  }, [currentStreak]);
-
-  useEffect(() => {
-    if (lastClaimDate) localStorage.setItem('lastClaimDate', lastClaimDate);
-  }, [lastClaimDate]);
-
-  useEffect(() => {
-    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-  }, [leaderboard]);
-
-  useEffect(() => {
-    localStorage.setItem('achievements', JSON.stringify(achievements));
-  }, [achievements]);
-
-  useEffect(() => {
-    localStorage.setItem('gamesShutdown', JSON.stringify(gamesShutdown));
-  }, [gamesShutdown]);
-
-  useEffect(() => {
-    localStorage.setItem('bannedUsers', JSON.stringify(bannedUsers));
-  }, [bannedUsers]);
-
-  useEffect(() => {
-    localStorage.setItem('allUsers', JSON.stringify(allUsers));
-  }, [allUsers]);
-
-  const login = (username: string, password: string): boolean => {
-    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    const foundUser = users.find((u: any) => u.username === username && u.password === password);
-    
-    if (foundUser) {
-      if (bannedUsers.includes(foundUser.id)) {
-        return false;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+      setSession(newSession);
+      
+      if (newSession?.user) {
+        setTimeout(() => {
+          fetchUserProfile(newSession.user.id);
+        }, 0);
+      } else {
+        setUser(null);
+        setIsLoading(false);
       }
-      const profile: UserProfile = {
-        id: foundUser.id,
-        username: foundUser.username,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
-        coins: foundUser.coins || 1000,
-        gems: foundUser.gems || 50,
-        level: foundUser.level || 1,
-        xp: foundUser.xp || 0,
-        achievements: foundUser.achievements || [],
-        friends: foundUser.friends || [],
-        gamesPlayed: foundUser.gamesPlayed || 0,
-        totalScore: foundUser.totalScore || 0,
-        joinDate: foundUser.joinDate || new Date().toISOString(),
-        lastLogin: new Date().toISOString(),
-        isBanned: bannedUsers.includes(foundUser.id),
-        isAdmin: foundUser.isAdmin || username === 'admin',
-      };
-      setUser(profile);
-      return true;
+    });
+
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      if (currentSession?.user) {
+        fetchUserProfile(currentSession.user.id);
+      } else {
+        setIsLoading(false);
+      }
+    });
+
+    fetchGameSettings();
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (profile) {
+        // Check if user is banned
+        const { data: banData } = await supabase
+          .from('banned_users')
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+        // Check if user is admin
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId)
+          .eq('role', 'admin')
+          .maybeSingle();
+
+        // Fetch achievements
+        const { data: achievementData } = await supabase
+          .from('achievements')
+          .select('achievement_id')
+          .eq('user_id', userId);
+
+        // Fetch game stats
+        const { data: statsData } = await supabase
+          .from('game_stats')
+          .select('*')
+          .eq('user_id', userId);
+
+        // Fetch daily rewards
+        const { data: rewardsData } = await supabase
+          .from('daily_rewards')
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+        const userProfile: UserProfile = {
+          id: profile.user_id,
+          username: profile.username,
+          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.username}`,
+          coins: profile.coins,
+          gems: profile.gems,
+          level: profile.level,
+          xp: profile.xp,
+          achievements: achievementData?.map(a => a.achievement_id) || [],
+          friends: [],
+          gamesPlayed: statsData?.reduce((sum, s) => sum + s.games_played, 0) || 0,
+          totalScore: statsData?.reduce((sum, s) => sum + s.high_score, 0) || 0,
+          joinDate: profile.created_at,
+          lastLogin: new Date().toISOString(),
+          isBanned: !!banData,
+          isAdmin: !!roleData,
+        };
+
+        setUser(userProfile);
+        setAchievements(userProfile.achievements);
+
+        if (statsData) {
+          const stats: Record<string, GameStats> = {};
+          statsData.forEach(s => {
+            stats[s.game_id] = {
+              gameId: s.game_id,
+              highScore: s.high_score,
+              timePlayed: s.total_time_played,
+              gamesPlayed: s.games_played,
+            };
+          });
+          setGameStats(stats);
+        }
+
+        if (rewardsData) {
+          setCurrentStreak(rewardsData.streak);
+          setLastClaimDate(rewardsData.last_claim_date);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    } finally {
+      setIsLoading(false);
     }
-    return false;
   };
 
-  const logout = () => {
+  const fetchGameSettings = async () => {
+    const { data } = await supabase
+      .from('game_settings')
+      .select('*')
+      .eq('key', 'games_shutdown')
+      .maybeSingle();
+
+    if (data) {
+      setGamesShutdownState((data.value as { enabled: boolean }).enabled);
+    }
+  };
+
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      // Check if user is banned
+      const { data: banData } = await supabase
+        .from('banned_users')
+        .select('*')
+        .eq('user_id', data.user?.id)
+        .maybeSingle();
+
+      if (banData) {
+        await supabase.auth.signOut();
+        return { success: false, error: 'Your account has been banned.' };
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
+    setSession(null);
   };
 
-  const register = (username: string, password: string): boolean => {
-    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    if (users.find((u: any) => u.username === username)) {
-      return false;
+  const register = async (username: string, email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      // Check if username exists
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', username)
+        .maybeSingle();
+
+      if (existingUser) {
+        return { success: false, error: 'Username already exists.' };
+      }
+
+      const redirectUrl = `${window.location.origin}/`;
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            username,
+          },
+        },
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
     }
-    
-    const newUser = {
-      id: `user_${Date.now()}`,
-      username,
-      password,
-      coins: 1000,
-      gems: 50,
-      level: 1,
-      xp: 0,
-      achievements: [],
-      friends: [],
-      gamesPlayed: 0,
-      totalScore: 0,
-      joinDate: new Date().toISOString(),
-      isAdmin: username === 'admin',
-    };
-    
-    users.push(newUser);
-    localStorage.setItem('registeredUsers', JSON.stringify(users));
-    
-    const profile: UserProfile = {
-      ...newUser,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
-      lastLogin: new Date().toISOString(),
-      isBanned: false,
-    };
-    setUser(profile);
-    setAllUsers([...allUsers, profile]);
+  };
+
+  const addCoins = async (amount: number) => {
+    if (!user || !session) return;
+
+    const newCoins = user.coins + amount;
+    await supabase
+      .from('profiles')
+      .update({ coins: newCoins })
+      .eq('user_id', user.id);
+
+    setUser({ ...user, coins: newCoins });
+  };
+
+  const addGems = async (amount: number) => {
+    if (!user || !session) return;
+
+    const newGems = user.gems + amount;
+    await supabase
+      .from('profiles')
+      .update({ gems: newGems })
+      .eq('user_id', user.id);
+
+    setUser({ ...user, gems: newGems });
+  };
+
+  const spendCoins = async (amount: number): Promise<boolean> => {
+    if (!user || user.coins < amount) return false;
+
+    const newCoins = user.coins - amount;
+    await supabase
+      .from('profiles')
+      .update({ coins: newCoins })
+      .eq('user_id', user.id);
+
+    setUser({ ...user, coins: newCoins });
     return true;
   };
 
-  const addCoins = (amount: number) => {
-    if (user) {
-      setUser({ ...user, coins: user.coins + amount });
-    }
-  };
+  const spendGems = async (amount: number): Promise<boolean> => {
+    if (!user || user.gems < amount) return false;
 
-  const addGems = (amount: number) => {
-    if (user) {
-      setUser({ ...user, gems: user.gems + amount });
-    }
-  };
+    const newGems = user.gems - amount;
+    await supabase
+      .from('profiles')
+      .update({ gems: newGems })
+      .eq('user_id', user.id);
 
-  const spendCoins = (amount: number): boolean => {
-    if (user && user.coins >= amount) {
-      setUser({ ...user, coins: user.coins - amount });
-      return true;
-    }
-    return false;
-  };
-
-  const spendGems = (amount: number): boolean => {
-    if (user && user.gems >= amount) {
-      setUser({ ...user, gems: user.gems - amount });
-      return true;
-    }
-    return false;
+    setUser({ ...user, gems: newGems });
+    return true;
   };
 
   const updateSoundSettings = (settings: Partial<SoundSettings>) => {
     setSoundSettings({ ...soundSettings, ...settings });
   };
 
-  const updateGameStats = (gameId: string, score: number, timePlayed: number) => {
+  const updateGameStats = async (gameId: string, score: number, timePlayed: number) => {
+    if (!user || !session) return;
+
     const current = gameStats[gameId] || { gameId, highScore: 0, timePlayed: 0, gamesPlayed: 0 };
-    setGameStats({
-      ...gameStats,
-      [gameId]: {
-        ...current,
-        highScore: Math.max(current.highScore, score),
-        timePlayed: current.timePlayed + timePlayed,
-        gamesPlayed: current.gamesPlayed + 1,
-      },
-    });
-    
-    if (user) {
+    const newStats = {
+      highScore: Math.max(current.highScore, score),
+      timePlayed: current.timePlayed + timePlayed,
+      gamesPlayed: current.gamesPlayed + 1,
+    };
+
+    const { error } = await supabase
+      .from('game_stats')
+      .upsert({
+        user_id: user.id,
+        game_id: gameId,
+        high_score: newStats.highScore,
+        games_played: newStats.gamesPlayed,
+        total_time_played: newStats.timePlayed,
+      }, {
+        onConflict: 'user_id,game_id',
+      });
+
+    if (!error) {
+      setGameStats({
+        ...gameStats,
+        [gameId]: { ...current, ...newStats },
+      });
+
+      // Update profile XP
+      const newXp = user.xp + Math.floor(score / 10);
+      await supabase
+        .from('profiles')
+        .update({ xp: newXp })
+        .eq('user_id', user.id);
+
       setUser({
         ...user,
         gamesPlayed: user.gamesPlayed + 1,
         totalScore: user.totalScore + score,
-        xp: user.xp + Math.floor(score / 10),
+        xp: newXp,
       });
     }
-    
-    updateLeaderboard(gameId, score);
   };
 
-  const claimDailyReward = (day: number): boolean => {
-    const today = new Date().toDateString();
+  const claimDailyReward = async (day: number): Promise<boolean> => {
+    if (!user || !session) return false;
+
+    const today = new Date().toISOString().split('T')[0];
     if (lastClaimDate === today) return false;
-    
+
     const reward = dailyRewards.find(r => r.day === day);
-    if (!reward || reward.claimed) return false;
-    
-    addCoins(reward.coins);
-    addGems(reward.gems);
-    
-    setDailyRewards(dailyRewards.map(r => 
+    if (!reward) return false;
+
+    await addCoins(reward.coins);
+    await addGems(reward.gems);
+
+    const newStreak = day;
+    await supabase
+      .from('daily_rewards')
+      .update({
+        last_claim_date: today,
+        streak: newStreak,
+      })
+      .eq('user_id', user.id);
+
+    setLastClaimDate(today);
+    setCurrentStreak(newStreak);
+    setDailyRewards(dailyRewards.map(r =>
       r.day === day ? { ...r, claimed: true } : r
     ));
-    
-    setLastClaimDate(today);
-    setCurrentStreak(day);
-    
+
     return true;
   };
 
-  const updateLeaderboard = (gameId: string, score: number) => {
-    if (!user) return;
-    
-    const entry: LeaderboardEntry = {
-      rank: 0,
-      username: user.username,
-      avatar: user.avatar,
-      score,
-      gameId,
-    };
-    
-    const gameLeaderboard = leaderboard.filter(e => e.gameId === gameId);
-    const existingIndex = gameLeaderboard.findIndex(e => e.username === user.username);
-    
-    if (existingIndex >= 0) {
-      if (gameLeaderboard[existingIndex].score < score) {
-        gameLeaderboard[existingIndex].score = score;
-      }
-    } else {
-      gameLeaderboard.push(entry);
-    }
-    
-    gameLeaderboard.sort((a, b) => b.score - a.score);
-    gameLeaderboard.forEach((e, i) => e.rank = i + 1);
-    
-    const otherEntries = leaderboard.filter(e => e.gameId !== gameId);
-    setLeaderboard([...otherEntries, ...gameLeaderboard]);
-  };
+  const fetchLeaderboard = async (gameId?: string) => {
+    let query = supabase
+      .from('game_stats')
+      .select(`
+        high_score,
+        game_id,
+        profiles!inner (
+          username,
+          user_id
+        )
+      `)
+      .order('high_score', { ascending: false })
+      .limit(100);
 
-  const unlockAchievement = (achievementId: string) => {
-    if (!achievements.includes(achievementId)) {
-      setAchievements([...achievements, achievementId]);
-      addCoins(100);
-      addGems(10);
+    if (gameId) {
+      query = query.eq('game_id', gameId);
+    }
+
+    const { data } = await query;
+
+    if (data) {
+      const entries: LeaderboardEntry[] = data.map((item: any, index: number) => ({
+        rank: index + 1,
+        username: item.profiles.username,
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.profiles.username}`,
+        score: item.high_score,
+        gameId: item.game_id,
+      }));
+      setLeaderboard(entries);
     }
   };
 
-  const banUser = (userId: string) => {
-    if (!bannedUsers.includes(userId)) {
-      setBannedUsers([...bannedUsers, userId]);
-    }
+  const unlockAchievement = async (achievementId: string) => {
+    if (!user || !session || achievements.includes(achievementId)) return;
+
+    await supabase
+      .from('achievements')
+      .insert({
+        user_id: user.id,
+        achievement_id: achievementId,
+      });
+
+    setAchievements([...achievements, achievementId]);
+    await addCoins(100);
+    await addGems(10);
   };
 
-  const unbanUser = (userId: string) => {
+  const setGamesShutdown = async (shutdown: boolean) => {
+    if (!user?.isAdmin) return;
+
+    await supabase
+      .from('game_settings')
+      .update({ value: { enabled: shutdown } })
+      .eq('key', 'games_shutdown');
+
+    setGamesShutdownState(shutdown);
+  };
+
+  const banUser = async (userId: string) => {
+    if (!user?.isAdmin) return;
+
+    await supabase
+      .from('banned_users')
+      .insert({ user_id: userId });
+
+    setBannedUsers([...bannedUsers, userId]);
+  };
+
+  const unbanUser = async (userId: string) => {
+    if (!user?.isAdmin) return;
+
+    await supabase
+      .from('banned_users')
+      .delete()
+      .eq('user_id', userId);
+
     setBannedUsers(bannedUsers.filter(id => id !== userId));
   };
 
-  const deleteUser = (userId: string) => {
+  const fetchAllUsers = async () => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('*');
+
+    if (data) {
+      const { data: bannedData } = await supabase
+        .from('banned_users')
+        .select('user_id');
+
+      const bannedIds = bannedData?.map(b => b.user_id) || [];
+      setBannedUsers(bannedIds);
+
+      const profiles: UserProfile[] = data.map(p => ({
+        id: p.user_id,
+        username: p.username,
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${p.username}`,
+        coins: p.coins,
+        gems: p.gems,
+        level: p.level,
+        xp: p.xp,
+        achievements: [],
+        friends: [],
+        gamesPlayed: 0,
+        totalScore: 0,
+        joinDate: p.created_at,
+        lastLogin: p.updated_at,
+        isBanned: bannedIds.includes(p.user_id),
+        isAdmin: false,
+      }));
+      setAllUsers(profiles);
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    if (!user?.isAdmin) return;
+
+    // This will cascade delete due to foreign key constraints
+    await supabase.auth.admin.deleteUser(userId);
     setAllUsers(allUsers.filter(u => u.id !== userId));
-    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    const filtered = users.filter((u: any) => u.id !== userId);
-    localStorage.setItem('registeredUsers', JSON.stringify(filtered));
   };
 
   return (
     <GameContext.Provider value={{
       user,
+      session,
       setUser,
-      isLoggedIn: !!user,
+      isLoggedIn: !!user && !!session,
+      isLoading,
       login,
       logout,
       register,
@@ -419,7 +616,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       currentStreak,
       lastClaimDate,
       leaderboard,
-      updateLeaderboard,
+      fetchLeaderboard,
       achievements,
       unlockAchievement,
       gamesShutdown,
@@ -428,6 +625,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       banUser,
       unbanUser,
       allUsers,
+      fetchAllUsers,
       deleteUser,
     }}>
       {children}

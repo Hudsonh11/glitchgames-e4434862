@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Trophy, Medal, Crown, Gamepad2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
@@ -9,11 +9,20 @@ const games = [
   { id: 'clicker', name: 'Click Frenzy' },
   { id: 'geometry-dash', name: 'Geometry Dash' },
   { id: 'racing', name: 'Neon Racer' },
+  { id: 'pacman', name: 'Pac-Man' },
+  { id: 'snake', name: 'Snake' },
+  { id: 'tetris', name: 'Tetris' },
+  { id: 'memory', name: 'Memory Match' },
+  { id: 'flappy', name: 'Flappy Clone' },
 ];
 
 const Leaderboard: React.FC = () => {
   const [selectedGame, setSelectedGame] = useState('block-blast');
-  const { leaderboard, user } = useGame();
+  const { leaderboard, user, fetchLeaderboard } = useGame();
+
+  useEffect(() => {
+    fetchLeaderboard(selectedGame);
+  }, [selectedGame]);
 
   const filteredLeaderboard = leaderboard
     .filter(entry => entry.gameId === selectedGame)
@@ -71,6 +80,7 @@ const Leaderboard: React.FC = () => {
                 variant={selectedGame === game.id ? 'gaming' : 'outline'}
                 onClick={() => setSelectedGame(game.id)}
                 className="gap-2"
+                size="sm"
               >
                 <Gamepad2 className="w-4 h-4" />
                 {game.name}
