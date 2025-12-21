@@ -9,11 +9,14 @@ const games = [
   { id: 'clicker', name: 'Click Frenzy' },
   { id: 'geometry-dash', name: 'Geometry Dash' },
   { id: 'racing', name: 'Neon Racer' },
-  { id: 'pacman', name: 'Pac-Man' },
+  { id: 'pac-man', name: 'Pac-Man' },
   { id: 'snake', name: 'Snake' },
   { id: 'tetris', name: 'Tetris' },
   { id: 'memory', name: 'Memory Match' },
   { id: 'flappy', name: 'Flappy Clone' },
+  { id: 'maze', name: 'Maze Runner' },
+  { id: 'pong', name: 'Pong' },
+  { id: 'brick-breaker', name: 'Brick Breaker' },
 ];
 
 const Leaderboard: React.FC = () => {

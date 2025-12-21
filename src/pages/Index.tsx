@@ -86,6 +86,33 @@ const games = [{
   rating: 4.6,
   players: '22.4K',
   color: 'hsl(45, 100%, 55%)'
+}, {
+  id: 'maze',
+  title: 'Maze Runner',
+  description: 'Navigate through challenging mazes to reach the goal!',
+  image: 'https://images.unsplash.com/photo-1494059980473-813e73ee784b?w=400&h=300&fit=crop',
+  category: 'Puzzle',
+  rating: 4.4,
+  players: '7.8K',
+  color: 'hsl(142, 76%, 50%)'
+}, {
+  id: 'pong',
+  title: 'Pong',
+  description: 'The classic paddle game! Beat the AI in this retro favorite.',
+  image: 'https://images.unsplash.com/photo-1556438064-2d7646166914?w=400&h=300&fit=crop',
+  category: 'Classic',
+  rating: 4.5,
+  players: '11.2K',
+  color: 'hsl(185, 100%, 50%)'
+}, {
+  id: 'brick-breaker',
+  title: 'Brick Breaker',
+  description: 'Bounce the ball and break all the bricks in this arcade classic!',
+  image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&h=300&fit=crop',
+  category: 'Arcade',
+  rating: 4.7,
+  players: '14.6K',
+  color: 'hsl(320, 100%, 60%)'
 }];
 const Index: React.FC = () => {
   const {
@@ -149,7 +176,7 @@ const Index: React.FC = () => {
             value: '50K+',
             label: 'Players'
           }, {
-            value: '9',
+            value: '12',
             label: 'Games'
           }, {
             value: '$10K',
