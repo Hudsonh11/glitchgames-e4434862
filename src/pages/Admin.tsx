@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
 import { 
   Crown, Users, Gamepad2, AlertTriangle, Ban, Trash2, 
   Power, PowerOff, Search, Shield, UserX, UserCheck 
@@ -8,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import Navbar from '@/components/Navbar';
+import AdminWelcome from '@/components/AdminWelcome';
 import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -28,12 +28,13 @@ const Admin: React.FC = () => {
   } = useGame();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
+  const [showWelcome, setShowWelcome] = useState(true);
 
   useEffect(() => {
-    if (user?.isAdmin) {
+    if (user?.isAdmin && !showWelcome) {
       fetchAllUsers();
     }
-  }, [user?.isAdmin]);
+  }, [user?.isAdmin, showWelcome]);
 
   if (isLoading) {
     return (
@@ -43,8 +44,9 @@ const Admin: React.FC = () => {
     );
   }
 
-  if (!isLoggedIn || !user?.isAdmin) {
-    return <Navigate to="/" />;
+  // Show welcome screen for admins
+  if (showWelcome) {
+    return <AdminWelcome onAccessGranted={() => setShowWelcome(false)} />;
   }
 
   const filteredUsers = allUsers.filter(u => 
@@ -89,7 +91,7 @@ const Admin: React.FC = () => {
   const stats = {
     totalUsers: allUsers.length,
     bannedUsers: bannedUsers.length,
-    activeGames: gamesShutdown ? 0 : 9,
+    activeGames: gamesShutdown ? 0 : 12,
     totalScores: leaderboard.length,
   };
 
