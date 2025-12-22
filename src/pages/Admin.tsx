@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Crown, Users, Gamepad2, AlertTriangle, Ban, Trash2, 
-  Power, PowerOff, Search, Shield, UserX, UserCheck 
+  Power, PowerOff, Search, Shield, UserX, UserCheck,
+  RefreshCw, Download, Settings, BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Navbar from '@/components/Navbar';
 import AdminWelcome from '@/components/AdminWelcome';
+import AdminStats from '@/components/AdminStats';
+import AdminUserActions from '@/components/AdminUserActions';
 import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const Admin: React.FC = () => {
   const { 
@@ -29,12 +34,35 @@ const Admin: React.FC = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [showWelcome, setShowWelcome] = useState(true);
+  const [totalCoins, setTotalCoins] = useState(0);
+  const [totalGems, setTotalGems] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     if (user?.isAdmin && !showWelcome) {
       fetchAllUsers();
+      fetchCurrencyStats();
     }
   }, [user?.isAdmin, showWelcome]);
+
+  const fetchCurrencyStats = async () => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('coins, gems');
+    
+    if (data) {
+      setTotalCoins(data.reduce((sum, p) => sum + p.coins, 0));
+      setTotalGems(data.reduce((sum, p) => sum + p.gems, 0));
+    }
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchAllUsers();
+    await fetchCurrencyStats();
+    setIsRefreshing(false);
+    toast({ title: 'Data Refreshed', description: 'All stats have been updated.' });
+  };
 
   if (isLoading) {
     return (
@@ -91,7 +119,7 @@ const Admin: React.FC = () => {
   const stats = {
     totalUsers: allUsers.length,
     bannedUsers: bannedUsers.length,
-    activeGames: gamesShutdown ? 0 : 12,
+    activeGames: gamesShutdown ? 0 : 15,
     totalScores: leaderboard.length,
   };
 
@@ -100,43 +128,37 @@ const Admin: React.FC = () => {
       <Navbar />
       
       <div className="pt-20 pb-8 px-4">
-        <div className="container mx-auto max-w-6xl">
+        <div className="container mx-auto max-w-7xl">
           {/* Header */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-14 h-14 rounded-xl bg-warning/20 flex items-center justify-center">
-              <Crown className="w-7 h-7 text-warning" />
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl bg-warning/20 flex items-center justify-center">
+                <Crown className="w-7 h-7 text-warning" />
+              </div>
+              <div>
+                <h1 className="font-display text-3xl font-bold">Admin Panel</h1>
+                <p className="text-muted-foreground">Manage users, games, and platform settings</p>
+              </div>
             </div>
-            <div>
-              <h1 className="font-display text-3xl font-bold">Admin Panel</h1>
-              <p className="text-muted-foreground">Manage users, games, and platform settings</p>
-            </div>
+            <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="p-4 rounded-xl bg-card border border-border">
-              <Users className="w-6 h-6 text-primary mb-2" />
-              <p className="text-2xl font-display font-bold">{stats.totalUsers}</p>
-              <p className="text-sm text-muted-foreground">Total Users</p>
-            </div>
-            <div className="p-4 rounded-xl bg-card border border-border">
-              <Ban className="w-6 h-6 text-destructive mb-2" />
-              <p className="text-2xl font-display font-bold">{stats.bannedUsers}</p>
-              <p className="text-sm text-muted-foreground">Banned Users</p>
-            </div>
-            <div className="p-4 rounded-xl bg-card border border-border">
-              <Gamepad2 className="w-6 h-6 text-success mb-2" />
-              <p className="text-2xl font-display font-bold">{stats.activeGames}</p>
-              <p className="text-sm text-muted-foreground">Active Games</p>
-            </div>
-            <div className="p-4 rounded-xl bg-card border border-border">
-              <Shield className="w-6 h-6 text-warning mb-2" />
-              <p className="text-2xl font-display font-bold">{stats.totalScores}</p>
-              <p className="text-sm text-muted-foreground">Leaderboard Entries</p>
-            </div>
+          {/* Stats Overview */}
+          <div className="mb-8">
+            <AdminStats
+              totalUsers={stats.totalUsers}
+              bannedUsers={stats.bannedUsers}
+              activeGames={stats.activeGames}
+              totalScores={stats.totalScores}
+              totalCoinsInCirculation={totalCoins}
+              totalGemsInCirculation={totalGems}
+            />
           </div>
 
-          {/* Quick Actions */}
+          {/* Quick Actions Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {/* Game Controls */}
             <div className="p-6 rounded-xl bg-card border border-border">

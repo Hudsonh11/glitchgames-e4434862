@@ -239,14 +239,46 @@ const RacingGame: React.FC = () => {
     window.history.back();
   };
 
+  // Touch controls for mobile
+  const handleTouchStart = useCallback((e: React.TouchEvent, direction: 'left' | 'right') => {
+    e.preventDefault();
+    if (direction === 'left') {
+      moveLeft();
+    } else {
+      moveRight();
+    }
+  }, [moveLeft, moveRight]);
+
+  // Swipe detection for mobile
+  const touchStartX = useRef<number>(0);
+  
+  const handleCanvasTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleCanvasTouchEnd = useCallback((e: React.TouchEvent) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchEndX - touchStartX.current;
+    
+    if (Math.abs(diff) > 30) {
+      if (diff > 0) {
+        moveRight();
+      } else {
+        moveLeft();
+      }
+    } else if (!isPlaying && !gameOver) {
+      startGame();
+    }
+  }, [moveLeft, moveRight, isPlaying, gameOver]);
+
   return (
     <div className="min-h-screen bg-background pt-20 pb-8 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="font-display text-2xl font-bold text-gradient">Neon Racer</h1>
-            <p className="text-muted-foreground text-sm">Dodge traffic, go the distance!</p>
+            <h1 className="font-display text-xl md:text-2xl font-bold text-gradient">Neon Racer</h1>
+            <p className="text-muted-foreground text-xs md:text-sm">Swipe or tap to steer!</p>
           </div>
           <Button variant="ghost" size="icon" onClick={() => setIsPaused(true)}>
             <Pause className="w-5 h-5" />
@@ -254,19 +286,23 @@ const RacingGame: React.FC = () => {
         </div>
 
         {/* Score Display */}
-        <div className="flex items-center justify-between mb-4 p-4 rounded-xl bg-card border border-border">
+        <div className="flex items-center justify-between mb-4 p-3 md:p-4 rounded-xl bg-card border border-border">
           <div>
             <p className="text-xs text-muted-foreground uppercase">Score</p>
-            <p className="font-display text-3xl font-bold text-primary">{score}</p>
+            <p className="font-display text-2xl md:text-3xl font-bold text-primary">{score}</p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground uppercase">Best</p>
-            <p className="font-display text-3xl font-bold text-warning">{highScore}</p>
+            <p className="font-display text-2xl md:text-3xl font-bold text-warning">{highScore}</p>
           </div>
         </div>
 
-        {/* Game Canvas */}
-        <div className="relative rounded-xl overflow-hidden border border-border mb-6">
+        {/* Game Canvas with touch support */}
+        <div 
+          className="relative rounded-xl overflow-hidden border border-border mb-4 touch-none"
+          onTouchStart={handleCanvasTouchStart}
+          onTouchEnd={handleCanvasTouchEnd}
+        >
           <canvas
             ref={canvasRef}
             width={400}
@@ -276,21 +312,21 @@ const RacingGame: React.FC = () => {
 
           {/* Start Overlay */}
           {!isPlaying && !gameOver && (
-            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center">
-              <Play className="w-16 h-16 text-primary mb-4 animate-pulse-glow" />
-              <p className="font-display text-xl font-bold mb-2">Press Space to Start</p>
-              <p className="text-muted-foreground text-center px-4">
-                Use Arrow Keys or A/D to steer<br />
-                Or tap the buttons below on mobile
+            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+              <Play className="w-12 md:w-16 h-12 md:h-16 text-primary mb-4 animate-pulse-glow" />
+              <p className="font-display text-lg md:text-xl font-bold mb-2 text-center">Tap to Start</p>
+              <p className="text-muted-foreground text-center text-sm">
+                <span className="hidden md:inline">Use Arrow Keys or A/D to steer</span>
+                <span className="md:hidden">Swipe left/right or use buttons below</span>
               </p>
             </div>
           )}
 
           {/* Game Over Overlay */}
           {gameOver && (
-            <div className="absolute inset-0 bg-background/90 backdrop-blur-sm flex flex-col items-center justify-center">
-              <h2 className="font-display text-3xl font-bold text-destructive mb-2">Crashed!</h2>
-              <p className="font-display text-xl mb-4">Distance: {score}</p>
+            <div className="absolute inset-0 bg-background/90 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+              <h2 className="font-display text-2xl md:text-3xl font-bold text-destructive mb-2">Crashed!</h2>
+              <p className="font-display text-lg md:text-xl mb-4">Distance: {score}</p>
               <div className="flex gap-3">
                 <Button variant="gaming" onClick={startGame}>
                   Play Again
@@ -303,34 +339,50 @@ const RacingGame: React.FC = () => {
           )}
         </div>
 
-        {/* Mobile Controls */}
-        <div className="flex justify-center gap-4 mb-6">
+        {/* Mobile Controls - Large touch-friendly buttons */}
+        <div className="grid grid-cols-3 gap-3 mb-4">
           <Button
             variant="gaming"
-            size="xl"
+            className="h-16 md:h-20 text-lg"
+            onTouchStart={(e) => handleTouchStart(e, 'left')}
             onClick={moveLeft}
             disabled={!isPlaying || isPaused}
           >
-            <ChevronLeft className="w-8 h-8" />
+            <ChevronLeft className="w-8 h-8 md:w-10 md:h-10" />
           </Button>
+          
+          <Button
+            variant={isPlaying ? 'outline' : 'gaming'}
+            className="h-16 md:h-20 text-lg"
+            onClick={() => {
+              if (!isPlaying && !gameOver) {
+                startGame();
+              } else if (isPlaying) {
+                setIsPaused(true);
+              }
+            }}
+          >
+            {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
+          </Button>
+          
           <Button
             variant="gaming"
-            size="xl"
+            className="h-16 md:h-20 text-lg"
+            onTouchStart={(e) => handleTouchStart(e, 'right')}
             onClick={moveRight}
             disabled={!isPlaying || isPaused}
           >
-            <ChevronRight className="w-8 h-8" />
+            <ChevronRight className="w-8 h-8 md:w-10 md:h-10" />
           </Button>
         </div>
 
-        {/* Controls Info */}
-        <div className="p-4 rounded-xl bg-muted/50 border border-border">
-          <h3 className="font-display font-bold mb-2">Controls</h3>
-          <ul className="text-sm text-muted-foreground space-y-1">
-            <li>• Arrow keys or A/D to change lanes</li>
-            <li>• Tap buttons on mobile</li>
-            <li>• Avoid other cars!</li>
-          </ul>
+        {/* Controls Info - condensed for mobile */}
+        <div className="p-3 rounded-xl bg-muted/50 border border-border">
+          <h3 className="font-display font-bold mb-1 text-sm">Controls</h3>
+          <p className="text-xs text-muted-foreground">
+            <span className="md:hidden">Swipe on game area or tap buttons • Avoid cars!</span>
+            <span className="hidden md:inline">Arrow keys or A/D to change lanes • Avoid other cars!</span>
+          </p>
         </div>
       </div>
 
