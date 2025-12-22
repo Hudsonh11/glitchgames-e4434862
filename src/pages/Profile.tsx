@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { User, Trophy, Gamepad2, Clock, Calendar, Award, Users, Share2 } from 'lucide-react';
+import { User, Trophy, Gamepad2, Clock, Calendar, Award, Users, Share2, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Navbar from '@/components/Navbar';
+import ProfileShop from '@/components/ProfileShop';
 import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const achievementsList = [
   { id: 'block_combo_5', name: 'Combo Master', description: 'Clear 5+ blocks at once', icon: '🎯' },
@@ -22,6 +25,23 @@ const achievementsList = [
 const Profile: React.FC = () => {
   const { user, isLoggedIn, achievements, gameStats, coins, gems } = useGame();
   const { toast } = useToast();
+  const [purchasedItems, setPurchasedItems] = useState<string[]>([]);
+  const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
+  const [selectedBorder, setSelectedBorder] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Load purchased items from localStorage for now
+    const saved = localStorage.getItem(`purchased_items_${user?.id}`);
+    if (saved) {
+      setPurchasedItems(JSON.parse(saved));
+    }
+  }, [user?.id]);
+
+  const handlePurchase = (itemId: string) => {
+    const newItems = [...purchasedItems, itemId];
+    setPurchasedItems(newItems);
+    localStorage.setItem(`purchased_items_${user?.id}`, JSON.stringify(newItems));
+  };
 
   if (!isLoggedIn) {
     return <Navigate to="/login" />;
@@ -96,86 +116,99 @@ const Profile: React.FC = () => {
             ))}
           </div>
 
-          {/* Currency */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <div className="p-6 rounded-xl bg-card border border-border flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-warning/20 flex items-center justify-center">
-                <span className="text-2xl">🪙</span>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Coins</p>
-                <p className="font-display text-2xl font-bold text-warning">{coins.toLocaleString()}</p>
-              </div>
-            </div>
-            <div className="p-6 rounded-xl bg-card border border-border flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-secondary/20 flex items-center justify-center">
-                <span className="text-2xl">💎</span>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Gems</p>
-                <p className="font-display text-2xl font-bold text-secondary">{gems.toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
+          {/* Tabs for Profile Sections */}
+          <Tabs defaultValue="overview" className="mb-8">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="shop">Shop</TabsTrigger>
+              <TabsTrigger value="achievements">Achievements</TabsTrigger>
+            </TabsList>
 
-          {/* Game Stats */}
-          <div className="mb-8">
-            <h2 className="font-display text-xl font-bold mb-4">Game Statistics</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {Object.entries(gameStats).map(([gameId, stats]) => (
-                <div key={gameId} className="p-4 rounded-xl bg-card border border-border">
-                  <h3 className="font-display font-bold capitalize mb-3">{gameId.replace('-', ' ')}</h3>
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <p className="text-xl font-bold text-primary">{stats.highScore}</p>
-                      <p className="text-xs text-muted-foreground">High Score</p>
-                    </div>
-                    <div>
-                      <p className="text-xl font-bold text-success">{stats.gamesPlayed}</p>
-                      <p className="text-xs text-muted-foreground">Games</p>
-                    </div>
-                    <div>
-                      <p className="text-xl font-bold text-warning">{Math.floor(stats.timePlayed / 60)}m</p>
-                      <p className="text-xs text-muted-foreground">Time</p>
-                    </div>
+            <TabsContent value="overview" className="mt-6 space-y-8">
+              {/* Currency */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-6 rounded-xl bg-card border border-border flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-warning/20 flex items-center justify-center">
+                    <span className="text-2xl">🪙</span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Coins</p>
+                    <p className="font-display text-2xl font-bold text-warning">{coins.toLocaleString()}</p>
                   </div>
                 </div>
-              ))}
-              {Object.keys(gameStats).length === 0 && (
-                <p className="col-span-2 text-center text-muted-foreground py-8">
-                  No games played yet. Start playing to see your stats!
-                </p>
-              )}
-            </div>
-          </div>
+                <div className="p-6 rounded-xl bg-card border border-border flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-secondary/20 flex items-center justify-center">
+                    <span className="text-2xl">💎</span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Gems</p>
+                    <p className="font-display text-2xl font-bold text-secondary">{gems.toLocaleString()}</p>
+                  </div>
+                </div>
+              </div>
 
-          {/* Achievements */}
-          <div>
-            <h2 className="font-display text-xl font-bold mb-4">Achievements</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {achievementsList.map((achievement) => {
-                const isUnlocked = achievements.includes(achievement.id);
-                return (
-                  <div
-                    key={achievement.id}
-                    className={`p-4 rounded-xl border transition-all ${
-                      isUnlocked
-                        ? 'bg-card border-primary/50 shadow-neon-cyan'
-                        : 'bg-muted/30 border-border opacity-50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-3xl">{achievement.icon}</span>
-                      <div>
-                        <h3 className="font-display font-bold">{achievement.name}</h3>
-                        <p className="text-xs text-muted-foreground">{achievement.description}</p>
+              {/* Game Stats */}
+              <div>
+                <h2 className="font-display text-xl font-bold mb-4">Game Statistics</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {Object.entries(gameStats).map(([gameId, stats]) => (
+                    <div key={gameId} className="p-4 rounded-xl bg-card border border-border">
+                      <h3 className="font-display font-bold capitalize mb-3">{gameId.replace('-', ' ')}</h3>
+                      <div className="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                          <p className="text-xl font-bold text-primary">{stats.highScore}</p>
+                          <p className="text-xs text-muted-foreground">High Score</p>
+                        </div>
+                        <div>
+                          <p className="text-xl font-bold text-success">{stats.gamesPlayed}</p>
+                          <p className="text-xs text-muted-foreground">Games</p>
+                        </div>
+                        <div>
+                          <p className="text-xl font-bold text-warning">{Math.floor(stats.timePlayed / 60)}m</p>
+                          <p className="text-xs text-muted-foreground">Time</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                  ))}
+                  {Object.keys(gameStats).length === 0 && (
+                    <p className="col-span-2 text-center text-muted-foreground py-8">
+                      No games played yet. Start playing to see your stats!
+                    </p>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="shop" className="mt-6">
+              <ProfileShop purchasedItems={purchasedItems} onPurchase={handlePurchase} />
+            </TabsContent>
+
+            <TabsContent value="achievements" className="mt-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {achievementsList.map((achievement) => {
+                  const isUnlocked = achievements.includes(achievement.id);
+                  return (
+                    <div
+                      key={achievement.id}
+                      className={`p-4 rounded-xl border transition-all ${
+                        isUnlocked
+                          ? 'bg-card border-primary/50 shadow-neon-cyan'
+                          : 'bg-muted/30 border-border opacity-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-3xl">{achievement.icon}</span>
+                        <div>
+                          <h3 className="font-display font-bold">{achievement.name}</h3>
+                          <p className="text-xs text-muted-foreground">{achievement.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </TabsContent>
+          </Tabs>
 
           {/* Account Info */}
           <div className="mt-8 p-6 rounded-xl bg-card border border-border">
