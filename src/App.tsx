@@ -14,6 +14,7 @@ import Admin from "./pages/Admin";
 import Game from "./pages/Game";
 import Recovery from "./pages/Recovery";
 import NotFound from "./pages/NotFound";
+import SupportBot from "@/components/SupportBot";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/recovery" element={<Recovery />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <SupportBot />
         </BrowserRouter>
       </TooltipProvider>
     </GameProvider>
