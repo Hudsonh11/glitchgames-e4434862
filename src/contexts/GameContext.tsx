@@ -440,14 +440,30 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Generate infinite rewards based on day number
+  const generateReward = (day: number) => {
+    const cycle = Math.floor((day - 1) / 7);
+    const dayInCycle = ((day - 1) % 7) + 1;
+    
+    const baseCoins = [100, 150, 200, 250, 300, 400, 500];
+    const baseGems = [0, 0, 5, 0, 10, 0, 25];
+    
+    const multiplier = 1 + (cycle * 0.1);
+    
+    return {
+      coins: Math.floor(baseCoins[dayInCycle - 1] * multiplier),
+      gems: Math.floor(baseGems[dayInCycle - 1] * multiplier),
+    };
+  };
+
   const claimDailyReward = async (day: number): Promise<boolean> => {
     if (!user || !session) return false;
 
     const today = new Date().toISOString().split('T')[0];
     if (lastClaimDate === today) return false;
 
-    const reward = dailyRewards.find(r => r.day === day);
-    if (!reward) return false;
+    // Generate reward for the specific day (endless system)
+    const reward = generateReward(day);
 
     await addCoins(reward.coins);
     await addGems(reward.gems);
@@ -463,9 +479,6 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     setLastClaimDate(today);
     setCurrentStreak(newStreak);
-    setDailyRewards(dailyRewards.map(r =>
-      r.day === day ? { ...r, claimed: true } : r
-    ));
 
     return true;
   };
