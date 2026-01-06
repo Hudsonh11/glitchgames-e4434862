@@ -32,6 +32,23 @@ import ColorMatch from '@/components/games/ColorMatch';
 import WordSearch from '@/components/games/WordSearch';
 import QuizGame from '@/components/games/QuizGame';
 import Breakout from '@/components/games/Breakout';
+import Solitaire from '@/components/games/Solitaire';
+import Chess from '@/components/games/Chess';
+import Checkers from '@/components/games/Checkers';
+import BubbleShooter from '@/components/games/BubbleShooter';
+import JigsawPuzzle from '@/components/games/JigsawPuzzle';
+import SpinWheel from '@/components/games/SpinWheel';
+import TypeRacer from '@/components/games/TypeRacer';
+import ReactionTest from '@/components/games/ReactionTest';
+import NumberGuess from '@/components/games/NumberGuess';
+import RockPaperScissors from '@/components/games/RockPaperScissors';
+import CatchGame from '@/components/games/CatchGame';
+import PlatformJump from '@/components/games/PlatformJump';
+import TowerStack from '@/components/games/TowerStack';
+import ColorSwitch from '@/components/games/ColorSwitch';
+import PatternMemory from '@/components/games/PatternMemory';
+import SpotDifference from '@/components/games/SpotDifference';
+import MathBlitz from '@/components/games/MathBlitz';
 import { useGame } from '@/contexts/GameContext';
 import Navbar from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
@@ -71,6 +88,23 @@ const games: Record<string, { component: React.FC<any>; title: string }> = {
   'word-search': { component: WordSearch, title: 'Word Search' },
   'quiz': { component: QuizGame, title: 'Quiz Challenge' },
   'breakout': { component: Breakout, title: 'Breakout' },
+  'solitaire': { component: Solitaire, title: 'Solitaire' },
+  'chess': { component: Chess, title: 'Chess' },
+  'checkers': { component: Checkers, title: 'Checkers' },
+  'bubble-shooter': { component: BubbleShooter, title: 'Bubble Shooter' },
+  'jigsaw': { component: JigsawPuzzle, title: 'Jigsaw Puzzle' },
+  'spin-wheel': { component: SpinWheel, title: 'Spin Wheel' },
+  'type-racer': { component: TypeRacer, title: 'Type Racer' },
+  'reaction': { component: ReactionTest, title: 'Reaction Test' },
+  'number-guess': { component: NumberGuess, title: 'Number Guess' },
+  'rps': { component: RockPaperScissors, title: 'Rock Paper Scissors' },
+  'catch': { component: CatchGame, title: 'Catch Game' },
+  'platform-jump': { component: PlatformJump, title: 'Platform Jump' },
+  'tower-stack': { component: TowerStack, title: 'Tower Stack' },
+  'color-switch': { component: ColorSwitch, title: 'Color Switch' },
+  'pattern-memory': { component: PatternMemory, title: 'Pattern Memory' },
+  'spot-difference': { component: SpotDifference, title: 'Spot Difference' },
+  'math-blitz': { component: MathBlitz, title: 'Math Blitz' },
 };
 
 const Game: React.FC = () => {
