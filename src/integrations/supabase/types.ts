@@ -35,6 +35,36 @@ export type Database = {
         }
         Relationships: []
       }
+      activity_feed: {
+        Row: {
+          activity_type: string
+          content: string
+          created_at: string
+          game_id: string | null
+          id: string
+          related_user_id: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          content: string
+          created_at?: string
+          game_id?: string | null
+          id?: string
+          related_user_id?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          content?: string
+          created_at?: string
+          game_id?: string | null
+          id?: string
+          related_user_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       banned_users: {
         Row: {
           banned_at: string
@@ -56,6 +86,48 @@ export type Database = {
         }
         Relationships: []
       }
+      challenges: {
+        Row: {
+          challenged_id: string
+          challenged_score: number | null
+          challenger_id: string
+          challenger_score: number | null
+          completed_at: string | null
+          created_at: string
+          game_id: string
+          id: string
+          status: string
+          wager_coins: number | null
+          winner_id: string | null
+        }
+        Insert: {
+          challenged_id: string
+          challenged_score?: number | null
+          challenger_id: string
+          challenger_score?: number | null
+          completed_at?: string | null
+          created_at?: string
+          game_id: string
+          id?: string
+          status?: string
+          wager_coins?: number | null
+          winner_id?: string | null
+        }
+        Update: {
+          challenged_id?: string
+          challenged_score?: number | null
+          challenger_id?: string
+          challenger_score?: number | null
+          completed_at?: string | null
+          created_at?: string
+          game_id?: string
+          id?: string
+          status?: string
+          wager_coins?: number | null
+          winner_id?: string | null
+        }
+        Relationships: []
+      }
       daily_rewards: {
         Row: {
           id: string
@@ -74,6 +146,33 @@ export type Database = {
           last_claim_date?: string | null
           streak?: number
           user_id?: string
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          created_at: string
+          id: string
+          receiver_id: string
+          sender_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          receiver_id: string
+          sender_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          receiver_id?: string
+          sender_id?: string
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -131,6 +230,150 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          read: boolean
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      player_badges: {
+        Row: {
+          badge_id: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      player_borders: {
+        Row: {
+          border_id: string
+          equipped: boolean
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          border_id: string
+          equipped?: boolean
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          border_id?: string
+          equipped?: boolean
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      player_status: {
+        Row: {
+          current_game: string | null
+          id: string
+          last_seen: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          current_game?: string | null
+          id?: string
+          last_seen?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          current_game?: string | null
+          id?: string
+          last_seen?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      player_themes: {
+        Row: {
+          equipped: boolean
+          id: string
+          theme_id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          equipped?: boolean
+          id?: string
+          theme_id: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          equipped?: boolean
+          id?: string
+          theme_id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      player_titles: {
+        Row: {
+          equipped: boolean
+          id: string
+          title_id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          equipped?: boolean
+          id?: string
+          title_id: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          equipped?: boolean
+          id?: string
+          title_id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar: string | null
@@ -167,6 +410,48 @@ export type Database = {
           user_id?: string
           username?: string
           xp?: number
+        }
+        Relationships: []
+      }
+      ranked_stats: {
+        Row: {
+          best_win_streak: number
+          created_at: string
+          game_id: string
+          id: string
+          losses: number
+          rank_points: number
+          rank_tier: string
+          updated_at: string
+          user_id: string
+          win_streak: number
+          wins: number
+        }
+        Insert: {
+          best_win_streak?: number
+          created_at?: string
+          game_id: string
+          id?: string
+          losses?: number
+          rank_points?: number
+          rank_tier?: string
+          updated_at?: string
+          user_id: string
+          win_streak?: number
+          wins?: number
+        }
+        Update: {
+          best_win_streak?: number
+          created_at?: string
+          game_id?: string
+          id?: string
+          losses?: number
+          rank_points?: number
+          rank_tier?: string
+          updated_at?: string
+          user_id?: string
+          win_streak?: number
+          wins?: number
         }
         Relationships: []
       }
