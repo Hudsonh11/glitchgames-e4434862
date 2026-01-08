@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { User, Trophy, Gamepad2, Clock, Calendar, Award, Users, Share2, ShoppingBag } from 'lucide-react';
+import { User, Trophy, Gamepad2, Clock, Calendar, Award, Users, Share2, ShoppingBag, Swords, MessageSquare, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Navbar from '@/components/Navbar';
 import ProfileShop from '@/components/ProfileShop';
+import ProfileCustomization from '@/components/ProfileCustomization';
+import FriendSystem from '@/components/FriendSystem';
+import RankedSystem from '@/components/RankedSystem';
+import ChallengeSystem from '@/components/ChallengeSystem';
+import ActivityFeed from '@/components/ActivityFeed';
 import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -118,8 +123,21 @@ const Profile: React.FC = () => {
 
           {/* Tabs for Profile Sections */}
           <Tabs defaultValue="overview" className="mb-8">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="friends" className="gap-1">
+                <Users className="w-3 h-3" />
+                Friends
+              </TabsTrigger>
+              <TabsTrigger value="ranked" className="gap-1">
+                <Swords className="w-3 h-3" />
+                Ranked
+              </TabsTrigger>
+              <TabsTrigger value="challenges" className="gap-1">
+                <Trophy className="w-3 h-3" />
+                Challenges
+              </TabsTrigger>
+              <TabsTrigger value="customize">Customize</TabsTrigger>
               <TabsTrigger value="shop">Shop</TabsTrigger>
               <TabsTrigger value="achievements">Achievements</TabsTrigger>
             </TabsList>
@@ -177,6 +195,22 @@ const Profile: React.FC = () => {
                   )}
                 </div>
               </div>
+            </TabsContent>
+
+            <TabsContent value="friends" className="mt-6">
+              <FriendSystem />
+            </TabsContent>
+
+            <TabsContent value="ranked" className="mt-6">
+              <RankedSystem />
+            </TabsContent>
+
+            <TabsContent value="challenges" className="mt-6">
+              <ChallengeSystem />
+            </TabsContent>
+
+            <TabsContent value="customize" className="mt-6">
+              <ProfileCustomization />
             </TabsContent>
 
             <TabsContent value="shop" className="mt-6">

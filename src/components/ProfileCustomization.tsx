@@ -114,13 +114,28 @@ const ProfileCustomization: React.FC = () => {
       return;
     }
 
-    const table = type === 'title' ? 'player_titles' : type === 'border' ? 'player_borders' : 'player_themes';
     const column = type === 'title' ? 'title_id' : type === 'border' ? 'border_id' : 'theme_id';
 
-    const { error } = await supabase.from(table).insert({
-      user_id: user.id,
-      [column]: item.id
-    });
+    let error = null;
+    if (type === 'title') {
+      const { error: e } = await supabase.from('player_titles').insert({
+        user_id: user.id,
+        title_id: item.id
+      });
+      error = e;
+    } else if (type === 'border') {
+      const { error: e } = await supabase.from('player_borders').insert({
+        user_id: user.id,
+        border_id: item.id
+      });
+      error = e;
+    } else {
+      const { error: e } = await supabase.from('player_themes').insert({
+        user_id: user.id,
+        theme_id: item.id
+      });
+      error = e;
+    }
 
     if (!error) {
       if (type === 'title') setOwnedTitles(prev => [...prev, item.id]);
@@ -137,15 +152,22 @@ const ProfileCustomization: React.FC = () => {
   const equipItem = async (type: 'title' | 'border' | 'theme', itemId: string) => {
     if (!user) return;
 
-    const table = type === 'title' ? 'player_titles' : type === 'border' ? 'player_borders' : 'player_themes';
-    const column = type === 'title' ? 'title_id' : type === 'border' ? 'border_id' : 'theme_id';
-
-    // Unequip all items of this type
-    await supabase.from(table).update({ equipped: false }).eq('user_id', user.id);
-
-    // Equip the selected item (if not default)
-    if (itemId !== 'newbie' && itemId !== 'default') {
-      await supabase.from(table).update({ equipped: true }).eq('user_id', user.id).eq(column, itemId);
+    // Unequip all items of this type and equip the selected one
+    if (type === 'title') {
+      await supabase.from('player_titles').update({ equipped: false }).eq('user_id', user.id);
+      if (itemId !== 'newbie' && itemId !== 'default') {
+        await supabase.from('player_titles').update({ equipped: true }).eq('user_id', user.id).eq('title_id', itemId);
+      }
+    } else if (type === 'border') {
+      await supabase.from('player_borders').update({ equipped: false }).eq('user_id', user.id);
+      if (itemId !== 'newbie' && itemId !== 'default') {
+        await supabase.from('player_borders').update({ equipped: true }).eq('user_id', user.id).eq('border_id', itemId);
+      }
+    } else {
+      await supabase.from('player_themes').update({ equipped: false }).eq('user_id', user.id);
+      if (itemId !== 'newbie' && itemId !== 'default') {
+        await supabase.from('player_themes').update({ equipped: true }).eq('user_id', user.id).eq('theme_id', itemId);
+      }
     }
 
     if (type === 'title') setEquippedTitle(itemId);
