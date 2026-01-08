@@ -49,6 +49,7 @@ import ColorSwitch from '@/components/games/ColorSwitch';
 import PatternMemory from '@/components/games/PatternMemory';
 import SpotDifference from '@/components/games/SpotDifference';
 import MathBlitz from '@/components/games/MathBlitz';
+import BlockBlastExtreme from '@/components/games/BlockBlastExtreme';
 import { useGame } from '@/contexts/GameContext';
 import Navbar from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
@@ -57,6 +58,7 @@ import { Link } from 'react-router-dom';
 
 const games: Record<string, { component: React.FC<any>; title: string }> = {
   'block-blast': { component: BlockBlast, title: 'Block Blast' },
+  'block-blast-extreme': { component: BlockBlastExtreme, title: 'Block Blast Extreme' },
   'clicker': { component: ClickerGame, title: 'Click Frenzy' },
   'geometry-dash': { component: GeometryDash, title: 'Geometry Dash' },
   'racing': { component: RacingGame, title: 'Neon Racer' },

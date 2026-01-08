@@ -192,9 +192,10 @@ const BlockBlastExtreme: React.FC = () => {
     <div className="flex flex-col items-center gap-4 p-4">
       <GamePauseMenu
         isOpen={isPaused}
-        onClose={() => setIsPaused(false)}
+        onResume={() => setIsPaused(false)}
         onRestart={resetGame}
-        gameId="block-blast-extreme"
+        onQuit={() => window.location.href = '/'}
+        score={score}
       />
 
       <div className="flex items-center gap-8 mb-4">

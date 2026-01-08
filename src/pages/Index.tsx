@@ -293,6 +293,168 @@ const games = [{
   rating: 4.7,
   players: '16.4K',
   color: 'hsl(0, 100%, 55%)'
+}, {
+  id: 'block-blast-extreme',
+  title: 'Block Blast Extreme',
+  description: 'An extreme version of Block Blast with combos and levels!',
+  image: 'https://images.unsplash.com/photo-1614294149010-950b698f72c0?w=400&h=300&fit=crop',
+  category: 'Puzzle',
+  rating: 4.9,
+  players: '18.3K',
+  color: 'hsl(320, 100%, 60%)'
+}, {
+  id: 'solitaire',
+  title: 'Solitaire',
+  description: 'Classic card game - arrange cards in descending order!',
+  image: 'https://images.unsplash.com/photo-1541278107931-e006523892df?w=400&h=300&fit=crop',
+  category: 'Card',
+  rating: 4.7,
+  players: '22.1K',
+  color: 'hsl(120, 70%, 40%)'
+}, {
+  id: 'chess',
+  title: 'Chess',
+  description: 'Strategic battle of minds - checkmate your opponent!',
+  image: 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=400&h=300&fit=crop',
+  category: 'Strategy',
+  rating: 4.9,
+  players: '35.6K',
+  color: 'hsl(30, 20%, 30%)'
+}, {
+  id: 'checkers',
+  title: 'Checkers',
+  description: 'Classic board game - capture all opponent pieces!',
+  image: 'https://images.unsplash.com/photo-1611996575749-79a3a250f948?w=400&h=300&fit=crop',
+  category: 'Strategy',
+  rating: 4.6,
+  players: '14.2K',
+  color: 'hsl(0, 70%, 45%)'
+}, {
+  id: 'bubble-shooter',
+  title: 'Bubble Shooter',
+  description: 'Match and pop colorful bubbles!',
+  image: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=400&h=300&fit=crop',
+  category: 'Puzzle',
+  rating: 4.7,
+  players: '19.8K',
+  color: 'hsl(200, 100%, 50%)'
+}, {
+  id: 'jigsaw',
+  title: 'Jigsaw Puzzle',
+  description: 'Piece together beautiful images!',
+  image: 'https://images.unsplash.com/photo-1494059980473-813e73ee784b?w=400&h=300&fit=crop',
+  category: 'Puzzle',
+  rating: 4.5,
+  players: '11.4K',
+  color: 'hsl(260, 80%, 55%)'
+}, {
+  id: 'spin-wheel',
+  title: 'Spin Wheel',
+  description: 'Spin to win prizes and coins!',
+  image: 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=400&h=300&fit=crop',
+  category: 'Luck',
+  rating: 4.4,
+  players: '25.3K',
+  color: 'hsl(45, 100%, 50%)'
+}, {
+  id: 'type-racer',
+  title: 'Type Racer',
+  description: 'Test your typing speed and accuracy!',
+  image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400&h=300&fit=crop',
+  category: 'Skill',
+  rating: 4.6,
+  players: '16.7K',
+  color: 'hsl(185, 100%, 45%)'
+}, {
+  id: 'reaction',
+  title: 'Reaction Test',
+  description: 'How fast are your reflexes?',
+  image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop',
+  category: 'Skill',
+  rating: 4.5,
+  players: '13.9K',
+  color: 'hsl(0, 100%, 50%)'
+}, {
+  id: 'number-guess',
+  title: 'Number Guess',
+  description: 'Guess the secret number with hints!',
+  image: 'https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=400&h=300&fit=crop',
+  category: 'Puzzle',
+  rating: 4.3,
+  players: '8.5K',
+  color: 'hsl(270, 70%, 55%)'
+}, {
+  id: 'rps',
+  title: 'Rock Paper Scissors',
+  description: 'Classic hand game against AI!',
+  image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=300&fit=crop',
+  category: 'Classic',
+  rating: 4.4,
+  players: '12.1K',
+  color: 'hsl(150, 60%, 45%)'
+}, {
+  id: 'catch',
+  title: 'Catch Game',
+  description: 'Catch falling objects before they hit the ground!',
+  image: 'https://images.unsplash.com/photo-1474511320723-9a56873571b7?w=400&h=300&fit=crop',
+  category: 'Arcade',
+  rating: 4.5,
+  players: '10.6K',
+  color: 'hsl(35, 90%, 50%)'
+}, {
+  id: 'platform-jump',
+  title: 'Platform Jump',
+  description: 'Jump higher and higher on moving platforms!',
+  image: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&h=300&fit=crop',
+  category: 'Arcade',
+  rating: 4.6,
+  players: '15.4K',
+  color: 'hsl(140, 70%, 45%)'
+}, {
+  id: 'tower-stack',
+  title: 'Tower Stack',
+  description: 'Stack blocks to build the tallest tower!',
+  image: 'https://images.unsplash.com/photo-1493711662062-fa541f7f3d24?w=400&h=300&fit=crop',
+  category: 'Skill',
+  rating: 4.7,
+  players: '17.2K',
+  color: 'hsl(200, 80%, 50%)'
+}, {
+  id: 'color-switch',
+  title: 'Color Switch',
+  description: 'Match colors to pass through barriers!',
+  image: 'https://images.unsplash.com/photo-1502691876148-a84978e59af8?w=400&h=300&fit=crop',
+  category: 'Arcade',
+  rating: 4.6,
+  players: '14.8K',
+  color: 'hsl(280, 100%, 60%)'
+}, {
+  id: 'pattern-memory',
+  title: 'Pattern Memory',
+  description: 'Remember and repeat growing patterns!',
+  image: 'https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=400&h=300&fit=crop',
+  category: 'Memory',
+  rating: 4.5,
+  players: '9.3K',
+  color: 'hsl(320, 80%, 55%)'
+}, {
+  id: 'spot-difference',
+  title: 'Spot Difference',
+  description: 'Find all the differences between two images!',
+  image: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=400&h=300&fit=crop',
+  category: 'Puzzle',
+  rating: 4.4,
+  players: '11.7K',
+  color: 'hsl(170, 70%, 45%)'
+}, {
+  id: 'math-blitz',
+  title: 'Math Blitz',
+  description: 'Solve math problems as fast as you can!',
+  image: 'https://images.unsplash.com/photo-1580541832626-2a7131ee809f?w=400&h=300&fit=crop',
+  category: 'Brain',
+  rating: 4.5,
+  players: '10.9K',
+  color: 'hsl(220, 80%, 55%)'
 }];
 const Index: React.FC = () => {
   const {
@@ -316,7 +478,7 @@ const Index: React.FC = () => {
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-6 animate-float">
               <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-              <span className="text-sm font-medium text-primary">32 Awesome Games!</span>
+              <span className="text-sm font-medium text-primary">50 Awesome Games!</span>
               <Star className="w-4 h-4 text-warning fill-warning" />
             </div>
             
@@ -347,7 +509,7 @@ const Index: React.FC = () => {
             value: '50K+',
             label: 'Players'
           }, {
-            value: '32',
+            value: '50',
             label: 'Games'
           }, {
             value: '$10K',
