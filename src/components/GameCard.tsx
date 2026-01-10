@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, Star, Users, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,17 @@ interface GameCardProps {
   color: string;
 }
 
+// Preview screenshots for games (simulated game previews)
+const gamePreviewFrames: Record<string, string[]> = {
+  'snake': ['🐍', '🐍🍎', '🐍🐍🍎'],
+  'tetris': ['⬜⬜⬜', '🟦🟦⬜', '🟦🟦🟩🟩'],
+  'flappy': ['🐦', '🐦 |', '🐦  ||'],
+  'pong': ['🏓 ⚪', '🏓  ⚪', '🏓   ⚪'],
+  'memory': ['🎴🎴', '🎴⭐', '⭐⭐'],
+  '2048': ['2 4', '4 8', '8 16'],
+  'breakout': ['🟥🟥🟥', '🟥 🟥', '  🔵'],
+};
+
 const GameCard: React.FC<GameCardProps> = ({
   id,
   title,
@@ -26,9 +37,32 @@ const GameCard: React.FC<GameCardProps> = ({
   color,
 }) => {
   const { gamesShutdown, isLoggedIn } = useGame();
+  const [isHovered, setIsHovered] = useState(false);
+  const [previewFrame, setPreviewFrame] = useState(0);
+
+  // Cycle through preview frames on hover
+  useEffect(() => {
+    if (!isHovered) {
+      setPreviewFrame(0);
+      return;
+    }
+
+    const frames = gamePreviewFrames[id] || ['🎮', '🎮✨', '🎮🎯'];
+    const interval = setInterval(() => {
+      setPreviewFrame((prev) => (prev + 1) % frames.length);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isHovered, id]);
+
+  const frames = gamePreviewFrames[id] || ['🎮', '🎮✨', '🎮🎯'];
 
   return (
-    <div className="game-card group">
+    <div 
+      className="game-card group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* Image Container */}
       <div className="relative h-48 overflow-hidden">
         <div 
@@ -36,6 +70,24 @@ const GameCard: React.FC<GameCardProps> = ({
           style={{ backgroundImage: `url(${image})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
+        
+        {/* Hover Preview Overlay */}
+        {isHovered && !gamesShutdown && (
+          <div className="absolute inset-0 bg-background/90 flex flex-col items-center justify-center animate-fade-in">
+            <div className="text-4xl mb-2 animate-bounce">{frames[previewFrame]}</div>
+            <div className="text-sm font-bold text-primary">Preview</div>
+            <div className="flex gap-1 mt-2">
+              {frames.map((_, idx) => (
+                <div 
+                  key={idx}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    idx === previewFrame ? 'bg-primary' : 'bg-muted'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
         
         {/* Category Badge */}
         <div 

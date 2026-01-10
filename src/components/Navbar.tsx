@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Gamepad2, User, Trophy, Gift, Settings, Menu, X, Crown, LogOut } from 'lucide-react';
+import { Gamepad2, User, Trophy, Gift, Settings, Menu, X, Crown, LogOut, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { user, isLoggedIn, logout, coins, gems } = useGame();
+  const { user, isLoggedIn, logout, coins, gems, currentStreak } = useGame();
 
   const navItems = [
     { path: '/', label: 'Games', icon: Gamepad2 },
@@ -72,11 +73,26 @@ const Navbar: React.FC = () => {
                   </div>
                 </div>
                 <Link to="/profile" className="flex items-center gap-2">
-                  <img
-                    src={user?.avatar}
-                    alt="Avatar"
-                    className="w-8 h-8 rounded-full border-2 border-primary"
-                  />
+                  <div className="relative">
+                    <img
+                      src={user?.avatar}
+                      alt="Avatar"
+                      className="w-8 h-8 rounded-full border-2 border-primary"
+                    />
+                    {currentStreak > 0 && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="absolute -top-1 -right-1 flex items-center justify-center">
+                            <Flame className="w-4 h-4 text-orange-500 fill-orange-500 animate-pulse" />
+                            <span className="absolute text-[8px] font-bold text-white">{currentStreak}</span>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{currentStreak} day streak! 🔥</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
                 </Link>
                 <Button variant="ghost" size="icon" onClick={logout} className="hidden md:flex">
                   <LogOut className="w-4 h-4" />
