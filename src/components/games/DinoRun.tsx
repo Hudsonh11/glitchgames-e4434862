@@ -633,7 +633,7 @@ const DinoRun: React.FC<DinoRunProps> = ({ onScoreUpdate }) => {
         {!gameState.gameStarted && !gameState.gameOver && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
             <div className="text-center text-white">
-              <p className="text-2xl font-bold mb-2">🦖 Dino Run Ultra</p>
+              <p className="text-2xl font-bold mb-2">🦖 Dino Run</p>
               <p className="text-lg mb-4">Tap or Press Space to Start!</p>
               <div className="flex gap-2 justify-center text-sm opacity-80">
                 <span>🛡️ Shield</span>
