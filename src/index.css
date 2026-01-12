@@ -503,4 +503,32 @@
     background: hsl(var(--neon-purple) / 0.1);
     animation: float 12s ease-in-out infinite;
   }
+
+  /* Text gradient gold */
+  .text-gradient-gold {
+    background: linear-gradient(135deg, hsl(var(--warning)) 0%, hsl(35 100% 60%) 50%, hsl(var(--warning)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Confetti animation */
+  @keyframes confetti-fall {
+    0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Fade out animation */
+  @keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+  .animate-fade-out {
+    animation: fade-out 0.3s ease-out forwards;
+  }
+}
+  .ultra-orb-purple {
+    background: hsl(var(--neon-purple) / 0.1);
+    animation: float 12s ease-in-out infinite;
+  }
 }
