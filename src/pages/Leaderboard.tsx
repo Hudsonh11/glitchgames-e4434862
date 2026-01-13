@@ -1,30 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Medal, Crown, Gamepad2 } from 'lucide-react';
+import { Trophy, Crown, Gamepad2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import { useGame } from '@/contexts/GameContext';
+import UltraParticles from '@/components/UltraParticles';
+import UltraCard from '@/components/UltraCard';
+import UltraRankDisplay from '@/components/UltraRankDisplay';
+import UltraBadge from '@/components/UltraBadge';
+import UltraAvatar from '@/components/UltraAvatar';
+import UltraLoadingSpinner from '@/components/UltraLoadingSpinner';
 
 const games = [
   { id: 'block-blast', name: 'Block Blast' },
   { id: 'clicker', name: 'Click Frenzy' },
   { id: 'geometry-dash', name: 'Geometry Dash' },
-  { id: 'racing', name: 'Neon Racer' },
+  { id: 'tetris', name: 'Tetris' },
   { id: 'pac-man', name: 'Pac-Man' },
   { id: 'snake', name: 'Snake' },
-  { id: 'tetris', name: 'Tetris' },
-  { id: 'memory', name: 'Memory Match' },
-  { id: 'flappy', name: 'Flappy Clone' },
-  { id: 'maze', name: 'Maze Runner' },
-  { id: 'pong', name: 'Pong' },
-  { id: 'brick-breaker', name: 'Brick Breaker' },
 ];
 
 const Leaderboard: React.FC = () => {
   const [selectedGame, setSelectedGame] = useState('block-blast');
+  const [isLoading, setIsLoading] = useState(false);
   const { leaderboard, user, fetchLeaderboard } = useGame();
 
   useEffect(() => {
-    fetchLeaderboard(selectedGame);
+    setIsLoading(true);
+    fetchLeaderboard(selectedGame).finally(() => setIsLoading(false));
   }, [selectedGame]);
 
   const filteredLeaderboard = leaderboard
@@ -32,153 +34,94 @@ const Leaderboard: React.FC = () => {
     .sort((a, b) => b.score - a.score)
     .slice(0, 100);
 
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <Crown className="w-6 h-6 text-warning" />;
-      case 2:
-        return <Medal className="w-6 h-6 text-muted-foreground" />;
-      case 3:
-        return <Medal className="w-6 h-6 text-amber-700" />;
-      default:
-        return <span className="w-6 text-center font-display font-bold">{rank}</span>;
-    }
-  };
-
-  const getRankStyle = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return 'bg-warning/10 border-warning/50 shadow-neon-gold';
-      case 2:
-        return 'bg-muted/50 border-muted-foreground/30';
-      case 3:
-        return 'bg-amber-900/20 border-amber-700/30';
-      default:
-        return 'bg-card border-border';
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
       <Navbar />
+      <UltraParticles count={25} />
       
-      <div className="pt-20 pb-8 px-4">
+      <div className="pt-20 pb-8 px-4 relative z-10">
         <div className="container mx-auto max-w-3xl">
-          {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-warning/20 mb-4">
-              <Trophy className="w-8 h-8 text-warning" />
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-warning/30 to-amber-500/30 mb-4 animate-float relative">
+              <Trophy className="w-10 h-10 text-warning" />
+              <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-warning animate-pulse" />
             </div>
-            <h1 className="font-display text-3xl font-bold mb-2">Leaderboard</h1>
-            <p className="text-muted-foreground">
-              Compete with players worldwide and climb to the top!
-            </p>
+            <h1 className="font-display text-4xl font-bold mb-2 text-gradient">Leaderboard</h1>
+            <p className="text-muted-foreground">Compete with players worldwide!</p>
           </div>
 
-          {/* Game Selector */}
           <div className="flex flex-wrap gap-2 justify-center mb-8">
             {games.map((game) => (
               <Button
                 key={game.id}
                 variant={selectedGame === game.id ? 'gaming' : 'outline'}
                 onClick={() => setSelectedGame(game.id)}
-                className="gap-2"
                 size="sm"
               >
-                <Gamepad2 className="w-4 h-4" />
                 {game.name}
               </Button>
             ))}
           </div>
 
-          {/* Top 3 Podium */}
-          {filteredLeaderboard.length >= 3 && (
-            <div className="flex items-end justify-center gap-4 mb-8">
-              {/* 2nd Place */}
-              <div className="flex flex-col items-center">
-                <img
-                  src={filteredLeaderboard[1]?.avatar}
-                  alt=""
-                  className="w-16 h-16 rounded-full border-4 border-muted-foreground mb-2"
-                />
-                <p className="font-display font-bold text-sm">{filteredLeaderboard[1]?.username}</p>
-                <p className="text-xs text-muted-foreground">{filteredLeaderboard[1]?.score}</p>
-                <div className="w-20 h-24 rounded-t-lg bg-muted flex items-center justify-center mt-2">
-                  <span className="font-display text-3xl font-bold text-muted-foreground">2</span>
-                </div>
-              </div>
-
-              {/* 1st Place */}
-              <div className="flex flex-col items-center">
-                <Crown className="w-8 h-8 text-warning mb-1 animate-float" />
-                <img
-                  src={filteredLeaderboard[0]?.avatar}
-                  alt=""
-                  className="w-20 h-20 rounded-full border-4 border-warning mb-2 shadow-neon-gold"
-                />
-                <p className="font-display font-bold">{filteredLeaderboard[0]?.username}</p>
-                <p className="text-sm text-warning font-bold">{filteredLeaderboard[0]?.score}</p>
-                <div className="w-24 h-32 rounded-t-lg bg-warning/20 flex items-center justify-center mt-2 border border-warning/50">
-                  <span className="font-display text-4xl font-bold text-warning">1</span>
-                </div>
-              </div>
-
-              {/* 3rd Place */}
-              <div className="flex flex-col items-center">
-                <img
-                  src={filteredLeaderboard[2]?.avatar}
-                  alt=""
-                  className="w-16 h-16 rounded-full border-4 border-amber-700 mb-2"
-                />
-                <p className="font-display font-bold text-sm">{filteredLeaderboard[2]?.username}</p>
-                <p className="text-xs text-muted-foreground">{filteredLeaderboard[2]?.score}</p>
-                <div className="w-20 h-20 rounded-t-lg bg-amber-900/20 flex items-center justify-center mt-2">
-                  <span className="font-display text-3xl font-bold text-amber-700">3</span>
-                </div>
-              </div>
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <UltraLoadingSpinner size="lg" text="Loading rankings..." />
             </div>
-          )}
-
-          {/* Full Leaderboard */}
-          <div className="space-y-2">
-            {filteredLeaderboard.length === 0 ? (
-              <div className="text-center py-12">
-                <Gamepad2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No scores yet for this game.</p>
-                <p className="text-sm text-muted-foreground">Be the first to play and set a high score!</p>
-              </div>
-            ) : (
-              filteredLeaderboard.map((entry, index) => (
-                <div
-                  key={`${entry.username}-${index}`}
-                  className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${getRankStyle(index + 1)} ${
-                    entry.username === user?.username ? 'ring-2 ring-primary' : ''
-                  }`}
-                >
-                  <div className="w-8 flex justify-center">
-                    {getRankIcon(index + 1)}
+          ) : (
+            <>
+              {filteredLeaderboard.length >= 3 && (
+                <div className="flex items-end justify-center gap-4 mb-8">
+                  <div className="flex flex-col items-center">
+                    <UltraAvatar src={filteredLeaderboard[1]?.avatar} size="lg" level={15} />
+                    <p className="font-display font-bold text-sm mt-2">{filteredLeaderboard[1]?.username}</p>
+                    <UltraBadge variant="common" size="sm">{filteredLeaderboard[1]?.score.toLocaleString()}</UltraBadge>
+                    <div className="w-20 h-24 rounded-t-lg bg-slate-600/30 flex items-center justify-center mt-3">
+                      <span className="font-display text-3xl font-bold text-slate-300">2</span>
+                    </div>
                   </div>
-                  <img
-                    src={entry.avatar}
-                    alt=""
-                    className="w-10 h-10 rounded-full"
-                  />
-                  <div className="flex-1">
-                    <p className="font-display font-bold">
-                      {entry.username}
-                      {entry.username === user?.username && (
-                        <span className="ml-2 text-xs text-primary">(You)</span>
-                      )}
-                    </p>
+                  <div className="flex flex-col items-center">
+                    <Crown className="w-10 h-10 text-warning mb-2 animate-float" />
+                    <UltraAvatar src={filteredLeaderboard[0]?.avatar} size="xl" level={25} border="rainbow" />
+                    <p className="font-display font-bold mt-2">{filteredLeaderboard[0]?.username}</p>
+                    <UltraBadge variant="legendary" icon="trophy" size="md" animated>{filteredLeaderboard[0]?.score.toLocaleString()}</UltraBadge>
+                    <div className="w-24 h-32 rounded-t-lg bg-warning/20 flex items-center justify-center mt-3 border border-warning/50 shadow-neon-gold">
+                      <span className="font-display text-4xl font-bold text-warning">1</span>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-display font-bold text-primary">{entry.score.toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground">points</p>
+                  <div className="flex flex-col items-center">
+                    <UltraAvatar src={filteredLeaderboard[2]?.avatar} size="lg" level={12} />
+                    <p className="font-display font-bold text-sm mt-2">{filteredLeaderboard[2]?.username}</p>
+                    <UltraBadge variant="common" size="sm">{filteredLeaderboard[2]?.score.toLocaleString()}</UltraBadge>
+                    <div className="w-20 h-20 rounded-t-lg bg-amber-800/30 flex items-center justify-center mt-3">
+                      <span className="font-display text-3xl font-bold text-amber-600">3</span>
+                    </div>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
+              )}
+
+              <div className="space-y-2">
+                {filteredLeaderboard.length === 0 ? (
+                  <UltraCard variant="glass" className="text-center py-12">
+                    <Gamepad2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">No scores yet. Be the first!</p>
+                  </UltraCard>
+                ) : (
+                  filteredLeaderboard.map((entry, index) => (
+                    <UltraRankDisplay
+                      key={`${entry.username}-${index}`}
+                      data={{
+                        rank: index + 1,
+                        username: entry.username,
+                        avatar: entry.avatar,
+                        score: entry.score,
+                        isCurrentUser: entry.username === user?.username,
+                      }}
+                    />
+                  ))
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
