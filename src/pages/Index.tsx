@@ -499,7 +499,9 @@ const Index: React.FC = () => {
               </div>
               <span className="text-sm font-bold text-primary uppercase tracking-wider">50 ENJOYABLE GAMES</span>
               <div className="flex -space-x-1">
-                {[...Array(5)].map((_, i) => {})}
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="w-2 h-2 rounded-full bg-primary/50" />
+                ))}
               </div>
             </div>
             
@@ -550,7 +552,7 @@ const Index: React.FC = () => {
           {/* Stats Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-20">
             <UltraStatsCounter value="50K+" label="Active Players" color="primary" />
-            <UltraStatsCounter value="50" label="Premium Games" color="secondary" />
+            <UltraStatsCounter value="50" label="Enjoyable Games" color="secondary" />
             <UltraStatsCounter value="$10K" label="In Rewards" color="warning" />
           </div>
         </div>
