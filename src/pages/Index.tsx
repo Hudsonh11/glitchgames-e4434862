@@ -1,11 +1,19 @@
 import React from 'react';
-import { Gamepad2, Zap, Trophy, Gift, Sparkles, Crown, Rocket } from 'lucide-react';
+import { Gamepad2, Zap, Trophy, Gift, Sparkles, Crown, Rocket, Home, Star, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import GameCard from '@/components/GameCard';
 import Navbar from '@/components/Navbar';
 import UltraParticles from '@/components/UltraParticles';
 import UltraStatsCounter from '@/components/UltraStatsCounter';
+import UltraGlitchText from '@/components/UltraGlitchText';
+import UltraShimmerText from '@/components/UltraShimmerText';
+import UltraMagneticButton from '@/components/UltraMagneticButton';
+import UltraGradientBorder from '@/components/UltraGradientBorder';
+import UltraSpotlight from '@/components/UltraSpotlight';
+import UltraFloatingMenu from '@/components/UltraFloatingMenu';
+import UltraPulseRing from '@/components/UltraPulseRing';
+import UltraTypewriter from '@/components/UltraTypewriter';
 import { useGame } from '@/contexts/GameContext';
 const games = [{
   id: 'block-blast',
@@ -505,55 +513,84 @@ const Index: React.FC = () => {
               </div>
             </div>
             
-            {/* Main Title */}
+            {/* Main Title with ULTRA Glitch Effect */}
             <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-black mb-6 animate-fade-in-up" style={{
             animationDelay: '0.1s'
           }}>
-              <span className="text-gradient animate-glitch inline-block">GLITCH</span>
+              <UltraGlitchText intensity="high" className="text-gradient inline-block">GLITCH</UltraGlitchText>
               <br />
               <span className="text-foreground relative inline-block">
-                GAMES
+                <UltraShimmerText variant="rainbow">GAMES</UltraShimmerText>
                 <Crown className="absolute -top-4 -right-8 w-8 h-8 text-warning fill-warning animate-float" />
               </span>
             </h1>
             
-            {/* Tagline */}
-            <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-fade-in-up" style={{
+            {/* Tagline with Typewriter Effect */}
+            <div className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-fade-in-up" style={{
             animationDelay: '0.2s'
           }}>
-              Play the hottest games, earn <span className="text-warning font-semibold">epic rewards</span>, 
-              and compete with players worldwide!
-            </p>
+              <UltraTypewriter 
+                texts={[
+                  "Play the hottest games and earn epic rewards!",
+                  "Compete with players worldwide!",
+                  "Claim daily bonuses and power-ups!",
+                  "Rise through the ranks and become a legend!"
+                ]}
+                typingSpeed={50}
+                deletingSpeed={30}
+                pauseDuration={2000}
+              />
+            </div>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons with ULTRA Magnetic Effects */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{
             animationDelay: '0.3s'
           }}>
-              {isLoggedIn ? <Button variant="gaming" size="xl" asChild className="group">
-                  <a href="#games">
-                    <Rocket className="w-5 h-5 mr-2 transition-transform group-hover:rotate-12" />
-                    Start Playing
-                  </a>
-                </Button> : <Button variant="gaming" size="xl" asChild className="group animate-glow-pulse">
-                  <Link to="/login">
-                    <Zap className="w-5 h-5 mr-2 transition-transform group-hover:scale-110" />
-                    Join Now - It's Free!
+              {isLoggedIn ? (
+                <UltraMagneticButton strength={0.3} className="relative">
+                  <UltraPulseRing color="primary" size="lg" ringCount={2}>
+                    <Button variant="gaming" size="xl" asChild className="group relative z-10">
+                      <a href="#games">
+                        <Rocket className="w-5 h-5 mr-2 transition-transform group-hover:rotate-12" />
+                        Start Playing
+                      </a>
+                    </Button>
+                  </UltraPulseRing>
+                </UltraMagneticButton>
+              ) : (
+                <UltraMagneticButton strength={0.3} className="relative">
+                  <UltraPulseRing color="primary" size="lg" ringCount={2}>
+                    <Button variant="gaming" size="xl" asChild className="group animate-glow-pulse relative z-10">
+                      <Link to="/login">
+                        <Zap className="w-5 h-5 mr-2 transition-transform group-hover:scale-110" />
+                        Join Now - It's Free!
+                      </Link>
+                    </Button>
+                  </UltraPulseRing>
+                </UltraMagneticButton>
+              )}
+              <UltraMagneticButton strength={0.2}>
+                <Button variant="outline" size="xl" asChild className="group border-primary/30 hover:border-primary hover:bg-primary/10">
+                  <Link to="/leaderboard">
+                    <Trophy className="w-5 h-5 mr-2 text-warning transition-transform group-hover:scale-110" />
+                    View Leaderboard
                   </Link>
-                </Button>}
-              <Button variant="outline" size="xl" asChild className="group border-primary/30 hover:border-primary hover:bg-primary/10">
-                <Link to="/leaderboard">
-                  <Trophy className="w-5 h-5 mr-2 text-warning transition-transform group-hover:scale-110" />
-                  View Leaderboard
-                </Link>
-              </Button>
+                </Button>
+              </UltraMagneticButton>
             </div>
           </div>
 
-          {/* Stats Section */}
+          {/* Stats Section with Gradient Borders */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-20">
-            <UltraStatsCounter value="50K+" label="Active Players" color="primary" />
-            <UltraStatsCounter value="50" label="Enjoyable Games" color="secondary" />
-            <UltraStatsCounter value="$10K" label="In Rewards" color="warning" />
+            <UltraGradientBorder borderWidth={2} animate variant="primary">
+              <UltraStatsCounter value="50K+" label="Active Players" color="primary" />
+            </UltraGradientBorder>
+            <UltraGradientBorder borderWidth={2} animate variant="rainbow">
+              <UltraStatsCounter value="50" label="Enjoyable Games" color="secondary" />
+            </UltraGradientBorder>
+            <UltraGradientBorder borderWidth={2} animate variant="gold">
+              <UltraStatsCounter value="$10K" label="In Rewards" color="warning" />
+            </UltraGradientBorder>
           </div>
         </div>
       </section>
@@ -597,14 +634,14 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features Section with Spotlight Effect */}
       <section className="py-20 px-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/50 to-transparent" />
         <UltraParticles count={10} className="opacity-30" />
         
         <div className="container mx-auto relative z-10">
           <h2 className="font-display text-3xl md:text-4xl font-bold text-center mb-4">
-            Why Choose <span className="text-gradient">Glitch Games</span>?
+            Why Choose <UltraShimmerText variant="primary">Glitch Games</UltraShimmerText>?
           </h2>
           <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
             Experience gaming like never before with our premium platform
@@ -631,17 +668,36 @@ const Index: React.FC = () => {
             title,
             description,
             color
-          }) => <div key={title} className="ultra-feature group">
-                <div className={`w-16 h-16 rounded-2xl bg-${color}/10 flex items-center justify-center mb-5 
-                  transition-all duration-500 group-hover:scale-110 group-hover:bg-${color}/20`}>
-                  <Icon className={`w-8 h-8 text-${color}`} />
+          }) => (
+            <UltraSpotlight key={title} className="h-full" spotlightColor={`hsl(var(--${color}))`}>
+              <div className="ultra-feature group h-full p-6">
+                <div className="relative mb-5">
+                  <UltraPulseRing color={color as 'primary' | 'success' | 'warning' | 'danger' | 'info'} size="md" ringCount={1}>
+                    <div className={`w-16 h-16 rounded-2xl bg-${color}/10 flex items-center justify-center 
+                      transition-all duration-500 group-hover:scale-110 group-hover:bg-${color}/20 relative z-10`}>
+                      <Icon className={`w-8 h-8 text-${color}`} />
+                    </div>
+                  </UltraPulseRing>
                 </div>
                 <h3 className="font-display text-xl font-bold mb-3">{title}</h3>
                 <p className="text-muted-foreground">{description}</p>
-              </div>)}
+              </div>
+            </UltraSpotlight>
+          ))}
           </div>
         </div>
       </section>
+
+      {/* Floating Quick Menu */}
+      <UltraFloatingMenu
+        position="bottom-right"
+        items={[
+          { icon: <Home className="w-5 h-5" />, label: 'Home', onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
+          { icon: <Gamepad2 className="w-5 h-5" />, label: 'Games', onClick: () => document.getElementById('games')?.scrollIntoView({ behavior: 'smooth' }) },
+          { icon: <Star className="w-5 h-5" />, label: 'Rewards', onClick: () => window.location.href = '/rewards' },
+          { icon: <Trophy className="w-5 h-5" />, label: 'Leaderboard', onClick: () => window.location.href = '/leaderboard' },
+        ]}
+      />
 
       {/* Footer */}
       <footer className="py-12 px-4 border-t border-border relative">
