@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Gamepad2, Zap, Trophy, Gift, Sparkles, Star, Crown, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -6,8 +6,11 @@ import GameCard from '@/components/GameCard';
 import Navbar from '@/components/Navbar';
 import UltraParticles from '@/components/UltraParticles';
 import UltraStatsCounter from '@/components/UltraStatsCounter';
+import AnimatedHeroBanner from '@/components/AnimatedHeroBanner';
+import GameCategoryFilter from '@/components/GameCategoryFilter';
+import QuickPlayButton from '@/components/QuickPlayButton';
+import DailyQuests from '@/components/DailyQuests';
 import { useGame } from '@/contexts/GameContext';
-
 const games = [
   { id: 'block-blast', title: 'Block Blast', description: 'Match and blast colorful blocks in this addictive puzzle game!', image: 'https://images.unsplash.com/photo-1614294149010-950b698f72c0?w=400&h=300&fit=crop', category: 'Puzzle', rating: 4.8, players: '12.5K', color: 'hsl(185, 100%, 50%)' },
   { id: 'clicker', title: 'Click Frenzy', description: 'Click your way to riches! Upgrade and automate your clicking empire.', image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&h=300&fit=crop', category: 'Idle', rating: 4.6, players: '8.2K', color: 'hsl(45, 100%, 55%)' },
