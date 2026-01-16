@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Play, RotateCcw, Home, Volume2 } from 'lucide-react';
 import { useGame } from '@/contexts/GameContext';
@@ -12,19 +12,19 @@ interface GamePauseMenuProps {
   score: number;
 }
 
-const GamePauseMenu: React.FC<GamePauseMenuProps> = ({
+const GamePauseMenu = forwardRef<HTMLDivElement, GamePauseMenuProps>(({
   isOpen,
   onResume,
   onRestart,
   onQuit,
   score,
-}) => {
+}, ref) => {
   const { soundSettings, updateSoundSettings } = useGame();
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-md">
+    <div ref={ref} className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-md">
       <div className="w-full max-w-sm mx-4 p-6 rounded-2xl bg-card border border-border shadow-2xl animate-scale-in">
         <h2 className="font-display text-2xl font-bold text-center mb-2 text-gradient">
           Game Paused
@@ -103,6 +103,8 @@ const GamePauseMenu: React.FC<GamePauseMenuProps> = ({
       </div>
     </div>
   );
-};
+});
+
+GamePauseMenu.displayName = 'GamePauseMenu';
 
 export default GamePauseMenu;

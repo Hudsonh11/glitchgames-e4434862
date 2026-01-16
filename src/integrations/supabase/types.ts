@@ -86,6 +86,48 @@ export type Database = {
         }
         Relationships: []
       }
+      bug_reports: {
+        Row: {
+          browser_info: string | null
+          category: string
+          created_at: string
+          description: string
+          email: string | null
+          id: string
+          page_url: string | null
+          resolved_at: string | null
+          status: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          browser_info?: string | null
+          category: string
+          created_at?: string
+          description: string
+          email?: string | null
+          id?: string
+          page_url?: string | null
+          resolved_at?: string | null
+          status?: string
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          browser_info?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          email?: string | null
+          id?: string
+          page_url?: string | null
+          resolved_at?: string | null
+          status?: string
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       challenges: {
         Row: {
           challenged_id: string

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, forwardRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
 import GamePauseMenu from '@/components/GamePauseMenu';
@@ -16,7 +16,7 @@ interface Obstacle {
   type: 'spike' | 'block';
 }
 
-const GeometryDash: React.FC = () => {
+const GeometryDash = forwardRef<HTMLDivElement, object>((_, ref) => {
   const { updateGameStats, addCoins, unlockAchievement } = useGame();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -234,7 +234,7 @@ const GeometryDash: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-20 pb-8 px-4">
+    <div ref={ref} className="min-h-screen bg-background pt-20 pb-8 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -329,6 +329,8 @@ const GeometryDash: React.FC = () => {
       />
     </div>
   );
-};
+});
+
+GeometryDash.displayName = 'GeometryDash';
 
 export default GeometryDash;

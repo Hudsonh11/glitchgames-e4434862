@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Bot, User, Sparkles, Zap } from 'lucide-react';
+import { X, Send, Bot, User, Sparkles, Zap, Bug } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import BugReportModal from '@/components/BugReportModal';
 
 type Message = {
   role: 'user' | 'assistant';
@@ -14,6 +15,7 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/support-chat
 
 const SupportBot = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isBugReportOpen, setIsBugReportOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { role: 'assistant', content: "Hey there! 🎮 I'm Pixel, your gaming assistant. Need help with a game, your account, or just want to chat? I'm here for you!" }
   ]);
@@ -269,10 +271,20 @@ const SupportBot = () => {
                   {suggestion}
                 </button>
               ))}
+              <button
+                onClick={() => setIsBugReportOpen(true)}
+                className="text-xs px-3 py-1.5 rounded-full bg-warning/20 hover:bg-warning/30 text-warning transition-colors border border-warning/50 flex items-center gap-1"
+              >
+                <Bug className="w-3 h-3" />
+                Report Bug
+              </button>
             </div>
           </div>
         </div>
       )}
+      
+      {/* Bug Report Modal */}
+      <BugReportModal isOpen={isBugReportOpen} onClose={() => setIsBugReportOpen(false)} />
     </>
   );
 };

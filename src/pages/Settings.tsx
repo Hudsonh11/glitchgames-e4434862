@@ -28,11 +28,13 @@ import Navbar from '@/components/Navbar';
 import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import BugReportModal from '@/components/BugReportModal';
 
 const Settings: React.FC = () => {
   const { isLoggedIn, soundSettings, updateSoundSettings, user, logout } = useGame();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [isBugReportOpen, setIsBugReportOpen] = useState(false);
   
   // Local settings state
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
@@ -709,7 +711,11 @@ const Settings: React.FC = () => {
               <Button variant="outline" className="justify-start hover:bg-primary/10">
                 📧 Contact Support
               </Button>
-              <Button variant="outline" className="justify-start hover:bg-primary/10">
+              <Button 
+                variant="outline" 
+                className="justify-start hover:bg-primary/10"
+                onClick={() => setIsBugReportOpen(true)}
+              >
                 🐛 Report a Bug
               </Button>
               <Button variant="outline" className="justify-start hover:bg-primary/10">
@@ -728,6 +734,9 @@ const Settings: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Bug Report Modal */}
+      <BugReportModal isOpen={isBugReportOpen} onClose={() => setIsBugReportOpen(false)} />
     </div>
   );
 };
