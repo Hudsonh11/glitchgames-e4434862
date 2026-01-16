@@ -40,6 +40,16 @@ const RANKED_GAMES = [
   { id: 'geometry-dash', name: 'Geometry Dash', icon: '🔷' },
   { id: '2048', name: '2048', icon: '🔢' },
   { id: 'space-invaders', name: 'Space Invaders', icon: '👾' },
+  { id: 'pac-man', name: 'Pac-Man', icon: '👻' },
+  { id: 'block-blast', name: 'Block Blast', icon: '🟦' },
+  { id: 'flappy', name: 'Flappy Bird', icon: '🐦' },
+  { id: 'racing', name: 'Neon Racer', icon: '🏎️' },
+  { id: 'brick-breaker', name: 'Brick Breaker', icon: '🧱' },
+  { id: 'maze', name: 'Maze Runner', icon: '🔲' },
+  { id: 'memory', name: 'Memory Match', icon: '🃏' },
+  { id: 'wordle', name: 'Wordle', icon: '📝' },
+  { id: 'sudoku', name: 'Sudoku', icon: '🔢' },
+  { id: 'minesweeper', name: 'Minesweeper', icon: '💣' },
 ];
 
 const RankedSystem: React.FC = () => {
