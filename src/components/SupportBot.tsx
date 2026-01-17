@@ -260,17 +260,45 @@ const SupportBot = () => {
               </Button>
             </div>
             
-            {/* Quick suggestions */}
+            {/* Dynamic Quick suggestions based on conversation */}
             <div className="flex gap-2 mt-3 flex-wrap">
-              {['How do I play?', 'Account help', 'Game tips'].map((suggestion) => (
-                <button
-                  key={suggestion}
-                  onClick={() => setInput(suggestion)}
-                  className="text-xs px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors border border-border/50"
-                >
-                  {suggestion}
-                </button>
-              ))}
+              {(() => {
+                const lastMessage = messages[messages.length - 1]?.content.toLowerCase() || '';
+                const msgCount = messages.length;
+                
+                // Dynamic suggestions based on conversation context
+                if (lastMessage.includes('game') || lastMessage.includes('play')) {
+                  return ['Best puzzle games?', 'How to earn XP?', 'Leaderboard tips'].map((suggestion) => (
+                    <button key={suggestion} onClick={() => setInput(suggestion)} className="text-xs px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors border border-border/50">
+                      {suggestion}
+                    </button>
+                  ));
+                } else if (lastMessage.includes('account') || lastMessage.includes('profile')) {
+                  return ['Change avatar?', 'Reset password', 'Privacy settings'].map((suggestion) => (
+                    <button key={suggestion} onClick={() => setInput(suggestion)} className="text-xs px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors border border-border/50">
+                      {suggestion}
+                    </button>
+                  ));
+                } else if (lastMessage.includes('reward') || lastMessage.includes('coin')) {
+                  return ['Daily rewards?', 'Earn more gems', 'Season pass info'].map((suggestion) => (
+                    <button key={suggestion} onClick={() => setInput(suggestion)} className="text-xs px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors border border-border/50">
+                      {suggestion}
+                    </button>
+                  ));
+                } else if (msgCount > 3) {
+                  return ['Show all games', 'Friend system', 'Ranked mode'].map((suggestion) => (
+                    <button key={suggestion} onClick={() => setInput(suggestion)} className="text-xs px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors border border-border/50">
+                      {suggestion}
+                    </button>
+                  ));
+                } else {
+                  return ['How do I play?', 'Account help', 'Game tips'].map((suggestion) => (
+                    <button key={suggestion} onClick={() => setInput(suggestion)} className="text-xs px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors border border-border/50">
+                      {suggestion}
+                    </button>
+                  ));
+                }
+              })()}
               <button
                 onClick={() => setIsBugReportOpen(true)}
                 className="text-xs px-3 py-1.5 rounded-full bg-warning/20 hover:bg-warning/30 text-warning transition-colors border border-warning/50 flex items-center gap-1"
