@@ -215,42 +215,54 @@ const Settings: React.FC = () => {
     setIsDeleting(true);
     
     try {
-      // Delete user data from all tables
-      const userId = user?.id;
+      // Get the current session for authorization
+      const { data: { session } } = await supabase.auth.getSession();
       
-      if (userId) {
-        // Delete from all related tables
-        await supabase.from('game_stats').delete().eq('user_id', userId);
-        await supabase.from('achievements').delete().eq('user_id', userId);
-        await supabase.from('daily_rewards').delete().eq('user_id', userId);
-        await supabase.from('friendships').delete().or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
-        await supabase.from('messages').delete().or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
-        await supabase.from('activity_feed').delete().eq('user_id', userId);
-        await supabase.from('player_titles').delete().eq('user_id', userId);
-        await supabase.from('player_borders').delete().eq('user_id', userId);
-        await supabase.from('player_themes').delete().eq('user_id', userId);
-        await supabase.from('player_badges').delete().eq('user_id', userId);
-        await supabase.from('player_status').delete().eq('user_id', userId);
-        await supabase.from('ranked_stats').delete().eq('user_id', userId);
-        await supabase.from('challenges').delete().or(`challenger_id.eq.${userId},challenged_id.eq.${userId}`);
-        await supabase.from('profiles').delete().eq('user_id', userId);
+      if (!session) {
+        toast({
+          title: 'Error',
+          description: 'You must be logged in to delete your account.',
+          variant: 'destructive',
+        });
+        setIsDeleting(false);
+        return;
       }
 
-      // Sign out and redirect
-      await logout();
+      // Call the edge function to delete the account
+      const response = await supabase.functions.invoke('delete-account', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to delete account');
+      }
+
+      const result = response.data;
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to delete account');
+      }
+
+      // Clear all local data
       localStorage.clear();
+      sessionStorage.clear();
       
       toast({
         title: 'Account Deleted',
         description: 'Your account and all data have been permanently deleted.',
       });
       
+      // Navigate to home page
       navigate('/');
-    } catch (error) {
+      
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete account. Please try again.';
       console.error('Error deleting account:', error);
       toast({
         title: 'Error',
-        description: 'Failed to delete account. Please try again.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -628,7 +640,14 @@ const Settings: React.FC = () => {
               <Button 
                 variant="outline" 
                 className="w-full justify-start gap-3 hover:bg-destructive/10"
-                onClick={logout}
+                onClick={async () => {
+                  await logout();
+                  navigate('/');
+                  toast({
+                    title: 'Signed Out',
+                    description: 'You have been successfully logged out.',
+                  });
+                }}
               >
                 <LogOut className="w-4 h-4 text-destructive" />
                 Sign Out
