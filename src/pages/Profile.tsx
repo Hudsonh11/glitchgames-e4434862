@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { Trophy, Gamepad2, Clock, Calendar, Award, Users, Share2, Swords, Sparkles, TrendingUp } from 'lucide-react';
+import { Trophy, Gamepad2, Clock, Calendar, Award, Users, Share2, Swords, Sparkles, TrendingUp, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Navbar from '@/components/Navbar';
@@ -9,6 +9,10 @@ import ProfileCustomization from '@/components/ProfileCustomization';
 import FriendSystem from '@/components/FriendSystem';
 import RankedSystem from '@/components/RankedSystem';
 import ChallengeSystem from '@/components/ChallengeSystem';
+import GameHistory from '@/components/GameHistory';
+import FavoriteGames from '@/components/FavoriteGames';
+import ActivityFeed from '@/components/ActivityFeed';
+import StatsOverview from '@/components/StatsOverview';
 import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
 import UltraParticles from '@/components/UltraParticles';
@@ -24,16 +28,30 @@ const achievementsList = [
   { id: 'block_score_1000', name: 'Block Legend', description: 'Score 1000+ in Block Blast', icon: '💎', rarity: 'legendary' as const },
   { id: 'clicker_100', name: 'First Steps', description: 'Reach 100 clicks', icon: '👆', rarity: 'common' as const },
   { id: 'clicker_1000', name: 'Click Champion', description: 'Reach 1000 clicks', icon: '🏆', rarity: 'rare' as const },
+  { id: 'games_10', name: 'Getting Started', description: 'Play 10 games', icon: '🎮', rarity: 'common' as const },
+  { id: 'games_50', name: 'Dedicated Gamer', description: 'Play 50 games', icon: '⭐', rarity: 'rare' as const },
+  { id: 'streak_7', name: 'Week Warrior', description: '7-day login streak', icon: '🔥', rarity: 'epic' as const },
+  { id: 'streak_30', name: 'Monthly Master', description: '30-day login streak', icon: '👑', rarity: 'legendary' as const },
 ];
+
+const gameNameMap: Record<string, string> = {
+  'block-blast': 'Block Blast', 'clicker': 'Click Frenzy', 'geometry-dash': 'Geometry Dash',
+  'tetris': 'Tetris', 'pac-man': 'Pac-Man', 'snake': 'Snake', 'memory': 'Memory Match',
+  'flappy': 'Flappy Bird', 'space-invaders': 'Space Invaders', '2048': '2048', 'wordle': 'Wordle',
+  'chess': 'Chess', 'checkers': 'Checkers', 'sudoku': 'Sudoku', 'racing': 'Neon Racer',
+};
 
 const Profile: React.FC = () => {
   const { user, isLoggedIn, isLoading, achievements, gameStats, coins, gems, currentStreak } = useGame();
   const { toast } = useToast();
   const [purchasedItems, setPurchasedItems] = useState<string[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
 
   useEffect(() => {
     const saved = localStorage.getItem(`purchased_items_${user?.id}`);
     if (saved) setPurchasedItems(JSON.parse(saved));
+    const savedFavs = localStorage.getItem(`favorites_${user?.id}`);
+    if (savedFavs) setFavorites(JSON.parse(savedFavs));
   }, [user?.id]);
 
   const handlePurchase = (itemId: string) => {
@@ -41,6 +59,29 @@ const Profile: React.FC = () => {
     setPurchasedItems(newItems);
     localStorage.setItem(`purchased_items_${user?.id}`, JSON.stringify(newItems));
   };
+
+  const handleRemoveFavorite = (gameId: string) => {
+    const newFavs = favorites.filter(f => f !== gameId);
+    setFavorites(newFavs);
+    localStorage.setItem(`favorites_${user?.id}`, JSON.stringify(newFavs));
+  };
+
+  const gameSessions = useMemo(() => {
+    return Object.entries(gameStats).map(([gameId, stats]) => ({
+      gameId,
+      gameName: gameNameMap[gameId] || gameId,
+      score: stats.highScore,
+      playedAt: new Date(Date.now() - Math.random() * 7 * 86400000),
+      duration: stats.timePlayed,
+    })).sort((a, b) => b.playedAt.getTime() - a.playedAt.getTime());
+  }, [gameStats]);
+
+  const favoriteGame = useMemo(() => {
+    const entries = Object.entries(gameStats);
+    if (entries.length === 0) return undefined;
+    const most = entries.sort((a, b) => b[1].gamesPlayed - a[1].gamesPlayed)[0];
+    return gameNameMap[most[0]] || most[0];
+  }, [gameStats]);
 
   if (isLoading) {
     return (
@@ -53,6 +94,7 @@ const Profile: React.FC = () => {
   if (!isLoggedIn) return <Navigate to="/login" />;
 
   const xpToNextLevel = (user?.level || 1) * 100;
+  const totalTimePlayed = Object.values(gameStats).reduce((sum, s) => sum + s.timePlayed, 0);
 
   const copyInviteLink = () => {
     navigator.clipboard.writeText(`${window.location.origin}?ref=${user?.username}`);
@@ -66,6 +108,7 @@ const Profile: React.FC = () => {
       
       <div className="pt-20 pb-8 px-4 relative z-10">
         <div className="container mx-auto max-w-4xl">
+          {/* Profile Header */}
           <UltraCard variant="premium" glow className="mb-8 overflow-visible">
             <div className="h-32 rounded-t-2xl bg-gradient-hero relative">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" />
@@ -95,21 +138,20 @@ const Profile: React.FC = () => {
             </div>
           </UltraCard>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {[
-              { icon: Trophy, label: 'Total Score', value: user?.totalScore?.toLocaleString() || '0', color: 'text-warning' },
-              { icon: Gamepad2, label: 'Games Played', value: user?.gamesPlayed || 0, color: 'text-primary' },
-              { icon: Award, label: 'Achievements', value: achievements.length, color: 'text-success' },
-              { icon: TrendingUp, label: 'Day Streak', value: `${currentStreak}🔥`, color: 'text-secondary' },
-            ].map(({ icon: Icon, label, value, color }) => (
-              <UltraCard key={label} variant="glass" className="p-4">
-                <Icon className={`w-6 h-6 ${color} mb-2`} />
-                <p className="text-2xl font-display font-bold">{value}</p>
-                <p className="text-sm text-muted-foreground">{label}</p>
-              </UltraCard>
-            ))}
+          {/* Stats Overview */}
+          <div className="mb-8">
+            <StatsOverview
+              totalGamesPlayed={user?.gamesPlayed || 0}
+              totalScore={user?.totalScore || 0}
+              totalTimePlayed={totalTimePlayed}
+              achievements={achievements.length}
+              currentStreak={currentStreak}
+              level={user?.level || 1}
+              favoriteGame={favoriteGame}
+            />
           </div>
 
+          {/* Currency Display */}
           <div className="grid grid-cols-2 gap-4 mb-8">
             <UltraCard variant="glass" className="p-6 flex items-center gap-4">
               <div className="w-14 h-14 rounded-full bg-warning/20 flex items-center justify-center"><span className="text-2xl">🪙</span></div>
@@ -121,9 +163,12 @@ const Profile: React.FC = () => {
             </UltraCard>
           </div>
 
+          {/* Tabs */}
           <Tabs defaultValue="overview" className="mb-8">
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 bg-card/50 backdrop-blur">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 bg-card/50 backdrop-blur">
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="history"><Clock className="w-3 h-3 mr-1" />History</TabsTrigger>
+              <TabsTrigger value="favorites"><Heart className="w-3 h-3 mr-1" />Favorites</TabsTrigger>
               <TabsTrigger value="friends"><Users className="w-3 h-3 mr-1" />Friends</TabsTrigger>
               <TabsTrigger value="ranked"><Swords className="w-3 h-3 mr-1" />Ranked</TabsTrigger>
               <TabsTrigger value="challenges"><Trophy className="w-3 h-3 mr-1" />Challenges</TabsTrigger>
@@ -133,21 +178,46 @@ const Profile: React.FC = () => {
             </TabsList>
 
             <TabsContent value="overview" className="mt-6">
-              <h2 className="font-display text-xl font-bold mb-4 flex items-center gap-2">
-                <Gamepad2 className="w-5 h-5 text-primary" /> Game Statistics
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(gameStats).map(([gameId, stats]) => (
-                  <UltraGameStats key={gameId} gameName={gameId} highScore={stats.highScore} gamesPlayed={stats.gamesPlayed} timePlayed={stats.timePlayed} trending={stats.gamesPlayed > 10} />
-                ))}
-                {Object.keys(gameStats).length === 0 && (
-                  <UltraCard variant="glass" className="col-span-2 p-8 text-center">
-                    <Gamepad2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">No games played yet!</p>
-                  </UltraCard>
-                )}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <h2 className="font-display text-xl font-bold mb-4 flex items-center gap-2">
+                    <Gamepad2 className="w-5 h-5 text-primary" /> Game Statistics
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Object.entries(gameStats).map(([gameId, stats]) => (
+                      <UltraGameStats key={gameId} gameName={gameNameMap[gameId] || gameId} highScore={stats.highScore} gamesPlayed={stats.gamesPlayed} timePlayed={stats.timePlayed} trending={stats.gamesPlayed > 10} />
+                    ))}
+                    {Object.keys(gameStats).length === 0 && (
+                      <UltraCard variant="glass" className="col-span-2 p-8 text-center">
+                        <Gamepad2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">No games played yet!</p>
+                      </UltraCard>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <ActivityFeed />
+                </div>
               </div>
             </TabsContent>
+
+            <TabsContent value="history" className="mt-6">
+              <GameHistory sessions={gameSessions} />
+            </TabsContent>
+
+            <TabsContent value="favorites" className="mt-6">
+              <FavoriteGames
+                favorites={favorites}
+                onRemove={handleRemoveFavorite}
+                games={Object.keys(gameNameMap).map(id => ({
+                  id,
+                  title: gameNameMap[id],
+                  category: 'Game',
+                  color: 'hsl(185, 100%, 50%)',
+                }))}
+              />
+            </TabsContent>
+
             <TabsContent value="friends" className="mt-6"><FriendSystem /></TabsContent>
             <TabsContent value="ranked" className="mt-6"><RankedSystem /></TabsContent>
             <TabsContent value="challenges" className="mt-6"><ChallengeSystem /></TabsContent>
@@ -174,6 +244,7 @@ const Profile: React.FC = () => {
             </TabsContent>
           </Tabs>
 
+          {/* Account Info */}
           <UltraCard variant="glass" className="p-6">
             <h2 className="font-display text-xl font-bold mb-4">Account Info</h2>
             <div className="grid grid-cols-2 gap-4 text-sm">

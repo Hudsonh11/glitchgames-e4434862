@@ -15,6 +15,8 @@ import Game from "./pages/Game";
 import Recovery from "./pages/Recovery";
 import NotFound from "./pages/NotFound";
 import SupportBot from "@/components/SupportBot";
+import OnlineStatus from "@/components/OnlineStatus";
+import KeyboardShortcuts from "@/components/KeyboardShortcuts";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +27,8 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <OnlineStatus />
+          <KeyboardShortcuts />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />

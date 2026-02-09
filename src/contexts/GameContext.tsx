@@ -484,34 +484,50 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const fetchLeaderboard = async (gameId?: string) => {
-    let query = supabase
-      .from('game_stats')
-      .select(`
-        high_score,
-        game_id,
-        profiles!inner (
+    try {
+      // First fetch game stats
+      let query = supabase
+        .from('game_stats')
+        .select('high_score, game_id, user_id')
+        .order('high_score', { ascending: false })
+        .limit(100);
+
+      if (gameId) {
+        query = query.eq('game_id', gameId);
+      }
+
+      const { data: statsData, error: statsError } = await query;
+
+      if (statsError || !statsData || statsData.length === 0) {
+        setLeaderboard([]);
+        return;
+      }
+
+      // Then fetch profiles for those users
+      const userIds = [...new Set(statsData.map(s => s.user_id))];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('user_id, username')
+        .in('user_id', userIds);
+
+      const profileMap = new Map(
+        (profilesData || []).map(p => [p.user_id, p.username])
+      );
+
+      const entries: LeaderboardEntry[] = statsData.map((item, index) => {
+        const username = profileMap.get(item.user_id) || 'Unknown Player';
+        return {
+          rank: index + 1,
           username,
-          user_id
-        )
-      `)
-      .order('high_score', { ascending: false })
-      .limit(100);
-
-    if (gameId) {
-      query = query.eq('game_id', gameId);
-    }
-
-    const { data } = await query;
-
-    if (data) {
-      const entries: LeaderboardEntry[] = data.map((item: any, index: number) => ({
-        rank: index + 1,
-        username: item.profiles.username,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.profiles.username}`,
-        score: item.high_score,
-        gameId: item.game_id,
-      }));
+          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
+          score: item.high_score,
+          gameId: item.game_id,
+        };
+      });
       setLeaderboard(entries);
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+      setLeaderboard([]);
     }
   };
 
