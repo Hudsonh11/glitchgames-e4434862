@@ -1,16 +1,21 @@
-import React, { useState } from 'react';
-import { Gamepad2, Zap, Trophy, Gift, Sparkles, Star, Crown, Rocket } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Gamepad2, Zap, Trophy, Gift, Sparkles, Star, Crown, Rocket, Heart, Github, Twitter, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import GameCard from '@/components/GameCard';
 import Navbar from '@/components/Navbar';
 import UltraParticles from '@/components/UltraParticles';
 import UltraStatsCounter from '@/components/UltraStatsCounter';
-import AnimatedHeroBanner from '@/components/AnimatedHeroBanner';
+import GameOfTheDay from '@/components/GameOfTheDay';
+import TrendingGames from '@/components/TrendingGames';
+import WelcomeBack from '@/components/WelcomeBack';
+import LivePlayerCount from '@/components/LivePlayerCount';
+import MiniLeaderboard from '@/components/MiniLeaderboard';
 import GameCategoryFilter from '@/components/GameCategoryFilter';
 import QuickPlayButton from '@/components/QuickPlayButton';
-import DailyQuests from '@/components/DailyQuests';
+import ScrollToTop from '@/components/ScrollToTop';
 import { useGame } from '@/contexts/GameContext';
+
 const games = [
   { id: 'block-blast', title: 'Block Blast', description: 'Match and blast colorful blocks in this addictive puzzle game!', image: 'https://images.unsplash.com/photo-1614294149010-950b698f72c0?w=400&h=300&fit=crop', category: 'Puzzle', rating: 4.8, players: '12.5K', color: 'hsl(185, 100%, 50%)' },
   { id: 'clicker', title: 'Click Frenzy', description: 'Click your way to riches! Upgrade and automate your clicking empire.', image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&h=300&fit=crop', category: 'Idle', rating: 4.6, players: '8.2K', color: 'hsl(45, 100%, 55%)' },
@@ -64,8 +69,35 @@ const games = [
   { id: 'math-blitz', title: 'Math Blitz', description: 'Solve math problems as fast as you can!', image: 'https://images.unsplash.com/photo-1580541832626-2a7131ee809f?w=400&h=300&fit=crop', category: 'Brain', rating: 4.5, players: '10.9K', color: 'hsl(220, 80%, 55%)' },
 ];
 
+const categories = ['All', ...Array.from(new Set(games.map(g => g.category))).sort()];
+
 const Index: React.FC = () => {
-  const { isLoggedIn, gamesShutdown } = useGame();
+  const { isLoggedIn, gamesShutdown, user, currentStreak, lastClaimDate, gameStats, leaderboard } = useGame();
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const today = new Date().toISOString().split('T')[0];
+  const hasReward = lastClaimDate !== today;
+
+  const lastPlayedGame = useMemo(() => {
+    const entries = Object.entries(gameStats);
+    if (entries.length === 0) return undefined;
+    const mostPlayed = entries.sort((a, b) => b[1].gamesPlayed - a[1].gamesPlayed)[0];
+    const game = games.find(g => g.id === mostPlayed[0]);
+    return game ? { gameId: game.id, gameName: game.title, score: mostPlayed[1].highScore } : undefined;
+  }, [gameStats]);
+
+  // Sample leaderboard entries for MiniLeaderboard
+  const miniLeaderboardEntries = useMemo(() => {
+    return leaderboard.slice(0, 5).map((entry, i) => ({
+      rank: i + 1,
+      username: entry.username,
+      avatar: entry.avatar,
+      score: entry.score,
+      level: Math.floor(entry.score / 500) + 1,
+    }));
+  }, [leaderboard]);
+
+  const filteredGames = selectedCategory === 'All' ? games : games.filter(g => g.category === selectedCategory);
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -73,96 +105,119 @@ const Index: React.FC = () => {
       
       {/* ULTRA Hero Section */}
       <section className="relative pt-24 pb-20 px-4 overflow-hidden">
-        {/* Floating Particles */}
         <UltraParticles count={30} />
         
-        {/* Background Orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="ultra-orb ultra-orb-cyan w-[600px] h-[600px] -top-20 -left-40" />
           <div className="ultra-orb ultra-orb-magenta w-[500px] h-[500px] top-1/3 right-0 translate-x-1/2" />
           <div className="ultra-orb ultra-orb-purple w-[400px] h-[400px] bottom-0 left-1/3" />
         </div>
 
-        {/* Animated Grid Background */}
         <div 
           className="absolute inset-0 opacity-[0.03] pointer-events-none"
           style={{
-            backgroundImage: `
-              linear-gradient(hsl(var(--primary) / 0.3) 1px, transparent 1px),
-              linear-gradient(90deg, hsl(var(--primary) / 0.3) 1px, transparent 1px)
-            `,
+            backgroundImage: `linear-gradient(hsl(var(--primary) / 0.3) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary) / 0.3) 1px, transparent 1px)`,
             backgroundSize: '50px 50px',
           }}
         />
 
         <div className="container mx-auto relative z-10">
-          <div className="text-center max-w-4xl mx-auto">
-            {/* Premium Badge */}
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-panel mb-8 animate-fade-in-up">
-              <div className="relative">
-                <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-                <div className="absolute inset-0 animate-ping">
-                  <Sparkles className="w-5 h-5 text-primary opacity-50" />
+          {/* Welcome Back for logged-in users */}
+          {isLoggedIn && user && (
+            <div className="max-w-4xl mx-auto mb-8 animate-fade-in-up">
+              <WelcomeBack
+                username={user.username}
+                avatar={user.avatar}
+                level={user.level}
+                streak={currentStreak}
+                lastPlayed={lastPlayedGame}
+                hasReward={hasReward}
+              />
+            </div>
+          )}
+
+          {!isLoggedIn && (
+            <div className="text-center max-w-4xl mx-auto">
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-panel mb-8 animate-fade-in-up">
+                <div className="relative">
+                  <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                  <div className="absolute inset-0 animate-ping">
+                    <Sparkles className="w-5 h-5 text-primary opacity-50" />
+                  </div>
+                </div>
+                <span className="text-sm font-bold text-primary uppercase tracking-wider">50 Premium Games</span>
+                <div className="flex -space-x-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3.5 h-3.5 text-warning fill-warning" />
+                  ))}
                 </div>
               </div>
-              <span className="text-sm font-bold text-primary uppercase tracking-wider">50 Premium Games</span>
-              <div className="flex -space-x-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3.5 h-3.5 text-warning fill-warning" />
-                ))}
-              </div>
-            </div>
-            
-            {/* Main Title */}
-            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-black mb-6 animate-fade-in-up" 
-              style={{ animationDelay: '0.1s' }}>
-              <span className="text-gradient animate-glitch inline-block">GLITCH</span>
-              <br />
-              <span className="text-foreground relative inline-block">
-                GAMES
-                <Crown className="absolute -top-4 -right-8 w-8 h-8 text-warning fill-warning animate-float" />
-              </span>
-            </h1>
-            
-            {/* Tagline */}
-            <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-fade-in-up"
-              style={{ animationDelay: '0.2s' }}>
-              Play the hottest games, earn <span className="text-warning font-semibold">epic rewards</span>, 
-              and compete with players worldwide!
-            </p>
+              
+              <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-black mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                <span className="text-gradient animate-glitch inline-block">GLITCH</span>
+                <br />
+                <span className="text-foreground relative inline-block">
+                  GAMES
+                  <Crown className="absolute -top-4 -right-8 w-8 h-8 text-warning fill-warning animate-float" />
+                </span>
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                Play the hottest games, earn <span className="text-warning font-semibold">epic rewards</span>, and compete with players worldwide!
+              </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up"
-              style={{ animationDelay: '0.3s' }}>
-              {isLoggedIn ? (
-                <Button variant="gaming" size="xl" asChild className="group">
-                  <a href="#games">
-                    <Rocket className="w-5 h-5 mr-2 transition-transform group-hover:rotate-12" />
-                    Start Playing
-                  </a>
-                </Button>
-              ) : (
+              <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                 <Button variant="gaming" size="xl" asChild className="group animate-glow-pulse">
                   <Link to="/login">
                     <Zap className="w-5 h-5 mr-2 transition-transform group-hover:scale-110" />
                     Join Now - It's Free!
                   </Link>
                 </Button>
-              )}
-              <Button variant="outline" size="xl" asChild className="group border-primary/30 hover:border-primary hover:bg-primary/10">
-                <Link to="/leaderboard">
-                  <Trophy className="w-5 h-5 mr-2 text-warning transition-transform group-hover:scale-110" />
-                  View Leaderboard
-                </Link>
-              </Button>
+                <Button variant="outline" size="xl" asChild className="group border-primary/30 hover:border-primary hover:bg-primary/10">
+                  <Link to="/leaderboard">
+                    <Trophy className="w-5 h-5 mr-2 text-warning transition-transform group-hover:scale-110" />
+                    View Leaderboard
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Live Player Count + Stats */}
+          <div className="max-w-4xl mx-auto mt-8">
+            <div className="flex justify-center mb-8">
+              <LivePlayerCount compact />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+              <UltraStatsCounter value="50K+" label="Active Players" color="primary" />
+              <UltraStatsCounter value="50" label="Premium Games" color="secondary" />
+              <UltraStatsCounter value="$10K" label="In Rewards" color="warning" />
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Stats Section */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-20">
-            <UltraStatsCounter value="50K+" label="Active Players" color="primary" />
-            <UltraStatsCounter value="50" label="Premium Games" color="secondary" />
-            <UltraStatsCounter value="$10K" label="In Rewards" color="warning" />
+      {/* Game of the Day */}
+      <section className="py-8 px-4 relative z-10">
+        <div className="container mx-auto max-w-5xl">
+          <GameOfTheDay games={games} />
+        </div>
+      </section>
+
+      {/* Trending + Leaderboard Sidebar */}
+      <section className="py-8 px-4 relative z-10">
+        <div className="container mx-auto max-w-5xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <TrendingGames games={games} limit={5} />
+            <MiniLeaderboard 
+              entries={miniLeaderboardEntries.length > 0 ? miniLeaderboardEntries : [
+                { rank: 1, username: 'ProGamer99', score: 15420, level: 25, avatar: '' },
+                { rank: 2, username: 'PixelQueen', score: 12350, level: 20, avatar: '' },
+                { rank: 3, username: 'NeonKnight', score: 11200, level: 18, avatar: '' },
+                { rank: 4, username: 'StarPlayer', score: 9800, level: 15, avatar: '' },
+                { rank: 5, username: 'GameWizard', score: 8500, level: 12, avatar: '' },
+              ]}
+            />
           </div>
         </div>
       </section>
@@ -176,12 +231,12 @@ const Index: React.FC = () => {
         </div>
       )}
 
-      {/* Games Section */}
+      {/* Games Section with Category Filter */}
       <section id="games" className="py-20 px-4 relative">
         <UltraParticles count={15} className="opacity-50" />
         
         <div className="container mx-auto relative z-10">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12 gap-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
             <div>
               <h2 className="font-display text-3xl md:text-4xl font-bold mb-2 flex items-center gap-3">
                 <Gamepad2 className="w-8 h-8 text-primary" />
@@ -189,26 +244,53 @@ const Index: React.FC = () => {
               </h2>
               <p className="text-muted-foreground text-lg">Choose your adventure and start earning rewards!</p>
             </div>
-            <Link to="/rewards">
-              <Button variant="gold" size="lg" className="gap-2 group">
-                <Gift className="w-5 h-5 transition-transform group-hover:rotate-12" />
-                Daily Rewards
-                <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs">NEW</span>
+            <div className="flex gap-3">
+              {isLoggedIn && (
+                <Link to="/rewards">
+                  <Button variant="gold" size="lg" className="gap-2 group">
+                    <Gift className="w-5 h-5 transition-transform group-hover:rotate-12" />
+                    Daily Rewards
+                    {hasReward && <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs animate-pulse">NEW</span>}
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+
+          {/* Category Tabs */}
+          <div className="flex flex-wrap gap-2 mb-8">
+            {categories.map((category) => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? 'gaming' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedCategory(category)}
+                className="transition-all"
+              >
+                {category}
+                {category !== 'All' && (
+                  <span className="ml-1 text-xs opacity-60">
+                    ({games.filter(g => g.category === category).length})
+                  </span>
+                )}
               </Button>
-            </Link>
+            ))}
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {games.map((game, index) => (
-              <div 
-                key={game.id} 
-                className="animate-fade-in-up" 
-                style={{ animationDelay: `${Math.min(index * 0.05, 0.5)}s` }}
-              >
+            {filteredGames.map((game, index) => (
+              <div key={game.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(index * 0.05, 0.5)}s` }}>
                 <GameCard {...game} />
               </div>
             ))}
           </div>
+
+          {filteredGames.length === 0 && (
+            <div className="text-center py-12">
+              <Gamepad2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">No games in this category.</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -225,11 +307,12 @@ const Index: React.FC = () => {
             Experience gaming like never before with our premium platform
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {[
               { icon: Trophy, title: 'Compete & Win', description: 'Climb the leaderboards and prove you\'re the best!', color: 'warning' },
               { icon: Gift, title: 'Daily Rewards', description: 'Log in every day to claim free coins and gems!', color: 'success' },
               { icon: Zap, title: 'Instant Play', description: 'No downloads! Play directly in your browser.', color: 'primary' },
+              { icon: Heart, title: 'Community', description: 'Add friends, challenge rivals, and climb ranks together.', color: 'error' },
             ].map(({ icon: Icon, title, description, color }) => (
               <div key={title} className="ultra-feature group">
                 <div className={`w-16 h-16 rounded-2xl bg-${color}/10 flex items-center justify-center mb-5 
@@ -245,24 +328,65 @@ const Index: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-4 border-t border-border relative">
-        <div className="container mx-auto text-center relative z-10">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-hero flex items-center justify-center shadow-glow">
-              <Gamepad2 className="w-7 h-7 text-primary-foreground" />
+      <footer className="py-16 px-4 border-t border-border relative">
+        <div className="container mx-auto relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-hero flex items-center justify-center shadow-glow">
+                  <Gamepad2 className="w-7 h-7 text-primary-foreground" />
+                </div>
+                <span className="font-display text-2xl font-bold text-gradient">GLITCH GAMES</span>
+              </div>
+              <p className="text-muted-foreground max-w-md mb-4">
+                The ultimate gaming platform with 50+ premium browser games. Play, compete, and earn rewards!
+              </p>
+              <LivePlayerCount compact />
             </div>
-            <span className="font-display text-2xl font-bold text-gradient">GLITCH GAMES</span>
+            
+            <div>
+              <h4 className="font-display font-bold mb-4">Quick Links</h4>
+              <div className="space-y-2">
+                {[
+                  { to: '/#games', label: 'All Games' },
+                  { to: '/leaderboard', label: 'Leaderboard' },
+                  { to: '/rewards', label: 'Rewards' },
+                  { to: '/profile', label: 'Profile' },
+                ].map(link => (
+                  <Link key={link.to} to={link.to} className="block text-muted-foreground hover:text-foreground transition-colors text-sm">
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-display font-bold mb-4">Platform</h4>
+              <div className="space-y-2">
+                {['Free to Play', 'No Downloads', 'Cross-Device Sync', 'Daily Rewards'].map(item => (
+                  <p key={item} className="text-muted-foreground text-sm flex items-center gap-2">
+                    <Star className="w-3 h-3 text-warning fill-warning" />
+                    {item}
+                  </p>
+                ))}
+              </div>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground">© 2026 Glitch Games. All rights reserved.</p>
-          <div className="flex justify-center gap-4 mt-4">
-            <span className="text-xs text-muted-foreground/50">Premium Gaming Experience</span>
-            <span className="text-muted-foreground/30">•</span>
-            <span className="text-xs text-muted-foreground/50">50+ Games</span>
-            <span className="text-muted-foreground/30">•</span>
-            <span className="text-xs text-muted-foreground/50">Free to Play</span>
+          
+          <div className="border-t border-border pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-muted-foreground">© 2026 Glitch Games. All rights reserved.</p>
+            <div className="flex items-center gap-4">
+              <span className="text-xs text-muted-foreground/50">Premium Gaming Experience</span>
+              <span className="text-muted-foreground/30">•</span>
+              <span className="text-xs text-muted-foreground/50">50+ Games</span>
+              <span className="text-muted-foreground/30">•</span>
+              <span className="text-xs text-muted-foreground/50">Free to Play</span>
+            </div>
           </div>
         </div>
       </footer>
+
+      <ScrollToTop />
     </div>
   );
 };

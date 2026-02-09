@@ -11,6 +11,8 @@ import UltraProgressBar from '@/components/UltraProgressBar';
 import UltraBadge from '@/components/UltraBadge';
 import UltraConfetti from '@/components/UltraConfetti';
 import UltraLoadingSpinner from '@/components/UltraLoadingSpinner';
+import SeasonPass from '@/components/SeasonPass';
+import MilestoneTracker from '@/components/MilestoneTracker';
 
 const generateReward = (day: number) => {
   const cycle = Math.floor((day - 1) / 7);
@@ -27,7 +29,7 @@ const generateReward = (day: number) => {
 };
 
 const Rewards: React.FC = () => {
-  const { isLoggedIn, isLoading, claimDailyReward, currentStreak, lastClaimDate } = useGame();
+  const { isLoggedIn, isLoading, claimDailyReward, currentStreak, lastClaimDate, coins, gems, user, gameStats, achievements } = useGame();
   const { toast } = useToast();
   const [showConfetti, setShowConfetti] = useState(false);
 
@@ -43,6 +45,19 @@ const Rewards: React.FC = () => {
     }
     return rewards;
   }, [nextRewardDay]);
+
+  const totalGamesPlayed = useMemo(() => {
+    return Object.values(gameStats).reduce((sum, s) => sum + s.gamesPlayed, 0);
+  }, [gameStats]);
+
+  const milestones = useMemo(() => [
+    { id: 'games_10', title: 'Play 10 Games', description: 'Play any 10 games', target: 10, current: totalGamesPlayed, reward: { coins: 200, gems: 5 }, icon: '🎮' },
+    { id: 'games_50', title: 'Play 50 Games', description: 'Play any 50 games', target: 50, current: totalGamesPlayed, reward: { coins: 500, gems: 15 }, icon: '🏅' },
+    { id: 'coins_1000', title: 'Coin Collector', description: 'Earn 1,000 coins', target: 1000, current: coins, reward: { coins: 300, gems: 10 }, icon: '🪙' },
+    { id: 'streak_7', title: 'Week Warrior', description: '7-day login streak', target: 7, current: currentStreak, reward: { coins: 500, gems: 25 }, icon: '🔥' },
+    { id: 'streak_30', title: 'Monthly Legend', description: '30-day login streak', target: 30, current: currentStreak, reward: { coins: 2000, gems: 100 }, icon: '👑' },
+    { id: 'achieve_5', title: 'Achievement Hunter', description: 'Unlock 5 achievements', target: 5, current: achievements.length, reward: { coins: 300, gems: 20 }, icon: '🏆' },
+  ], [totalGamesPlayed, coins, currentStreak, achievements.length]);
 
   if (isLoading) {
     return (
@@ -79,7 +94,7 @@ const Rewards: React.FC = () => {
       <UltraParticles count={20} />
       
       <div className="pt-20 pb-8 px-4 relative z-10">
-        <div className="container mx-auto max-w-3xl">
+        <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-success/30 to-primary/30 mb-4 animate-float relative">
               <Gift className="w-10 h-10 text-success" />
@@ -173,6 +188,21 @@ const Rewards: React.FC = () => {
               );
             })}
           </div>
+
+          {/* Milestones */}
+          <div className="mb-8">
+            <MilestoneTracker milestones={milestones} title="Milestone Rewards" />
+          </div>
+
+          {/* Season Pass */}
+          <SeasonPass
+            currentTier={Math.floor(totalGamesPlayed / 5) + 1}
+            currentXP={(user?.xp || 0) % 500}
+            xpPerTier={500}
+            isPremium={false}
+            seasonName="Season 1: Neon Legends"
+            daysLeft={42}
+          />
         </div>
       </div>
     </div>
