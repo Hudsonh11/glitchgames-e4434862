@@ -14,6 +14,9 @@ import MiniLeaderboard from '@/components/MiniLeaderboard';
 import GameCategoryFilter from '@/components/GameCategoryFilter';
 import QuickPlayButton from '@/components/QuickPlayButton';
 import ScrollToTop from '@/components/ScrollToTop';
+import TipOfTheDay from '@/components/TipOfTheDay';
+import PlatformStats from '@/components/PlatformStats';
+import Footer from '@/components/Footer';
 import { useGame } from '@/contexts/GameContext';
 
 const games = [
@@ -124,7 +127,7 @@ const Index: React.FC = () => {
         <div className="container mx-auto relative z-10">
           {/* Welcome Back for logged-in users */}
           {isLoggedIn && user && (
-            <div className="max-w-4xl mx-auto mb-8 animate-fade-in-up">
+            <div className="max-w-4xl mx-auto mb-8 space-y-4 animate-fade-in-up">
               <WelcomeBack
                 username={user.username}
                 avatar={user.avatar}
@@ -133,6 +136,7 @@ const Index: React.FC = () => {
                 lastPlayed={lastPlayedGame}
                 hasReward={hasReward}
               />
+              <TipOfTheDay />
             </div>
           )}
 
@@ -327,65 +331,14 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-16 px-4 border-t border-border relative">
-        <div className="container mx-auto relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-hero flex items-center justify-center shadow-glow">
-                  <Gamepad2 className="w-7 h-7 text-primary-foreground" />
-                </div>
-                <span className="font-display text-2xl font-bold text-gradient">GLITCH GAMES</span>
-              </div>
-              <p className="text-muted-foreground max-w-md mb-4">
-                The ultimate gaming platform with 50+ premium browser games. Play, compete, and earn rewards!
-              </p>
-              <LivePlayerCount compact />
-            </div>
-            
-            <div>
-              <h4 className="font-display font-bold mb-4">Quick Links</h4>
-              <div className="space-y-2">
-                {[
-                  { to: '/#games', label: 'All Games' },
-                  { to: '/leaderboard', label: 'Leaderboard' },
-                  { to: '/rewards', label: 'Rewards' },
-                  { to: '/profile', label: 'Profile' },
-                ].map(link => (
-                  <Link key={link.to} to={link.to} className="block text-muted-foreground hover:text-foreground transition-colors text-sm">
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="font-display font-bold mb-4">Platform</h4>
-              <div className="space-y-2">
-                {['Free to Play', 'No Downloads', 'Cross-Device Sync', 'Daily Rewards'].map(item => (
-                  <p key={item} className="text-muted-foreground text-sm flex items-center gap-2">
-                    <Star className="w-3 h-3 text-warning fill-warning" />
-                    {item}
-                  </p>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          <div className="border-t border-border pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">© 2026 Glitch Games. All rights reserved.</p>
-            <div className="flex items-center gap-4">
-              <span className="text-xs text-muted-foreground/50">Premium Gaming Experience</span>
-              <span className="text-muted-foreground/30">•</span>
-              <span className="text-xs text-muted-foreground/50">50+ Games</span>
-              <span className="text-muted-foreground/30">•</span>
-              <span className="text-xs text-muted-foreground/50">Free to Play</span>
-            </div>
-          </div>
+      {/* Platform Stats */}
+      <section className="py-12 px-4 relative z-10">
+        <div className="container mx-auto max-w-4xl">
+          <PlatformStats />
         </div>
-      </footer>
+      </section>
 
+      <Footer />
       <ScrollToTop />
     </div>
   );

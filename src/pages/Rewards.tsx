@@ -13,6 +13,7 @@ import UltraConfetti from '@/components/UltraConfetti';
 import UltraLoadingSpinner from '@/components/UltraLoadingSpinner';
 import SeasonPass from '@/components/SeasonPass';
 import MilestoneTracker from '@/components/MilestoneTracker';
+import StreakFreezeShield from '@/components/StreakFreezeShield';
 
 const generateReward = (day: number) => {
   const cycle = Math.floor((day - 1) / 7);
@@ -134,6 +135,11 @@ const Rewards: React.FC = () => {
             </div>
             <UltraProgressBar value={weekProgress} max={100} animated glow />
           </UltraCard>
+
+          {/* Streak Freeze */}
+          <div className="mb-6">
+            <StreakFreezeShield freezesAvailable={currentStreak >= 7 ? 1 : 0} currentStreak={currentStreak} />
+          </div>
 
           {/* Status */}
           {canClaim && (

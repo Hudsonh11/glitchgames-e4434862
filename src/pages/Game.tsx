@@ -58,6 +58,8 @@ import UltraParticles from '@/components/UltraParticles';
 import UltraBadge from '@/components/UltraBadge';
 import UltraLoadingSpinner from '@/components/UltraLoadingSpinner';
 import GamePauseMenu from '@/components/GamePauseMenu';
+import GameSuggestion from '@/components/GameSuggestion';
+import GameTimer from '@/components/GameTimer';
 
 const games: Record<string, { component: React.FC<any>; title: string; category: string }> = {
   'block-blast': { component: BlockBlast, title: 'Block Blast', category: 'Puzzle' },
@@ -159,10 +161,16 @@ const Game: React.FC = () => {
                 )}
               </div>
             </div>
+            <GameTimer />
           </div>
 
           <div className="flex justify-center rounded-2xl overflow-hidden border border-border bg-card p-4">
             <GameComponent />
+          </div>
+
+          {/* Next game suggestion */}
+          <div className="mt-6">
+            <GameSuggestion excludeGame={id} />
           </div>
 
           <GamePauseMenu isOpen={isPaused} onResume={() => setIsPaused(false)} onRestart={() => window.location.reload()} onQuit={() => {}} score={0} />
