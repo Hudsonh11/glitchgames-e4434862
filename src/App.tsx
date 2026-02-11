@@ -17,6 +17,8 @@ import NotFound from "./pages/NotFound";
 import SupportBot from "@/components/SupportBot";
 import OnlineStatus from "@/components/OnlineStatus";
 import KeyboardShortcuts from "@/components/KeyboardShortcuts";
+import CookieConsent from "@/components/CookieConsent";
+import BackToTop from "@/components/BackToTop";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +44,8 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           <SupportBot />
+          <CookieConsent />
+          <BackToTop />
         </TooltipProvider>
       </GameProvider>
     </BrowserRouter>

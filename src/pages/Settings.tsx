@@ -748,7 +748,7 @@ const Settings: React.FC = () => {
 
           {/* Version Info */}
           <div className="text-center text-sm text-muted-foreground py-8">
-            <p>Glitch Games v2.0.0</p>
+            <p>Glitch Games v2.5.0</p>
             <p className="text-xs mt-1">Made with 💜 by the Glitch Team</p>
           </div>
         </div>

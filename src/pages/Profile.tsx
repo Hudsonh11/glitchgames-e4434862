@@ -13,6 +13,8 @@ import GameHistory from '@/components/GameHistory';
 import FavoriteGames from '@/components/FavoriteGames';
 import ActivityFeed from '@/components/ActivityFeed';
 import StatsOverview from '@/components/StatsOverview';
+import PlayerLevelBadge from '@/components/PlayerLevelBadge';
+import QuickActions from '@/components/QuickActions';
 import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
 import UltraParticles from '@/components/UltraParticles';
@@ -243,6 +245,11 @@ const Profile: React.FC = () => {
               </div>
             </TabsContent>
           </Tabs>
+
+          {/* Quick Actions */}
+          <div className="mb-8">
+            <QuickActions />
+          </div>
 
           {/* Account Info */}
           <UltraCard variant="glass" className="p-6">
