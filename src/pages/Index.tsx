@@ -70,6 +70,16 @@ const games = [
   { id: 'pattern-memory', title: 'Pattern Memory', description: 'Remember and repeat growing patterns!', image: 'https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=400&h=300&fit=crop', category: 'Memory', rating: 4.5, players: '9.3K', color: 'hsl(320, 80%, 55%)' },
   { id: 'spot-difference', title: 'Spot Difference', description: 'Find all the differences between two images!', image: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=400&h=300&fit=crop', category: 'Puzzle', rating: 4.4, players: '11.7K', color: 'hsl(170, 70%, 45%)' },
   { id: 'math-blitz', title: 'Math Blitz', description: 'Solve math problems as fast as you can!', image: 'https://images.unsplash.com/photo-1580541832626-2a7131ee809f?w=400&h=300&fit=crop', category: 'Brain', rating: 4.5, players: '10.9K', color: 'hsl(220, 80%, 55%)' },
+  { id: 'balloon-pop', title: 'Balloon Pop', description: 'Pop as many balloons as you can before time runs out!', image: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&h=300&fit=crop', category: 'Arcade', rating: 4.6, players: '11.2K', color: 'hsl(350, 90%, 60%)' },
+  { id: 'pipe-connect', title: 'Pipe Connect', description: 'Rotate pipes to connect the water flow!', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop', category: 'Puzzle', rating: 4.5, players: '9.4K', color: 'hsl(200, 70%, 50%)' },
+  { id: 'lights-out', title: 'Lights Out', description: 'Turn off all the lights by toggling them!', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop', category: 'Puzzle', rating: 4.4, players: '7.8K', color: 'hsl(45, 90%, 50%)' },
+  { id: 'word-scramble', title: 'Word Scramble', description: 'Unscramble letters to find the hidden word!', image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&h=300&fit=crop', category: 'Word', rating: 4.6, players: '12.5K', color: 'hsl(160, 70%, 45%)' },
+  { id: 'coin-dash', title: 'Coin Dash', description: 'Collect coins and dodge enemies in this fast-paced action game!', image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&h=300&fit=crop', category: 'Arcade', rating: 4.7, players: '14.3K', color: 'hsl(45, 100%, 50%)' },
+  { id: 'skeet-shoot', title: 'Skeet Shoot', description: 'Aim and shoot flying targets for points!', image: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=400&h=300&fit=crop', category: 'Skill', rating: 4.5, players: '10.1K', color: 'hsl(15, 85%, 55%)' },
+  { id: 'hex-merge', title: 'Hex Merge', description: 'Merge tiles on a hex grid to reach the highest number!', image: 'https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=400&h=300&fit=crop', category: 'Puzzle', rating: 4.6, players: '11.8K', color: 'hsl(280, 80%, 55%)' },
+  { id: 'gravity-runner', title: 'Gravity Runner', description: 'Flip gravity to dodge obstacles in space!', image: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=400&h=300&fit=crop', category: 'Runner', rating: 4.8, players: '16.9K', color: 'hsl(185, 90%, 45%)' },
+  { id: 'ice-slider', title: 'Ice Slider', description: 'Slide on ice to reach the goal - plan your moves!', image: 'https://images.unsplash.com/photo-1494059980473-813e73ee784b?w=400&h=300&fit=crop', category: 'Puzzle', rating: 4.5, players: '8.9K', color: 'hsl(195, 80%, 60%)' },
+  { id: 'roblox-obby', title: 'Roblox Obby', description: '3D obstacle course with 50 levels! Jump, dodge, and conquer!', image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=300&fit=crop', category: '3D', rating: 4.9, players: '42.7K', color: 'hsl(140, 80%, 50%)' },
 ];
 
 const categories = ['All', ...Array.from(new Set(games.map(g => g.category))).sort()];
@@ -149,7 +159,7 @@ const Index: React.FC = () => {
                     <Sparkles className="w-5 h-5 text-primary opacity-50" />
                   </div>
                 </div>
-                <span className="text-sm font-bold text-primary uppercase tracking-wider">50 Premium Games</span>
+                <span className="text-sm font-bold text-primary uppercase tracking-wider">60+ Premium Games</span>
                 <div className="flex -space-x-1">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="w-3.5 h-3.5 text-warning fill-warning" />

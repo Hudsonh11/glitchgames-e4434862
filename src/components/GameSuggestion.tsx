@@ -8,6 +8,9 @@ const allGames = [
   { id: 'chess', name: 'Chess' }, { id: 'wordle', name: 'Wordle' }, { id: '2048', name: '2048' },
   { id: 'flappy', name: 'Flappy Bird' }, { id: 'geometry-dash', name: 'Geometry Dash' },
   { id: 'temple-run', name: 'Temple Run' }, { id: 'sudoku', name: 'Sudoku' },
+  { id: 'roblox-obby', name: 'Roblox Obby' }, { id: 'balloon-pop', name: 'Balloon Pop' },
+  { id: 'gravity-runner', name: 'Gravity Runner' }, { id: 'coin-dash', name: 'Coin Dash' },
+  { id: 'ice-slider', name: 'Ice Slider' },
 ];
 
 const GameSuggestion = ({ excludeGame }: { excludeGame?: string }) => {

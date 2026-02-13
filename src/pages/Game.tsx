@@ -50,6 +50,16 @@ import PatternMemory from '@/components/games/PatternMemory';
 import SpotDifference from '@/components/games/SpotDifference';
 import MathBlitz from '@/components/games/MathBlitz';
 import BlockBlastExtreme from '@/components/games/BlockBlastExtreme';
+import BalloonPop from '@/components/games/BalloonPop';
+import PipeConnect from '@/components/games/PipeConnect';
+import LightsOut from '@/components/games/LightsOut';
+import WordScramble from '@/components/games/WordScramble';
+import CoinDash from '@/components/games/CoinDash';
+import SkeetShoot from '@/components/games/SkeetShoot';
+import HexMerge from '@/components/games/HexMerge';
+import GravityRunner from '@/components/games/GravityRunner';
+import IceSlider from '@/components/games/IceSlider';
+import RobloxObby from '@/components/games/RobloxObby';
 import { useGame } from '@/contexts/GameContext';
 import Navbar from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
@@ -112,6 +122,16 @@ const games: Record<string, { component: React.FC<any>; title: string; category:
   'pattern-memory': { component: PatternMemory, title: 'Pattern Memory', category: 'Memory' },
   'spot-difference': { component: SpotDifference, title: 'Spot Difference', category: 'Puzzle' },
   'math-blitz': { component: MathBlitz, title: 'Math Blitz', category: 'Brain' },
+  'balloon-pop': { component: BalloonPop, title: 'Balloon Pop', category: 'Arcade' },
+  'pipe-connect': { component: PipeConnect, title: 'Pipe Connect', category: 'Puzzle' },
+  'lights-out': { component: LightsOut, title: 'Lights Out', category: 'Puzzle' },
+  'word-scramble': { component: WordScramble, title: 'Word Scramble', category: 'Word' },
+  'coin-dash': { component: CoinDash, title: 'Coin Dash', category: 'Arcade' },
+  'skeet-shoot': { component: SkeetShoot, title: 'Skeet Shoot', category: 'Skill' },
+  'hex-merge': { component: HexMerge, title: 'Hex Merge', category: 'Puzzle' },
+  'gravity-runner': { component: GravityRunner, title: 'Gravity Runner', category: 'Runner' },
+  'ice-slider': { component: IceSlider, title: 'Ice Slider', category: 'Puzzle' },
+  'roblox-obby': { component: RobloxObby, title: 'Roblox Obby', category: '3D' },
 };
 
 const Game: React.FC = () => {
