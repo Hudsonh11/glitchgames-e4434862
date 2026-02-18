@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Text, OrbitControls, Sky, Stars } from '@react-three/drei';
+import { Sky, Stars } from '@react-three/drei';
 import * as THREE from 'three';
+import { useIsMobile } from '@/hooks/use-mobile';
 
-// ─── Level Generation ───
+// ─── Types ───
 interface PlatformData {
   position: [number, number, number];
   size: [number, number, number];
@@ -25,13 +26,13 @@ const COLORS = {
   finish: '#76FF03',
 };
 
+// ─── Level Generation ───
 const generateLevel = (levelNum: number): PlatformData[] => {
   const platforms: PlatformData[] = [];
   const difficulty = Math.min(levelNum / 10, 1);
   const baseY = levelNum * 2;
   let x = 0, y = baseY, z = 0;
 
-  // Start platform
   platforms.push({ position: [x, y, z], size: [4, 0.5, 4], color: COLORS.checkpoint, type: 'checkpoint' });
 
   const numPlatforms = 6 + Math.floor(levelNum / 5) * 2;
@@ -63,7 +64,6 @@ const generateLevel = (levelNum: number): PlatformData[] => {
       type = 'speed';
     }
 
-    // Checkpoint every ~5 platforms
     if ((i + 1) % 5 === 0 && i < numPlatforms - 1) type = 'checkpoint';
 
     const w = Math.max(1.5, 3 - difficulty * 1.5 - Math.random());
@@ -77,19 +77,52 @@ const generateLevel = (levelNum: number): PlatformData[] => {
     });
   }
 
-  // Finish platform
   x += 3; z += 2;
   platforms.push({ position: [x, y, z], size: [4, 0.5, 4], color: COLORS.finish, type: 'finish' });
-
   return platforms;
 };
 
+// ─── Floating Particles ───
+const FloatingParticles: React.FC = () => {
+  const count = 80;
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const speeds = useMemo(() => Array.from({ length: count }, () => 0.2 + Math.random() * 0.8), []);
+  const offsets = useMemo(() => Array.from({ length: count }, () => Math.random() * Math.PI * 2), []);
+  const positions = useMemo(() => Array.from({ length: count }, () => [
+    (Math.random() - 0.5) * 60,
+    Math.random() * 30 - 5,
+    (Math.random() - 0.5) * 60,
+  ]), []);
+
+  useFrame(({ clock }) => {
+    if (!meshRef.current) return;
+    const t = clock.getElapsedTime();
+    for (let i = 0; i < count; i++) {
+      dummy.position.set(
+        positions[i][0] + Math.sin(t * speeds[i] + offsets[i]) * 2,
+        positions[i][1] + Math.sin(t * speeds[i] * 0.5 + offsets[i]) * 3,
+        positions[i][2] + Math.cos(t * speeds[i] + offsets[i]) * 2,
+      );
+      dummy.scale.setScalar(0.05 + Math.sin(t * 2 + offsets[i]) * 0.03);
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    }
+    meshRef.current.instanceMatrix.needsUpdate = true;
+  });
+
+  return (
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
+      <sphereGeometry args={[1, 8, 8]} />
+      <meshStandardMaterial color="#4ECDC4" emissive="#4ECDC4" emissiveIntensity={2} transparent opacity={0.6} />
+    </instancedMesh>
+  );
+};
+
 // ─── Platform Component ───
-const Platform: React.FC<{
-  data: PlatformData;
-  onPlayerTouch?: (type: PlatformData['type'], pos: THREE.Vector3) => void;
-}> = ({ data }) => {
+const Platform: React.FC<{ data: PlatformData }> = ({ data }) => {
   const meshRef = useRef<THREE.Mesh>(null);
+  const glowRef = useRef<THREE.Mesh>(null);
   const [visible, setVisible] = useState(true);
   const initialPos = useRef(new THREE.Vector3(...data.position));
 
@@ -103,34 +136,58 @@ const Platform: React.FC<{
       else if (data.moveAxis === 'z') pos.z += offset;
       else pos.y += offset;
       meshRef.current.position.copy(pos);
+      if (glowRef.current) glowRef.current.position.copy(pos);
     }
     if (data.type === 'disappearing') {
-      const t = clock.getElapsedTime();
-      const show = Math.sin(t * 1.5) > -0.3;
+      const show = Math.sin(clock.getElapsedTime() * 1.5) > -0.3;
       setVisible(show);
       meshRef.current.visible = show;
+      if (glowRef.current) glowRef.current.visible = show;
+    }
+    // Pulse effect for special platforms
+    if (glowRef.current && (data.type === 'kill' || data.type === 'bouncy' || data.type === 'finish' || data.type === 'checkpoint')) {
+      const s = 1 + Math.sin(clock.getElapsedTime() * 3) * 0.05;
+      glowRef.current.scale.set(s, 1, s);
     }
   });
 
   if (!visible && data.type === 'disappearing') return null;
 
+  const emissiveColor = data.type === 'kill' ? '#FF0000' : data.type === 'finish' ? '#00FF00' : data.type === 'bouncy' ? '#00E676' : data.type === 'checkpoint' ? '#FFD700' : '#000000';
+  const emissiveIntensity = ['kill', 'finish', 'bouncy', 'checkpoint'].includes(data.type) ? 0.4 : 0;
+
   return (
-    <mesh ref={meshRef} position={data.position} castShadow receiveShadow>
-      <boxGeometry args={data.size} />
-      <meshStandardMaterial
-        color={data.color}
-        emissive={data.type === 'kill' ? '#FF0000' : data.type === 'finish' ? '#00FF00' : '#000000'}
-        emissiveIntensity={data.type === 'kill' || data.type === 'finish' ? 0.3 : 0}
-        roughness={0.4}
-        metalness={0.3}
-      />
-      {data.type === 'checkpoint' && (
-        <mesh position={[0, 1.5, 0]}>
-          <cylinderGeometry args={[0.05, 0.05, 3, 8]} />
-          <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={0.5} />
+    <group>
+      <mesh ref={meshRef} position={data.position} castShadow receiveShadow>
+        <boxGeometry args={data.size} />
+        <meshStandardMaterial
+          color={data.color}
+          emissive={emissiveColor}
+          emissiveIntensity={emissiveIntensity}
+          roughness={0.3}
+          metalness={0.4}
+        />
+      </mesh>
+      {/* Glow underlight */}
+      {['kill', 'bouncy', 'finish', 'checkpoint'].includes(data.type) && (
+        <mesh ref={glowRef} position={[data.position[0], data.position[1] - 0.3, data.position[2]]}>
+          <boxGeometry args={[data.size[0] + 0.2, 0.1, data.size[2] + 0.2]} />
+          <meshStandardMaterial color={emissiveColor} emissive={emissiveColor} emissiveIntensity={1.5} transparent opacity={0.4} />
         </mesh>
       )}
-    </mesh>
+      {data.type === 'checkpoint' && (
+        <group position={[data.position[0], data.position[1], data.position[2]]}>
+          <mesh position={[0, 1.5, 0]}>
+            <cylinderGeometry args={[0.05, 0.05, 3, 8]} />
+            <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={1} />
+          </mesh>
+          <mesh position={[0, 3.2, 0]}>
+            <sphereGeometry args={[0.2, 16, 16]} />
+            <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={2} />
+          </mesh>
+        </group>
+      )}
+    </group>
   );
 };
 
@@ -141,13 +198,19 @@ const Player: React.FC<{
   onDeath: () => void;
   checkpoint: [number, number, number];
   setCheckpoint: (p: [number, number, number]) => void;
-}> = ({ platforms, onLevelComplete, onDeath, checkpoint, setCheckpoint }) => {
-  const meshRef = useRef<THREE.Mesh>(null);
+  mobileInput: React.MutableRefObject<{ x: number; z: number; jump: boolean }>;
+}> = ({ platforms, onLevelComplete, onDeath, checkpoint, setCheckpoint, mobileInput }) => {
+  const bodyRef = useRef<THREE.Mesh>(null);
+  const headRef = useRef<THREE.Mesh>(null);
+  const trailRef = useRef<THREE.InstancedMesh>(null);
   const velocity = useRef(new THREE.Vector3(0, 0, 0));
   const pos = useRef(new THREE.Vector3(...checkpoint));
   const grounded = useRef(false);
   const keys = useRef<Set<string>>(new Set());
   const { camera } = useThree();
+  const trailPositions = useRef<THREE.Vector3[]>([]);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const trailCount = 20;
 
   useEffect(() => {
     pos.current.set(...checkpoint);
@@ -163,28 +226,34 @@ const Player: React.FC<{
   }, []);
 
   useFrame((_, delta) => {
-    if (!meshRef.current) return;
+    if (!bodyRef.current || !headRef.current) return;
     const dt = Math.min(delta, 0.05);
     const k = keys.current;
     const speed = 8;
     const jumpForce = 8;
     const gravity = -20;
+    const mi = mobileInput.current;
 
-    // Movement
+    // Movement (keyboard + mobile joystick)
     const moveDir = new THREE.Vector3();
     if (k.has('w') || k.has('arrowup')) moveDir.z -= 1;
     if (k.has('s') || k.has('arrowdown')) moveDir.z += 1;
     if (k.has('a') || k.has('arrowleft')) moveDir.x -= 1;
     if (k.has('d') || k.has('arrowright')) moveDir.x += 1;
-    moveDir.normalize().multiplyScalar(speed * dt);
 
+    // Add mobile joystick input
+    moveDir.x += mi.x;
+    moveDir.z += mi.z;
+
+    moveDir.normalize().multiplyScalar(speed * dt);
     pos.current.x += moveDir.x;
     pos.current.z += moveDir.z;
 
-    // Jump
-    if ((k.has(' ') || k.has('space')) && grounded.current) {
+    // Jump (keyboard + mobile button)
+    if (((k.has(' ') || k.has('space')) || mi.jump) && grounded.current) {
       velocity.current.y = jumpForce;
       grounded.current = false;
+      mi.jump = false;
     }
 
     // Gravity
@@ -220,7 +289,23 @@ const Player: React.FC<{
     // Fall death
     if (pos.current.y < -20) { onDeath(); return; }
 
-    meshRef.current.position.copy(pos.current);
+    bodyRef.current.position.copy(pos.current);
+    headRef.current.position.set(pos.current.x, pos.current.y + 0.75, pos.current.z);
+
+    // Trail effect
+    trailPositions.current.unshift(pos.current.clone());
+    if (trailPositions.current.length > trailCount) trailPositions.current.pop();
+    if (trailRef.current) {
+      for (let i = 0; i < trailCount; i++) {
+        if (trailPositions.current[i]) {
+          dummy.position.copy(trailPositions.current[i]);
+          dummy.scale.setScalar(Math.max(0.01, (1 - i / trailCount) * 0.3));
+          dummy.updateMatrix();
+          trailRef.current.setMatrixAt(i, dummy.matrix);
+        }
+      }
+      trailRef.current.instanceMatrix.needsUpdate = true;
+    }
 
     // Camera follow
     const camTarget = pos.current.clone().add(new THREE.Vector3(0, 8, 12));
@@ -230,16 +315,20 @@ const Player: React.FC<{
 
   return (
     <group>
-      <mesh ref={meshRef} position={checkpoint} castShadow>
-        {/* Roblox-style blocky character */}
-        {/* Body */}
+      {/* Trail */}
+      <instancedMesh ref={trailRef} args={[undefined, undefined, trailCount]}>
+        <sphereGeometry args={[1, 8, 8]} />
+        <meshStandardMaterial color="#4ECDC4" emissive="#4ECDC4" emissiveIntensity={1} transparent opacity={0.3} />
+      </instancedMesh>
+      {/* Body */}
+      <mesh ref={bodyRef} position={checkpoint} castShadow>
         <boxGeometry args={[0.8, 1, 0.5]} />
-        <meshStandardMaterial color="#4ECDC4" roughness={0.3} metalness={0.5} />
+        <meshStandardMaterial color="#4ECDC4" roughness={0.2} metalness={0.6} />
       </mesh>
-      {/* Head - offset relative to body */}
-      <mesh position={[pos.current.x, pos.current.y + 0.7, pos.current.z]} castShadow>
+      {/* Head */}
+      <mesh ref={headRef} position={[checkpoint[0], checkpoint[1] + 0.75, checkpoint[2]]} castShadow>
         <boxGeometry args={[0.6, 0.6, 0.6]} />
-        <meshStandardMaterial color="#FFD93D" roughness={0.3} metalness={0.2} />
+        <meshStandardMaterial color="#FFD93D" roughness={0.2} metalness={0.3} />
       </mesh>
     </group>
   );
@@ -250,8 +339,8 @@ const ObbyScene: React.FC<{
   level: number;
   onComplete: () => void;
   onDeath: () => void;
-  deaths: number;
-}> = ({ level, onComplete, onDeath, deaths }) => {
+  mobileInput: React.MutableRefObject<{ x: number; z: number; jump: boolean }>;
+}> = ({ level, onComplete, onDeath, mobileInput }) => {
   const platforms = useMemo(() => generateLevel(level), [level]);
   const startPos: [number, number, number] = useMemo(() => {
     const first = platforms[0];
@@ -263,12 +352,30 @@ const ObbyScene: React.FC<{
 
   return (
     <>
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[10, 20, 10]} intensity={1} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
-      <pointLight position={[0, 10, 0]} intensity={0.5} color="#4ECDC4" />
-      <Sky sunPosition={[100, 50, 100]} />
-      <Stars radius={100} depth={50} count={2000} factor={4} />
-      <fog attach="fog" args={['#1a1a2e', 30, 80]} />
+      <ambientLight intensity={0.3} />
+      <directionalLight
+        position={[15, 25, 10]}
+        intensity={1.2}
+        castShadow
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-camera-far={100}
+        shadow-camera-left={-30}
+        shadow-camera-right={30}
+        shadow-camera-top={30}
+        shadow-camera-bottom={-30}
+        shadow-bias={-0.001}
+      />
+      <pointLight position={[0, 15, 0]} intensity={0.8} color="#4ECDC4" distance={50} />
+      <pointLight position={[20, 10, 20]} intensity={0.5} color="#FF6B6B" distance={40} />
+      <pointLight position={[-10, 8, -10]} intensity={0.4} color="#BB86FC" distance={35} />
+      <hemisphereLight args={['#1a1a3e', '#0a0a1e', 0.3]} />
+
+      <Sky sunPosition={[100, 50, 100]} turbidity={8} rayleigh={2} />
+      <Stars radius={100} depth={50} count={3000} factor={5} saturation={1} />
+      <fog attach="fog" args={['#0a0a2e', 40, 100]} />
+
+      <FloatingParticles />
 
       {platforms.map((p, i) => (
         <Platform key={`${level}-${i}`} data={p} />
@@ -280,14 +387,104 @@ const ObbyScene: React.FC<{
         onDeath={onDeath}
         checkpoint={checkpoint}
         setCheckpoint={setCheckpoint}
+        mobileInput={mobileInput}
       />
 
-      {/* Ground plane (lava) */}
+      {/* Lava ground */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -25, 0]} receiveShadow>
         <planeGeometry args={[500, 500]} />
-        <meshStandardMaterial color="#FF4444" emissive="#FF0000" emissiveIntensity={0.2} transparent opacity={0.8} />
+        <meshStandardMaterial color="#FF2200" emissive="#FF0000" emissiveIntensity={0.4} transparent opacity={0.85} />
       </mesh>
     </>
+  );
+};
+
+// ─── Mobile Joystick ───
+const MobileJoystick: React.FC<{
+  mobileInput: React.MutableRefObject<{ x: number; z: number; jump: boolean }>;
+}> = ({ mobileInput }) => {
+  const joystickRef = useRef<HTMLDivElement>(null);
+  const knobRef = useRef<HTMLDivElement>(null);
+  const touchId = useRef<number | null>(null);
+  const center = useRef({ x: 0, y: 0 });
+  const radius = 50;
+
+  const handleStart = useCallback((e: React.TouchEvent) => {
+    if (touchId.current !== null) return;
+    const touch = e.changedTouches[0];
+    touchId.current = touch.identifier;
+    const rect = joystickRef.current!.getBoundingClientRect();
+    center.current = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    handleMove(touch.clientX, touch.clientY);
+  }, []);
+
+  const handleMove = useCallback((cx: number, cy: number) => {
+    const dx = cx - center.current.x;
+    const dy = cy - center.current.y;
+    const dist = Math.min(Math.sqrt(dx * dx + dy * dy), radius);
+    const angle = Math.atan2(dy, dx);
+    const nx = Math.cos(angle) * dist;
+    const ny = Math.sin(angle) * dist;
+
+    if (knobRef.current) {
+      knobRef.current.style.transform = `translate(${nx}px, ${ny}px)`;
+    }
+    mobileInput.current.x = (nx / radius);
+    mobileInput.current.z = (ny / radius);
+  }, [mobileInput]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      if (e.changedTouches[i].identifier === touchId.current) {
+        handleMove(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
+        break;
+      }
+    }
+  }, [handleMove]);
+
+  const handleEnd = useCallback((e: React.TouchEvent) => {
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      if (e.changedTouches[i].identifier === touchId.current) {
+        touchId.current = null;
+        if (knobRef.current) knobRef.current.style.transform = 'translate(0px, 0px)';
+        mobileInput.current.x = 0;
+        mobileInput.current.z = 0;
+        break;
+      }
+    }
+  }, [mobileInput]);
+
+  return (
+    <div
+      ref={joystickRef}
+      onTouchStart={handleStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleEnd}
+      onTouchCancel={handleEnd}
+      className="absolute bottom-8 left-8 w-32 h-32 rounded-full border-2 border-white/30 bg-white/10 backdrop-blur-sm flex items-center justify-center touch-none z-50"
+    >
+      <div
+        ref={knobRef}
+        className="w-14 h-14 rounded-full bg-white/40 border-2 border-white/60 shadow-lg shadow-white/20 pointer-events-none"
+      />
+    </div>
+  );
+};
+
+// ─── Mobile Jump Button ───
+const MobileJumpButton: React.FC<{
+  mobileInput: React.MutableRefObject<{ x: number; z: number; jump: boolean }>;
+}> = ({ mobileInput }) => {
+  return (
+    <button
+      onTouchStart={(e) => {
+        e.preventDefault();
+        mobileInput.current.jump = true;
+      }}
+      className="absolute bottom-10 right-8 w-20 h-20 rounded-full bg-primary/40 border-2 border-primary/60 backdrop-blur-sm flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-primary/30 active:scale-90 transition-transform touch-none z-50 select-none"
+    >
+      ⬆
+    </button>
   );
 };
 
@@ -297,14 +494,11 @@ const RobloxObby: React.FC = () => {
   const [deaths, setDeaths] = useState(0);
   const [showComplete, setShowComplete] = useState(false);
   const [totalLevels] = useState(50);
+  const isMobile = useIsMobile();
+  const mobileInput = useRef({ x: 0, z: 0, jump: false });
 
-  const handleComplete = useCallback(() => {
-    setShowComplete(true);
-  }, []);
-
-  const handleDeath = useCallback(() => {
-    setDeaths(d => d + 1);
-  }, []);
+  const handleComplete = useCallback(() => { setShowComplete(true); }, []);
+  const handleDeath = useCallback(() => { setDeaths(d => d + 1); }, []);
 
   const nextLevel = () => {
     if (level < totalLevels) {
@@ -316,30 +510,45 @@ const RobloxObby: React.FC = () => {
   return (
     <div className="flex flex-col items-center w-full">
       {/* HUD */}
-      <div className="flex justify-between w-full max-w-4xl mb-2 px-4">
+      <div className="flex justify-between w-full max-w-4xl mb-2 px-4 flex-wrap gap-2">
         <div className="flex items-center gap-4">
           <span className="text-lg font-bold text-primary">Level {level}/{totalLevels}</span>
           <span className="text-sm text-muted-foreground">Deaths: {deaths}</span>
         </div>
-        <div className="flex gap-2">
-          <span className="text-xs px-2 py-1 rounded bg-green-500/20 text-green-400">🟢 Normal</span>
-          <span className="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400">🔴 Kill</span>
-          <span className="text-xs px-2 py-1 rounded bg-orange-500/20 text-orange-400">🟠 Moving</span>
-          <span className="text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-400">🟣 Vanishing</span>
-          <span className="text-xs px-2 py-1 rounded bg-emerald-500/20 text-emerald-400">🟢 Bouncy</span>
-        </div>
+        {!isMobile && (
+          <div className="flex gap-2 flex-wrap">
+            <span className="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-400">🔵 Normal</span>
+            <span className="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400">🔴 Kill</span>
+            <span className="text-xs px-2 py-1 rounded bg-orange-500/20 text-orange-400">🟠 Moving</span>
+            <span className="text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-400">🟣 Vanishing</span>
+            <span className="text-xs px-2 py-1 rounded bg-emerald-500/20 text-emerald-400">🟢 Bouncy</span>
+          </div>
+        )}
       </div>
 
       {/* 3D Canvas */}
-      <div className="w-full rounded-xl overflow-hidden border border-border" style={{ height: 500 }}>
-        <Canvas shadows camera={{ position: [0, 10, 15], fov: 60 }}>
+      <div className="w-full rounded-xl overflow-hidden border border-border relative" style={{ height: isMobile ? 400 : 500 }}>
+        <Canvas
+          shadows
+          camera={{ position: [0, 10, 15], fov: 60 }}
+          gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+          dpr={[1, 1.5]}
+        >
           <ObbyScene
             level={level}
             onComplete={handleComplete}
             onDeath={handleDeath}
-            deaths={deaths}
+            mobileInput={mobileInput}
           />
         </Canvas>
+
+        {/* Mobile Controls */}
+        {isMobile && (
+          <>
+            <MobileJoystick mobileInput={mobileInput} />
+            <MobileJumpButton mobileInput={mobileInput} />
+          </>
+        )}
       </div>
 
       {/* Level complete overlay */}
@@ -358,7 +567,7 @@ const RobloxObby: React.FC = () => {
               </button>
             ) : (
               <div>
-                <h3 className="text-2xl font-bold text-warning mb-2">🏆 YOU BEAT ALL 50 LEVELS!</h3>
+                <h3 className="text-2xl font-bold text-yellow-400 mb-2">🏆 YOU BEAT ALL 50 LEVELS!</h3>
                 <button onClick={() => { setLevel(1); setDeaths(0); setShowComplete(false); }}
                   className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold">Play Again</button>
               </div>
@@ -368,7 +577,11 @@ const RobloxObby: React.FC = () => {
       )}
 
       <div className="mt-2 text-xs text-muted-foreground text-center">
-        <strong>WASD</strong> to move • <strong>Space</strong> to jump • Avoid red platforms • Reach the green goal!
+        {isMobile ? (
+          <span><strong>Joystick</strong> to move • <strong>⬆ Button</strong> to jump • Avoid red platforms!</span>
+        ) : (
+          <span><strong>WASD</strong> to move • <strong>Space</strong> to jump • Avoid red platforms • Reach the green goal!</span>
+        )}
       </div>
     </div>
   );
