@@ -198,8 +198,9 @@ const Player: React.FC<{
   onDeath: () => void;
   checkpoint: [number, number, number];
   setCheckpoint: (p: [number, number, number]) => void;
-  mobileInput: React.MutableRefObject<{ x: number; z: number; jump: boolean }>;
-}> = ({ platforms, onLevelComplete, onDeath, checkpoint, setCheckpoint, mobileInput }) => {
+  mobileInput: React.MutableRefObject<{ x: number; z: number; jump: boolean; cameraAngle: number }>;
+  deathCount: number;
+}> = ({ platforms, onLevelComplete, onDeath, checkpoint, setCheckpoint, mobileInput, deathCount }) => {
   const bodyRef = useRef<THREE.Mesh>(null);
   const headRef = useRef<THREE.Mesh>(null);
   const trailRef = useRef<THREE.InstancedMesh>(null);
@@ -215,7 +216,8 @@ const Player: React.FC<{
   useEffect(() => {
     pos.current.set(...checkpoint);
     velocity.current.set(0, 0, 0);
-  }, [checkpoint]);
+    trailPositions.current = [];
+  }, [checkpoint, deathCount]);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => keys.current.add(e.key.toLowerCase());
@@ -234,18 +236,23 @@ const Player: React.FC<{
     const gravity = -20;
     const mi = mobileInput.current;
 
-    // Movement (keyboard + mobile joystick)
-    const moveDir = new THREE.Vector3();
-    if (k.has('w') || k.has('arrowup')) moveDir.z -= 1;
-    if (k.has('s') || k.has('arrowdown')) moveDir.z += 1;
-    if (k.has('a') || k.has('arrowleft')) moveDir.x -= 1;
-    if (k.has('d') || k.has('arrowright')) moveDir.x += 1;
+    // Movement (keyboard + mobile joystick) relative to camera angle
+    const rawDir = new THREE.Vector3();
+    if (k.has('w') || k.has('arrowup')) rawDir.z -= 1;
+    if (k.has('s') || k.has('arrowdown')) rawDir.z += 1;
+    if (k.has('a') || k.has('arrowleft')) rawDir.x -= 1;
+    if (k.has('d') || k.has('arrowright')) rawDir.x += 1;
+    rawDir.x += mi.x;
+    rawDir.z += mi.z;
+    rawDir.normalize();
 
-    // Add mobile joystick input
-    moveDir.x += mi.x;
-    moveDir.z += mi.z;
-
-    moveDir.normalize().multiplyScalar(speed * dt);
+    // Rotate movement direction by camera angle
+    const angle = mi.cameraAngle;
+    const moveDir = new THREE.Vector3(
+      rawDir.x * Math.cos(angle) - rawDir.z * Math.sin(angle),
+      0,
+      rawDir.x * Math.sin(angle) + rawDir.z * Math.cos(angle),
+    ).multiplyScalar(speed * dt);
     pos.current.x += moveDir.x;
     pos.current.z += moveDir.z;
 
@@ -307,9 +314,17 @@ const Player: React.FC<{
       trailRef.current.instanceMatrix.needsUpdate = true;
     }
 
-    // Camera follow
-    const camTarget = pos.current.clone().add(new THREE.Vector3(0, 8, 12));
-    camera.position.lerp(camTarget, 0.05);
+    // Camera follow with rotation
+    const camDist = 14;
+    const camHeight = 8;
+    const camAngle = mi.cameraAngle;
+    const camOffset = new THREE.Vector3(
+      Math.sin(camAngle) * camDist,
+      camHeight,
+      Math.cos(camAngle) * camDist,
+    );
+    const camTarget = pos.current.clone().add(camOffset);
+    camera.position.lerp(camTarget, 0.08);
     camera.lookAt(pos.current);
   });
 
@@ -339,8 +354,9 @@ const ObbyScene: React.FC<{
   level: number;
   onComplete: () => void;
   onDeath: () => void;
-  mobileInput: React.MutableRefObject<{ x: number; z: number; jump: boolean }>;
-}> = ({ level, onComplete, onDeath, mobileInput }) => {
+  deathCount: number;
+  mobileInput: React.MutableRefObject<{ x: number; z: number; jump: boolean; cameraAngle: number }>;
+}> = ({ level, onComplete, onDeath, deathCount, mobileInput }) => {
   const platforms = useMemo(() => generateLevel(level), [level]);
   const startPos: [number, number, number] = useMemo(() => {
     const first = platforms[0];
@@ -388,6 +404,7 @@ const ObbyScene: React.FC<{
         checkpoint={checkpoint}
         setCheckpoint={setCheckpoint}
         mobileInput={mobileInput}
+        deathCount={deathCount}
       />
 
       {/* Lava ground */}
@@ -488,6 +505,52 @@ const MobileJumpButton: React.FC<{
   );
 };
 
+// ─── Swipe to Look ───
+const SwipeToLook: React.FC<{
+  mobileInput: React.MutableRefObject<{ x: number; z: number; jump: boolean; cameraAngle: number }>;
+}> = ({ mobileInput }) => {
+  const touchId = useRef<number | null>(null);
+  const lastX = useRef(0);
+
+  const handleStart = useCallback((e: React.TouchEvent) => {
+    if (touchId.current !== null) return;
+    const touch = e.changedTouches[0];
+    touchId.current = touch.identifier;
+    lastX.current = touch.clientX;
+  }, []);
+
+  const handleMove = useCallback((e: React.TouchEvent) => {
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      if (e.changedTouches[i].identifier === touchId.current) {
+        const dx = e.changedTouches[i].clientX - lastX.current;
+        lastX.current = e.changedTouches[i].clientX;
+        mobileInput.current.cameraAngle += dx * 0.008;
+        break;
+      }
+    }
+  }, [mobileInput]);
+
+  const handleEnd = useCallback((e: React.TouchEvent) => {
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      if (e.changedTouches[i].identifier === touchId.current) {
+        touchId.current = null;
+        break;
+      }
+    }
+  }, []);
+
+  return (
+    <div
+      onTouchStart={handleStart}
+      onTouchMove={handleMove}
+      onTouchEnd={handleEnd}
+      onTouchCancel={handleEnd}
+      className="absolute inset-0 z-40 touch-none"
+      style={{ pointerEvents: 'auto' }}
+    />
+  );
+};
+
 // ─── Main Component ───
 const RobloxObby: React.FC = () => {
   const [level, setLevel] = useState(1);
@@ -496,7 +559,7 @@ const RobloxObby: React.FC = () => {
   const [totalLevels] = useState(50);
   const isMobile = useIsMobile();
   const [isTouchDevice, setIsTouchDevice] = useState(false);
-  const mobileInput = useRef({ x: 0, z: 0, jump: false });
+  const mobileInput = useRef({ x: 0, z: 0, jump: false, cameraAngle: 0 });
 
   useEffect(() => {
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
@@ -545,9 +608,15 @@ const RobloxObby: React.FC = () => {
             level={level}
             onComplete={handleComplete}
             onDeath={handleDeath}
+            deathCount={deaths}
             mobileInput={mobileInput}
           />
         </Canvas>
+
+        {/* Swipe to look - center area */}
+        {showTouchControls && (
+          <SwipeToLook mobileInput={mobileInput} />
+        )}
 
         {/* Mobile Controls */}
         {showTouchControls && (
