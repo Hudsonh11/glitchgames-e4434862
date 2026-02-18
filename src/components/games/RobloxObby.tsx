@@ -495,7 +495,14 @@ const RobloxObby: React.FC = () => {
   const [showComplete, setShowComplete] = useState(false);
   const [totalLevels] = useState(50);
   const isMobile = useIsMobile();
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const mobileInput = useRef({ x: 0, z: 0, jump: false });
+
+  useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
+
+  const showTouchControls = isMobile || isTouchDevice;
 
   const handleComplete = useCallback(() => { setShowComplete(true); }, []);
   const handleDeath = useCallback(() => { setDeaths(d => d + 1); }, []);
@@ -527,7 +534,7 @@ const RobloxObby: React.FC = () => {
       </div>
 
       {/* 3D Canvas */}
-      <div className="w-full rounded-xl overflow-hidden border border-border relative" style={{ height: isMobile ? 400 : 500 }}>
+      <div className="w-full rounded-xl overflow-hidden border border-border relative" style={{ height: showTouchControls ? 400 : 500 }}>
         <Canvas
           shadows
           camera={{ position: [0, 10, 15], fov: 60 }}
@@ -543,7 +550,7 @@ const RobloxObby: React.FC = () => {
         </Canvas>
 
         {/* Mobile Controls */}
-        {isMobile && (
+        {showTouchControls && (
           <>
             <MobileJoystick mobileInput={mobileInput} />
             <MobileJumpButton mobileInput={mobileInput} />
@@ -577,7 +584,7 @@ const RobloxObby: React.FC = () => {
       )}
 
       <div className="mt-2 text-xs text-muted-foreground text-center">
-        {isMobile ? (
+        {showTouchControls ? (
           <span><strong>Joystick</strong> to move • <strong>⬆ Button</strong> to jump • Avoid red platforms!</span>
         ) : (
           <span><strong>WASD</strong> to move • <strong>Space</strong> to jump • Avoid red platforms • Reach the green goal!</span>
