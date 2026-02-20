@@ -1,5 +1,10 @@
-import React, { useState, useMemo } from 'react';
-import { Gamepad2, Zap, Trophy, Gift, Sparkles, Star, Crown, Rocket, Heart, Github, Twitter, MessageCircle } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { 
+  Gamepad2, Zap, Trophy, Gift, Sparkles, Star, Crown, Rocket, Heart, 
+  TrendingUp, Users, Clock, Target, Flame, Play, Shield, Gem, Award,
+  Search, ChevronRight, ArrowRight, Eye, Swords, Timer, Layers,
+  Compass, BarChart3, Globe, Headphones, MessageSquare, BookOpen
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import GameCard from '@/components/GameCard';
@@ -11,13 +16,26 @@ import TrendingGames from '@/components/TrendingGames';
 import WelcomeBack from '@/components/WelcomeBack';
 import LivePlayerCount from '@/components/LivePlayerCount';
 import MiniLeaderboard from '@/components/MiniLeaderboard';
-import GameCategoryFilter from '@/components/GameCategoryFilter';
 import QuickPlayButton from '@/components/QuickPlayButton';
 import ScrollToTop from '@/components/ScrollToTop';
 import TipOfTheDay from '@/components/TipOfTheDay';
 import PlatformStats from '@/components/PlatformStats';
 import Footer from '@/components/Footer';
+import Announcements from '@/components/Announcements';
+import RecentWinners from '@/components/RecentWinners';
+import DailyQuests from '@/components/DailyQuests';
+import WeeklyChallenge from '@/components/WeeklyChallenge';
+import AchievementShowcase from '@/components/AchievementShowcase';
+import SeasonPass from '@/components/SeasonPass';
+import FriendActivityFeed from '@/components/FriendActivityFeed';
+import QuickStats from '@/components/QuickStats';
+import SearchGames from '@/components/SearchGames';
+import AnimatedHeroBanner from '@/components/AnimatedHeroBanner';
+import Countdown from '@/components/Countdown';
+import MilestoneTracker from '@/components/MilestoneTracker';
+import StatsOverview from '@/components/StatsOverview';
 import { useGame } from '@/contexts/GameContext';
+import { Progress } from '@/components/ui/progress';
 
 const games = [
   { id: 'block-blast', title: 'Block Blast', description: 'Match and blast colorful blocks in this addictive puzzle game!', image: 'https://images.unsplash.com/photo-1614294149010-950b698f72c0?w=400&h=300&fit=crop', category: 'Puzzle', rating: 4.8, players: '12.5K', color: 'hsl(185, 100%, 50%)' },
@@ -84,9 +102,116 @@ const games = [
 
 const categories = ['All', ...Array.from(new Set(games.map(g => g.category))).sort()];
 
+// ─── Spotlight Game Card ───
+const SpotlightCard: React.FC<{ game: typeof games[0]; index: number }> = ({ game, index }) => (
+  <Link to={`/game/${game.id}`} className="group block">
+    <div className="relative rounded-2xl overflow-hidden h-64 md:h-80 transition-all duration-500 group-hover:scale-[1.02] group-hover:shadow-float">
+      <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+        style={{ backgroundImage: `url(${game.image})` }} />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{ boxShadow: `inset 0 0 80px ${game.color}30` }} />
+      <div className="absolute bottom-0 left-0 right-0 p-6">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+            style={{ backgroundColor: `${game.color}dd`, color: 'hsl(var(--primary-foreground))' }}>
+            {game.category}
+          </span>
+          {index === 0 && <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-warning/20 text-warning">🔥 FEATURED</span>}
+          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Star className="w-3 h-3 text-warning fill-warning" /> {game.rating}
+          </span>
+        </div>
+        <h3 className="font-display text-2xl font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
+          {game.title}
+        </h3>
+        <p className="text-sm text-muted-foreground line-clamp-1">{game.description}</p>
+        <div className="flex items-center gap-3 mt-3">
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Users className="w-3.5 h-3.5" /> {game.players} playing
+          </div>
+          <Button variant="gaming" size="sm" className="gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Play className="w-3.5 h-3.5" /> Play Now
+          </Button>
+        </div>
+      </div>
+    </div>
+  </Link>
+);
+
+// ─── Compact Game Row ───
+const CompactGameRow: React.FC<{ game: typeof games[0]; rank: number }> = ({ game, rank }) => (
+  <Link to={`/game/${game.id}`} className="group flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-all">
+    <span className="font-display text-2xl font-bold text-muted-foreground w-8 text-center">{rank}</span>
+    <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+      <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${game.image})` }} />
+    </div>
+    <div className="flex-1 min-w-0">
+      <h4 className="font-bold text-sm group-hover:text-primary transition-colors truncate">{game.title}</h4>
+      <p className="text-xs text-muted-foreground">{game.category} • {game.players} playing</p>
+    </div>
+    <div className="flex items-center gap-1">
+      <Star className="w-3.5 h-3.5 text-warning fill-warning" />
+      <span className="text-sm font-bold">{game.rating}</span>
+    </div>
+    <Play className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+  </Link>
+);
+
+// ─── Section Header ───
+const SectionHeader: React.FC<{ 
+  icon: React.ElementType; title: string; subtitle?: string; action?: React.ReactNode; iconColor?: string 
+}> = ({ icon: Icon, title, subtitle, action, iconColor = 'text-primary' }) => (
+  <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
+    <div>
+      <h2 className="font-display text-3xl md:text-4xl font-bold mb-1 flex items-center gap-3">
+        <Icon className={`w-8 h-8 ${iconColor}`} />
+        {title}
+      </h2>
+      {subtitle && <p className="text-muted-foreground text-lg">{subtitle}</p>}
+    </div>
+    {action}
+  </div>
+);
+
+// ─── Feature Highlight Card ───
+const FeatureCard: React.FC<{
+  icon: React.ElementType; title: string; description: string; gradient: string; stat: string; statLabel: string;
+}> = ({ icon: Icon, title, description, gradient, stat, statLabel }) => (
+  <div className="ultra-feature group cursor-default">
+    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-5 
+      transition-all duration-500 group-hover:scale-110 group-hover:shadow-lg`}>
+      <Icon className="w-8 h-8 text-foreground" />
+    </div>
+    <h3 className="font-display text-xl font-bold mb-2">{title}</h3>
+    <p className="text-muted-foreground text-sm mb-4">{description}</p>
+    <div className="pt-3 border-t border-border">
+      <span className="font-display text-2xl font-bold text-primary">{stat}</span>
+      <span className="text-xs text-muted-foreground ml-2">{statLabel}</span>
+    </div>
+  </div>
+);
+
+// ─── Quick Category Card ───
+const CategoryCard: React.FC<{ name: string; count: number; icon: React.ElementType; color: string }> = 
+  ({ name, count, icon: Icon, color }) => (
+  <Link to={`/#games`} className="group">
+    <div className="glass-panel rounded-2xl p-5 text-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-glow cursor-pointer">
+      <div className="w-14 h-14 rounded-xl mx-auto mb-3 flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+        style={{ backgroundColor: `${color}20` }}>
+        <Icon className="w-7 h-7" style={{ color }} />
+      </div>
+      <h4 className="font-display text-sm font-bold mb-1">{name}</h4>
+      <p className="text-xs text-muted-foreground">{count} games</p>
+    </div>
+  </Link>
+);
+
+// ─── Main Component ───
 const Index: React.FC = () => {
   const { isLoggedIn, gamesShutdown, user, currentStreak, lastClaimDate, gameStats, leaderboard } = useGame();
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [showAllGames, setShowAllGames] = useState(false);
 
   const today = new Date().toISOString().split('T')[0];
   const hasReward = lastClaimDate !== today;
@@ -99,75 +224,95 @@ const Index: React.FC = () => {
     return game ? { gameId: game.id, gameName: game.title, score: mostPlayed[1].highScore } : undefined;
   }, [gameStats]);
 
-  // Sample leaderboard entries for MiniLeaderboard
   const miniLeaderboardEntries = useMemo(() => {
     return leaderboard.slice(0, 5).map((entry, i) => ({
-      rank: i + 1,
-      username: entry.username,
-      avatar: entry.avatar,
-      score: entry.score,
+      rank: i + 1, username: entry.username, avatar: entry.avatar, score: entry.score,
       level: Math.floor(entry.score / 500) + 1,
     }));
   }, [leaderboard]);
 
   const filteredGames = selectedCategory === 'All' ? games : games.filter(g => g.category === selectedCategory);
+  const displayedGames = showAllGames ? filteredGames : filteredGames.slice(0, 16);
+
+  const topRated = useMemo(() => [...games].sort((a, b) => b.rating - a.rating).slice(0, 5), []);
+  const mostPopular = useMemo(() => [...games].sort((a, b) => {
+    const pa = parseFloat(a.players.replace('K', ''));
+    const pb = parseFloat(b.players.replace('K', ''));
+    return pb - pa;
+  }).slice(0, 5), []);
+  const newGames = useMemo(() => games.slice(-6), []);
+  const spotlightGames = useMemo(() => [...games].sort((a, b) => b.rating - a.rating).slice(0, 3), []);
+
+  const totalGamesPlayed = useMemo(() => Object.values(gameStats).reduce((acc, s) => acc + s.gamesPlayed, 0), [gameStats]);
+  const totalScore = useMemo(() => Object.values(gameStats).reduce((acc, s) => acc + s.highScore, 0), [gameStats]);
+
+  const categoryIcons: Record<string, React.ElementType> = {
+    Puzzle: Layers, Arcade: Gamepad2, Strategy: Target, Shooter: Swords,
+    Runner: Rocket, Word: BookOpen, Brain: BarChart3, Memory: Eye,
+    Skill: Timer, Classic: Globe, Card: Compass, Trivia: MessageSquare,
+    Racing: Zap, Idle: Clock, Luck: Gift, '3D': Gem, Action: Flame,
+  };
+
+  const milestones = useMemo(() => [
+    { id: '1', title: 'Play 10 Games', description: 'Play 10 different games', target: 10, current: Math.min(totalGamesPlayed, 10), reward: { coins: 100, gems: 5 }, icon: '🎮' },
+    { id: '2', title: 'Score 50K', description: 'Accumulate 50,000 total score', target: 50000, current: Math.min(totalScore, 50000), reward: { coins: 500, gems: 25 }, icon: '🏆' },
+    { id: '3', title: '7-Day Streak', description: 'Play for 7 days in a row', target: 7, current: Math.min(currentStreak, 7), reward: { coins: 300, gems: 15 }, icon: '🔥' },
+  ], [totalGamesPlayed, totalScore, currentStreak]);
+
+  const eventDate = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 5);
+    return d;
+  }, []);
 
   return (
     <div className="min-h-screen bg-background relative">
       <Navbar />
-      
-      {/* ULTRA Hero Section */}
-      <section className="relative pt-24 pb-20 px-4 overflow-hidden">
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 1: HERO                                        */}
+      {/* Features: 1-Animated hero, 2-Glitch title, 3-CTA buttons, */}
+      {/* 4-Crown animation, 5-Particle bg, 6-Grid overlay,       */}
+      {/* 7-Floating orbs, 8-Badge pill, 9-Star ratings,          */}
+      {/* 10-Welcome back, 11-Tip of day, 12-Live player count,   */}
+      {/* 13-Stats counters, 14-Quick play                         */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <section className="relative pt-24 pb-16 px-4 overflow-hidden">
         <UltraParticles count={30} />
-        
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="ultra-orb ultra-orb-cyan w-[600px] h-[600px] -top-20 -left-40" />
           <div className="ultra-orb ultra-orb-magenta w-[500px] h-[500px] top-1/3 right-0 translate-x-1/2" />
           <div className="ultra-orb ultra-orb-purple w-[400px] h-[400px] bottom-0 left-1/3" />
         </div>
-
-        <div 
-          className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
           style={{
             backgroundImage: `linear-gradient(hsl(var(--primary) / 0.3) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary) / 0.3) 1px, transparent 1px)`,
             backgroundSize: '50px 50px',
-          }}
-        />
+          }} />
 
         <div className="container mx-auto relative z-10">
-          {/* Welcome Back for logged-in users */}
           {isLoggedIn && user && (
             <div className="max-w-4xl mx-auto mb-8 space-y-4 animate-fade-in-up">
-              <WelcomeBack
-                username={user.username}
-                avatar={user.avatar}
-                level={user.level}
-                streak={currentStreak}
-                lastPlayed={lastPlayedGame}
-                hasReward={hasReward}
-              />
-              <TipOfTheDay />
+              <WelcomeBack username={user.username} avatar={user.avatar} level={user.level}
+                streak={currentStreak} lastPlayed={lastPlayedGame} hasReward={hasReward} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TipOfTheDay />
+                <QuickStats />
+              </div>
             </div>
           )}
 
           {!isLoggedIn && (
             <div className="text-center max-w-4xl mx-auto">
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-panel mb-8 animate-fade-in-up">
-                <div className="relative">
-                  <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-                  <div className="absolute inset-0 animate-ping">
-                    <Sparkles className="w-5 h-5 text-primary opacity-50" />
-                  </div>
-                </div>
-                <span className="text-sm font-bold text-primary uppercase tracking-wider">60+ Premium Games</span>
+                <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                <span className="text-sm font-bold text-primary uppercase tracking-wider">60+ Premium Games • Free to Play</span>
                 <div className="flex -space-x-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 text-warning fill-warning" />
-                  ))}
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 text-warning fill-warning" />)}
                 </div>
               </div>
               
-              <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-black mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+              <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-black mb-6 animate-fade-in-up">
                 <span className="text-gradient animate-glitch inline-block">GLITCH</span>
                 <br />
                 <span className="text-foreground relative inline-block">
@@ -176,11 +321,11 @@ const Index: React.FC = () => {
                 </span>
               </h1>
               
-              <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-fade-in-up">
                 Play the hottest games, earn <span className="text-warning font-semibold">epic rewards</span>, and compete with players worldwide!
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up">
                 <Button variant="gaming" size="xl" asChild className="group animate-glow-pulse">
                   <Link to="/login">
                     <Zap className="w-5 h-5 mr-2 transition-transform group-hover:scale-110" />
@@ -197,41 +342,155 @@ const Index: React.FC = () => {
             </div>
           )}
 
-          {/* Live Player Count + Stats */}
-          <div className="max-w-4xl mx-auto mt-8">
-            <div className="flex justify-center mb-8">
+          <div className="max-w-5xl mx-auto mt-10 space-y-6">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <LivePlayerCount compact />
+              <QuickPlayButton games={games} isLoggedIn={isLoggedIn} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <UltraStatsCounter value="50K+" label="Active Players" color="primary" />
-              <UltraStatsCounter value="50" label="Premium Games" color="secondary" />
+              <UltraStatsCounter value="60+" label="Premium Games" color="secondary" />
               <UltraStatsCounter value="$10K" label="In Rewards" color="warning" />
+              <UltraStatsCounter value="99.9%" label="Uptime" color="success" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Game of the Day */}
-      <section className="py-8 px-4 relative z-10">
-        <div className="container mx-auto max-w-5xl">
-          <GameOfTheDay games={games} />
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 2: ANNOUNCEMENTS + HERO BANNER CAROUSEL        */}
+      {/* Features: 15-Announcements, 16-Rotating hero banner     */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <section className="py-6 px-4 relative z-10">
+        <div className="container mx-auto max-w-6xl space-y-6">
+          <AnimatedHeroBanner />
+          <Announcements />
         </div>
       </section>
 
-      {/* Trending + Leaderboard Sidebar */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 3: SPOTLIGHT GAMES                             */}
+      {/* Features: 17-Spotlight cards, 18-Hover zoom, 19-Featured badge */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <section className="py-12 px-4 relative z-10">
+        <div className="container mx-auto max-w-6xl">
+          <SectionHeader icon={Star} title="Spotlight" subtitle="Editor's picks — the very best games on the platform" iconColor="text-warning" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {spotlightGames.map((game, i) => (
+              <SpotlightCard key={game.id} game={game} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 4: GAME OF THE DAY + EVENT COUNTDOWN           */}
+      {/* Features: 20-GOTD, 21-Countdown timer, 22-Search       */}
+      {/* ═══════════════════════════════════════════════════════ */}
       <section className="py-8 px-4 relative z-10">
-        <div className="container mx-auto max-w-5xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <GameOfTheDay games={games} />
+            </div>
+            <div className="space-y-6">
+              <Countdown targetDate={eventDate} title="🎉 Weekend Tournament" subtitle="Double XP for all players!" />
+              <SearchGames games={games.map(g => ({ id: g.id, title: g.title, category: g.category, rating: g.rating, color: g.color }))} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 5: QUICK CATEGORIES                            */}
+      {/* Features: 23-Category grid, 24-Game counts, 25-Category icons */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <section className="py-8 px-4 relative z-10">
+        <div className="container mx-auto max-w-6xl">
+          <SectionHeader icon={Compass} title="Browse Categories" subtitle="Find your perfect game genre" />
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-3">
+            {categories.filter(c => c !== 'All').map(cat => (
+              <CategoryCard key={cat} name={cat} count={games.filter(g => g.category === cat).length}
+                icon={categoryIcons[cat] || Gamepad2}
+                color={games.find(g => g.category === cat)?.color || 'hsl(var(--primary))'} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 6: TRENDING + LEADERBOARD + RECENT WINNERS     */}
+      {/* Features: 26-Trending, 27-Mini leaderboard, 28-Recent winners */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <section className="py-8 px-4 relative z-10">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <TrendingGames games={games} limit={5} />
-            <MiniLeaderboard 
-              entries={miniLeaderboardEntries.length > 0 ? miniLeaderboardEntries : [
-                { rank: 1, username: 'ProGamer99', score: 15420, level: 25, avatar: '' },
-                { rank: 2, username: 'PixelQueen', score: 12350, level: 20, avatar: '' },
-                { rank: 3, username: 'NeonKnight', score: 11200, level: 18, avatar: '' },
-                { rank: 4, username: 'StarPlayer', score: 9800, level: 15, avatar: '' },
-                { rank: 5, username: 'GameWizard', score: 8500, level: 12, avatar: '' },
-              ]}
-            />
+            <MiniLeaderboard entries={miniLeaderboardEntries.length > 0 ? miniLeaderboardEntries : [
+              { rank: 1, username: 'ProGamer99', score: 15420, level: 25, avatar: '' },
+              { rank: 2, username: 'PixelQueen', score: 12350, level: 20, avatar: '' },
+              { rank: 3, username: 'NeonKnight', score: 11200, level: 18, avatar: '' },
+              { rank: 4, username: 'StarPlayer', score: 9800, level: 15, avatar: '' },
+              { rank: 5, username: 'GameWizard', score: 8500, level: 12, avatar: '' },
+            ]} />
+            <RecentWinners />
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 7: TOP RATED + MOST POPULAR LISTS              */}
+      {/* Features: 29-Top rated list, 30-Most popular list,      */}
+      {/* 31-Compact rows, 32-Rank numbers                        */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <section className="py-8 px-4 relative z-10">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="glass-panel rounded-2xl p-6">
+              <h3 className="font-display text-xl font-bold mb-4 flex items-center gap-2">
+                <Award className="w-5 h-5 text-warning" /> Top Rated
+              </h3>
+              <div className="space-y-1">
+                {topRated.map((game, i) => <CompactGameRow key={game.id} game={game} rank={i + 1} />)}
+              </div>
+            </div>
+            <div className="glass-panel rounded-2xl p-6">
+              <h3 className="font-display text-xl font-bold mb-4 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-primary" /> Most Popular
+              </h3>
+              <div className="space-y-1">
+                {mostPopular.map((game, i) => <CompactGameRow key={game.id} game={game} rank={i + 1} />)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 8: NEW THIS WEEK                               */}
+      {/* Features: 33-New releases, 34-New badge, 35-Staggered animation */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <section className="py-12 px-4 relative z-10">
+        <div className="container mx-auto max-w-6xl">
+          <SectionHeader icon={Rocket} title="New This Week" subtitle="Fresh games just added to the library" iconColor="text-success"
+            action={<Link to="/#games"><Button variant="outline" size="sm" className="gap-1">View All <ArrowRight className="w-4 h-4" /></Button></Link>} />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {newGames.map((game, i) => (
+              <div key={game.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 0.08}s` }}>
+                <Link to={`/game/${game.id}`} className="group block">
+                  <div className="relative rounded-xl overflow-hidden aspect-square mb-2 transition-transform duration-300 group-hover:scale-105">
+                    <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${game.image})` }} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+                    <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-success/90 text-xs font-bold text-success-foreground">NEW</div>
+                    <div className="absolute bottom-2 right-2 flex items-center gap-1 text-xs bg-background/80 rounded-full px-2 py-0.5">
+                      <Star className="w-3 h-3 text-warning fill-warning" /> {game.rating}
+                    </div>
+                  </div>
+                  <h4 className="font-bold text-sm group-hover:text-primary transition-colors truncate">{game.title}</h4>
+                  <p className="text-xs text-muted-foreground">{game.category}</p>
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -245,59 +504,57 @@ const Index: React.FC = () => {
         </div>
       )}
 
-      {/* Games Section with Category Filter */}
-      <section id="games" className="py-20 px-4 relative">
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 9: ALL GAMES LIBRARY                           */}
+      {/* Features: 36-Category filter tabs, 37-Game count,       */}
+      {/* 38-Game cards with 3D tilt, 39-Load more, 40-Empty state, */}
+      {/* 41-Daily rewards CTA                                    */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <section id="games" className="py-16 px-4 relative">
         <UltraParticles count={15} className="opacity-50" />
-        
-        <div className="container mx-auto relative z-10">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
-            <div>
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-2 flex items-center gap-3">
-                <Gamepad2 className="w-8 h-8 text-primary" />
-                All Games
-              </h2>
-              <p className="text-muted-foreground text-lg">Choose your adventure and start earning rewards!</p>
-            </div>
-            <div className="flex gap-3">
-              {isLoggedIn && (
-                <Link to="/rewards">
-                  <Button variant="gold" size="lg" className="gap-2 group">
-                    <Gift className="w-5 h-5 transition-transform group-hover:rotate-12" />
-                    Daily Rewards
-                    {hasReward && <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs animate-pulse">NEW</span>}
-                  </Button>
-                </Link>
-              )}
-            </div>
-          </div>
+        <div className="container mx-auto max-w-6xl relative z-10">
+          <SectionHeader icon={Gamepad2} title="Game Library" subtitle={`${games.length} games available — choose your adventure!`}
+            action={isLoggedIn && (
+              <Link to="/rewards">
+                <Button variant="gold" size="lg" className="gap-2 group">
+                  <Gift className="w-5 h-5 transition-transform group-hover:rotate-12" />
+                  Daily Rewards
+                  {hasReward && <span className="ml-1 px-2 py-0.5 rounded-full bg-foreground/20 text-xs animate-pulse">NEW</span>}
+                </Button>
+              </Link>
+            )} />
 
           {/* Category Tabs */}
           <div className="flex flex-wrap gap-2 mb-8">
             {categories.map((category) => (
-              <Button
-                key={category}
+              <Button key={category}
                 variant={selectedCategory === category ? 'gaming' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-                className="transition-all"
-              >
+                size="sm" onClick={() => { setSelectedCategory(category); setShowAllGames(false); }}
+                className="transition-all">
                 {category}
                 {category !== 'All' && (
-                  <span className="ml-1 text-xs opacity-60">
-                    ({games.filter(g => g.category === category).length})
-                  </span>
+                  <span className="ml-1 text-xs opacity-60">({games.filter(g => g.category === category).length})</span>
                 )}
               </Button>
             ))}
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredGames.map((game, index) => (
-              <div key={game.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(index * 0.05, 0.5)}s` }}>
+            {displayedGames.map((game, index) => (
+              <div key={game.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(index * 0.04, 0.4)}s` }}>
                 <GameCard {...game} />
               </div>
             ))}
           </div>
+
+          {!showAllGames && filteredGames.length > 16 && (
+            <div className="text-center mt-10">
+              <Button variant="outline" size="lg" onClick={() => setShowAllGames(true)} className="gap-2 group">
+                <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                Show All {filteredGames.length} Games
+              </Button>
+            </div>
+          )}
 
           {filteredGames.length === 0 && (
             <div className="text-center py-12">
@@ -308,45 +565,148 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/50 to-transparent" />
-        <UltraParticles count={10} className="opacity-30" />
-        
-        <div className="container mx-auto relative z-10">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-center mb-4">
-            Why Choose <span className="text-gradient">Glitch Games</span>?
-          </h2>
-          <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            Experience gaming like never before with our premium platform
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {[
-              { icon: Trophy, title: 'Compete & Win', description: 'Climb the leaderboards and prove you\'re the best!', color: 'warning' },
-              { icon: Gift, title: 'Daily Rewards', description: 'Log in every day to claim free coins and gems!', color: 'success' },
-              { icon: Zap, title: 'Instant Play', description: 'No downloads! Play directly in your browser.', color: 'primary' },
-              { icon: Heart, title: 'Community', description: 'Add friends, challenge rivals, and climb ranks together.', color: 'error' },
-            ].map(({ icon: Icon, title, description, color }) => (
-              <div key={title} className="ultra-feature group">
-                <div className={`w-16 h-16 rounded-2xl bg-${color}/10 flex items-center justify-center mb-5 
-                  transition-all duration-500 group-hover:scale-110 group-hover:bg-${color}/20`}>
-                  <Icon className={`w-8 h-8 text-${color}`} />
-                </div>
-                <h3 className="font-display text-xl font-bold mb-3">{title}</h3>
-                <p className="text-muted-foreground">{description}</p>
-              </div>
-            ))}
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 10: QUESTS + CHALLENGES + SEASON PASS          */}
+      {/* Features: 42-Daily quests, 43-Weekly challenge,         */}
+      {/* 44-Season pass progress, 45-Quest rewards               */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <section className="py-12 px-4 relative z-10 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/30 to-transparent" />
+        <div className="container mx-auto max-w-6xl relative z-10">
+          <SectionHeader icon={Target} title="Quests & Challenges" subtitle="Complete objectives to earn bonus rewards" iconColor="text-accent" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <DailyQuests />
+            <WeeklyChallenge />
+            <SeasonPass currentTier={3} currentXP={750} xpPerTier={1000} isPremium={false} seasonName="Season 1: Neon Uprising" daysLeft={21} />
           </div>
         </div>
       </section>
 
-      {/* Platform Stats */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 11: ACHIEVEMENTS + MILESTONES                  */}
+      {/* Features: 46-Achievement showcase, 47-Milestone tracker, */}
+      {/* 48-Rarity badges, 49-Progress bars                      */}
+      {/* ═══════════════════════════════════════════════════════ */}
       <section className="py-12 px-4 relative z-10">
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-6xl">
+          <SectionHeader icon={Trophy} title="Achievements & Milestones" subtitle="Track your gaming journey" iconColor="text-warning" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <AchievementShowcase />
+            <MilestoneTracker milestones={milestones} title="Your Progress" />
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 12: SOCIAL - FRIEND ACTIVITY + STATS           */}
+      {/* Features: 50-Friend activity feed, 51-Stats overview,   */}
+      {/* 52-Player stats                                         */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      {isLoggedIn && (
+        <section className="py-12 px-4 relative z-10">
+          <div className="container mx-auto max-w-6xl">
+            <SectionHeader icon={Users} title="Community" subtitle="See what your friends are up to" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <FriendActivityFeed />
+              <StatsOverview
+                totalGamesPlayed={totalGamesPlayed}
+                totalScore={totalScore}
+                totalTimePlayed={Object.values(gameStats).reduce((a, s) => a + (s.timePlayed || 0), 0)}
+                achievements={3}
+                currentStreak={currentStreak}
+                level={user?.level || 1}
+                favoriteGame={lastPlayedGame?.gameName}
+                winRate={68}
+              />
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 13: WHY CHOOSE GLITCH GAMES                   */}
+      {/* Features: 53-Feature cards, 54-Stats in cards,          */}
+      {/* 55-Gradient icons, 56-Hover effects                     */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <section className="py-16 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/50 to-transparent" />
+        <UltraParticles count={10} className="opacity-30" />
+        <div className="container mx-auto max-w-6xl relative z-10">
+          <div className="text-center mb-12">
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-3">
+              Why Choose <span className="text-gradient">Glitch Games</span>?
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">The ultimate gaming platform built for players who demand the best</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <FeatureCard icon={Trophy} title="Compete & Win" description="Climb leaderboards and prove you're the best player on the platform."
+              gradient="from-warning/20 to-warning/5" stat="50K+" statLabel="competitions" />
+            <FeatureCard icon={Gift} title="Daily Rewards" description="Log in every day to claim free coins, gems, and exclusive items."
+              gradient="from-success/20 to-success/5" stat="500" statLabel="coins/day" />
+            <FeatureCard icon={Zap} title="Instant Play" description="No downloads, no installs. Play directly in your browser in seconds."
+              gradient="from-primary/20 to-primary/5" stat="<1s" statLabel="load time" />
+            <FeatureCard icon={Shield} title="Safe & Secure" description="Your progress is saved in the cloud. Play from any device, anytime."
+              gradient="from-secondary/20 to-secondary/5" stat="99.9%" statLabel="uptime" />
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 14: PLATFORM STATS                             */}
+      {/* Features: 57-Platform stats, 58-Animated counters,      */}
+      {/* 59-Community call to action                              */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <section className="py-12 px-4 relative z-10">
+        <div className="container mx-auto max-w-5xl">
           <PlatformStats />
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 15: COMMUNITY CTA                              */}
+      {/* Features: 60-Join CTA, 61-Social proof, 62-Gradient bg  */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      {!isLoggedIn && (
+        <section className="py-16 px-4 relative z-10">
+          <div className="container mx-auto max-w-4xl">
+            <div className="relative rounded-3xl overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20" />
+              <div className="absolute inset-0 glass-panel" />
+              <div className="relative z-10 p-10 md:p-16 text-center">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-bold text-primary">Join 50,000+ Players</span>
+                </div>
+                <h2 className="font-display text-3xl md:text-5xl font-black mb-4">
+                  Ready to <span className="text-gradient">Level Up</span>?
+                </h2>
+                <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
+                  Create your free account, start playing, and join the most exciting gaming community on the web.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button variant="gaming" size="xl" asChild className="group">
+                    <Link to="/login">
+                      <Rocket className="w-5 h-5 mr-2 transition-transform group-hover:scale-110" />
+                      Create Free Account
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="xl" asChild className="border-primary/30 hover:border-primary hover:bg-primary/10">
+                    <a href="#games">
+                      <Eye className="w-5 h-5 mr-2" />
+                      Browse Games First
+                    </a>
+                  </Button>
+                </div>
+                <div className="flex items-center justify-center gap-6 mt-8 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 text-primary" /> No credit card</span>
+                  <span className="flex items-center gap-1.5"><Shield className="w-4 h-4 text-success" /> Privacy first</span>
+                  <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-warning" /> 30 sec signup</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       <Footer />
       <ScrollToTop />
