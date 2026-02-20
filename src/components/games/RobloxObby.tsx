@@ -26,22 +26,24 @@ const COLORS = {
   finish: '#76FF03',
 };
 
-// ─── Level Generation ───
+// ─── Level Generation (easier: bigger platforms, smaller gaps) ───
 const generateLevel = (levelNum: number): PlatformData[] => {
   const platforms: PlatformData[] = [];
-  const difficulty = Math.min(levelNum / 10, 1);
+  const difficulty = Math.min(levelNum / 15, 1); // slower difficulty ramp
   const baseY = levelNum * 2;
   let x = 0, y = baseY, z = 0;
 
-  platforms.push({ position: [x, y, z], size: [4, 0.5, 4], color: COLORS.checkpoint, type: 'checkpoint' });
+  // Start platform - extra big
+  platforms.push({ position: [x, y, z], size: [6, 0.5, 6], color: COLORS.checkpoint, type: 'checkpoint' });
 
-  const numPlatforms = 6 + Math.floor(levelNum / 5) * 2;
+  const numPlatforms = 5 + Math.floor(levelNum / 6) * 2;
   for (let i = 0; i < numPlatforms; i++) {
     const dir = Math.random();
-    if (dir < 0.4) x += 2 + Math.random() * (2 + difficulty * 2);
-    else if (dir < 0.7) z += 2 + Math.random() * (2 + difficulty * 2);
-    else { x += 1 + Math.random() * 2; z += 1 + Math.random() * 2; }
-    y += (Math.random() - 0.3) * (1 + difficulty);
+    // Shorter gaps for easier jumping
+    if (dir < 0.4) x += 1.5 + Math.random() * (1.5 + difficulty * 1.5);
+    else if (dir < 0.7) z += 1.5 + Math.random() * (1.5 + difficulty * 1.5);
+    else { x += 1 + Math.random() * 1.5; z += 1 + Math.random() * 1.5; }
+    y += (Math.random() - 0.35) * (0.8 + difficulty * 0.5);
 
     const typeRoll = Math.random();
     let type: PlatformData['type'] = 'normal';
@@ -49,25 +51,26 @@ const generateLevel = (levelNum: number): PlatformData[] => {
     let moveRange: number | undefined;
     let moveSpeed: number | undefined;
 
-    if (typeRoll < 0.05 + difficulty * 0.08) {
+    if (typeRoll < 0.03 + difficulty * 0.06) {
       type = 'kill';
-    } else if (typeRoll < 0.15 + difficulty * 0.1) {
+    } else if (typeRoll < 0.1 + difficulty * 0.08) {
       type = 'moving';
       moveAxis = ['x', 'z'][Math.floor(Math.random() * 2)] as 'x' | 'z';
-      moveRange = 1.5 + difficulty * 2;
-      moveSpeed = 0.5 + difficulty;
-    } else if (typeRoll < 0.22 + difficulty * 0.08) {
+      moveRange = 1 + difficulty * 1.5;
+      moveSpeed = 0.4 + difficulty * 0.6;
+    } else if (typeRoll < 0.15 + difficulty * 0.05) {
       type = 'disappearing';
-    } else if (typeRoll < 0.28 + difficulty * 0.05) {
+    } else if (typeRoll < 0.2 + difficulty * 0.03) {
       type = 'bouncy';
-    } else if (typeRoll < 0.32 + difficulty * 0.03) {
+    } else if (typeRoll < 0.23 + difficulty * 0.02) {
       type = 'speed';
     }
 
-    if ((i + 1) % 5 === 0 && i < numPlatforms - 1) type = 'checkpoint';
+    if ((i + 1) % 4 === 0 && i < numPlatforms - 1) type = 'checkpoint'; // more checkpoints
 
-    const w = Math.max(1.5, 3 - difficulty * 1.5 - Math.random());
-    const d = Math.max(1.5, 3 - difficulty * 1.5 - Math.random());
+    // Bigger platforms for easier gameplay
+    const w = Math.max(2.5, 4 - difficulty * 1.2 - Math.random() * 0.5);
+    const d = Math.max(2.5, 4 - difficulty * 1.2 - Math.random() * 0.5);
     platforms.push({
       position: [x, y, z],
       size: [w, 0.5, d],
@@ -78,7 +81,7 @@ const generateLevel = (levelNum: number): PlatformData[] => {
   }
 
   x += 3; z += 2;
-  platforms.push({ position: [x, y, z], size: [4, 0.5, 4], color: COLORS.finish, type: 'finish' });
+  platforms.push({ position: [x, y, z], size: [6, 0.5, 6], color: COLORS.finish, type: 'finish' });
   return platforms;
 };
 
@@ -139,12 +142,11 @@ const Platform: React.FC<{ data: PlatformData }> = ({ data }) => {
       if (glowRef.current) glowRef.current.position.copy(pos);
     }
     if (data.type === 'disappearing') {
-      const show = Math.sin(clock.getElapsedTime() * 1.5) > -0.3;
+      const show = Math.sin(clock.getElapsedTime() * 1.2) > -0.4; // slower, more forgiving
       setVisible(show);
       meshRef.current.visible = show;
       if (glowRef.current) glowRef.current.visible = show;
     }
-    // Pulse effect for special platforms
     if (glowRef.current && (data.type === 'kill' || data.type === 'bouncy' || data.type === 'finish' || data.type === 'checkpoint')) {
       const s = 1 + Math.sin(clock.getElapsedTime() * 3) * 0.05;
       glowRef.current.scale.set(s, 1, s);
@@ -164,29 +166,167 @@ const Platform: React.FC<{ data: PlatformData }> = ({ data }) => {
           color={data.color}
           emissive={emissiveColor}
           emissiveIntensity={emissiveIntensity}
-          roughness={0.3}
-          metalness={0.4}
+          roughness={0.2}
+          metalness={0.5}
         />
       </mesh>
-      {/* Glow underlight */}
+      {/* Top surface highlight */}
+      <mesh position={[data.position[0], data.position[1] + 0.26, data.position[2]]}>
+        <boxGeometry args={[data.size[0] - 0.1, 0.02, data.size[2] - 0.1]} />
+        <meshStandardMaterial color="#ffffff" transparent opacity={0.15} />
+      </mesh>
       {['kill', 'bouncy', 'finish', 'checkpoint'].includes(data.type) && (
         <mesh ref={glowRef} position={[data.position[0], data.position[1] - 0.3, data.position[2]]}>
-          <boxGeometry args={[data.size[0] + 0.2, 0.1, data.size[2] + 0.2]} />
+          <boxGeometry args={[data.size[0] + 0.3, 0.1, data.size[2] + 0.3]} />
           <meshStandardMaterial color={emissiveColor} emissive={emissiveColor} emissiveIntensity={1.5} transparent opacity={0.4} />
         </mesh>
       )}
       {data.type === 'checkpoint' && (
         <group position={[data.position[0], data.position[1], data.position[2]]}>
           <mesh position={[0, 1.5, 0]}>
-            <cylinderGeometry args={[0.05, 0.05, 3, 8]} />
+            <cylinderGeometry args={[0.06, 0.06, 3, 8]} />
             <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={1} />
           </mesh>
           <mesh position={[0, 3.2, 0]}>
-            <sphereGeometry args={[0.2, 16, 16]} />
+            <sphereGeometry args={[0.25, 16, 16]} />
             <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={2} />
           </mesh>
         </group>
       )}
+      {data.type === 'kill' && (
+        <group position={[data.position[0], data.position[1] + 0.4, data.position[2]]}>
+          {/* Spikes on kill bricks */}
+          {[[-0.3, 0, -0.3], [0.3, 0, 0.3], [-0.3, 0, 0.3], [0.3, 0, -0.3], [0, 0, 0]].map(([sx, sy, sz], idx) => (
+            <mesh key={idx} position={[sx, sy, sz]}>
+              <coneGeometry args={[0.12, 0.4, 4]} />
+              <meshStandardMaterial color="#FF0000" emissive="#FF0000" emissiveIntensity={0.8} />
+            </mesh>
+          ))}
+        </group>
+      )}
+    </group>
+  );
+};
+
+// ─── Roblox Character ───
+const RobloxCharacter: React.FC<{
+  bodyRef: React.RefObject<THREE.Group>;
+  checkpoint: [number, number, number];
+  isMoving: boolean;
+  moveDir: THREE.Vector3;
+}> = ({ bodyRef, checkpoint, isMoving, moveDir }) => {
+  const leftArmRef = useRef<THREE.Mesh>(null);
+  const rightArmRef = useRef<THREE.Mesh>(null);
+  const leftLegRef = useRef<THREE.Mesh>(null);
+  const rightLegRef = useRef<THREE.Mesh>(null);
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    const swing = isMoving ? Math.sin(t * 10) * 0.6 : 0;
+    if (leftArmRef.current) leftArmRef.current.rotation.x = swing;
+    if (rightArmRef.current) rightArmRef.current.rotation.x = -swing;
+    if (leftLegRef.current) leftLegRef.current.rotation.x = -swing;
+    if (rightLegRef.current) rightLegRef.current.rotation.x = swing;
+  });
+
+  return (
+    <group ref={bodyRef} position={checkpoint}>
+      {/* Torso */}
+      <mesh castShadow position={[0, 0, 0]}>
+        <boxGeometry args={[0.9, 1.0, 0.5]} />
+        <meshStandardMaterial color="#2196F3" roughness={0.3} metalness={0.2} />
+      </mesh>
+
+      {/* Head */}
+      <mesh castShadow position={[0, 0.85, 0]}>
+        <boxGeometry args={[0.7, 0.7, 0.7]} />
+        <meshStandardMaterial color="#FFD093" roughness={0.4} metalness={0.1} />
+      </mesh>
+
+      {/* Face - Eyes */}
+      <mesh position={[-0.15, 0.9, 0.36]}>
+        <sphereGeometry args={[0.08, 8, 8]} />
+        <meshStandardMaterial color="#1a1a1a" />
+      </mesh>
+      <mesh position={[0.15, 0.9, 0.36]}>
+        <sphereGeometry args={[0.08, 8, 8]} />
+        <meshStandardMaterial color="#1a1a1a" />
+      </mesh>
+      {/* Eye whites */}
+      <mesh position={[-0.15, 0.9, 0.34]}>
+        <sphereGeometry args={[0.1, 8, 8]} />
+        <meshStandardMaterial color="#ffffff" />
+      </mesh>
+      <mesh position={[0.15, 0.9, 0.34]}>
+        <sphereGeometry args={[0.1, 8, 8]} />
+        <meshStandardMaterial color="#ffffff" />
+      </mesh>
+
+      {/* Smile */}
+      <mesh position={[0, 0.72, 0.36]}>
+        <boxGeometry args={[0.25, 0.05, 0.02]} />
+        <meshStandardMaterial color="#cc4444" />
+      </mesh>
+
+      {/* Hair */}
+      <mesh position={[0, 1.22, -0.02]}>
+        <boxGeometry args={[0.72, 0.12, 0.74]} />
+        <meshStandardMaterial color="#3E2723" roughness={0.6} />
+      </mesh>
+      <mesh position={[0, 1.1, -0.35]}>
+        <boxGeometry args={[0.72, 0.35, 0.1]} />
+        <meshStandardMaterial color="#3E2723" roughness={0.6} />
+      </mesh>
+
+      {/* Left Arm */}
+      <group position={[-0.6, 0.0, 0]}>
+        <mesh ref={leftArmRef} castShadow>
+          <boxGeometry args={[0.35, 1.0, 0.45]} />
+          <meshStandardMaterial color="#2196F3" roughness={0.3} metalness={0.2} />
+        </mesh>
+        {/* Hand */}
+        <mesh position={[0, -0.55, 0]}>
+          <boxGeometry args={[0.3, 0.15, 0.4]} />
+          <meshStandardMaterial color="#FFD093" roughness={0.4} />
+        </mesh>
+      </group>
+
+      {/* Right Arm */}
+      <group position={[0.6, 0.0, 0]}>
+        <mesh ref={rightArmRef} castShadow>
+          <boxGeometry args={[0.35, 1.0, 0.45]} />
+          <meshStandardMaterial color="#2196F3" roughness={0.3} metalness={0.2} />
+        </mesh>
+        <mesh position={[0, -0.55, 0]}>
+          <boxGeometry args={[0.3, 0.15, 0.4]} />
+          <meshStandardMaterial color="#FFD093" roughness={0.4} />
+        </mesh>
+      </group>
+
+      {/* Left Leg */}
+      <group position={[-0.2, -0.85, 0]}>
+        <mesh ref={leftLegRef} castShadow>
+          <boxGeometry args={[0.4, 0.7, 0.45]} />
+          <meshStandardMaterial color="#1B5E20" roughness={0.3} />
+        </mesh>
+        {/* Shoe */}
+        <mesh position={[0, -0.4, 0.05]}>
+          <boxGeometry args={[0.42, 0.15, 0.55]} />
+          <meshStandardMaterial color="#333333" roughness={0.5} />
+        </mesh>
+      </group>
+
+      {/* Right Leg */}
+      <group position={[0.2, -0.85, 0]}>
+        <mesh ref={rightLegRef} castShadow>
+          <boxGeometry args={[0.4, 0.7, 0.45]} />
+          <meshStandardMaterial color="#1B5E20" roughness={0.3} />
+        </mesh>
+        <mesh position={[0, -0.4, 0.05]}>
+          <boxGeometry args={[0.42, 0.15, 0.55]} />
+          <meshStandardMaterial color="#333333" roughness={0.5} />
+        </mesh>
+      </group>
     </group>
   );
 };
@@ -201,22 +341,19 @@ const Player: React.FC<{
   mobileInput: React.MutableRefObject<{ x: number; z: number; jump: boolean; cameraAngle: number }>;
   deathCount: number;
 }> = ({ platforms, onLevelComplete, onDeath, checkpoint, setCheckpoint, mobileInput, deathCount }) => {
-  const bodyRef = useRef<THREE.Mesh>(null);
-  const headRef = useRef<THREE.Mesh>(null);
-  const trailRef = useRef<THREE.InstancedMesh>(null);
+  const bodyRef = useRef<THREE.Group>(null);
   const velocity = useRef(new THREE.Vector3(0, 0, 0));
   const pos = useRef(new THREE.Vector3(...checkpoint));
   const grounded = useRef(false);
   const keys = useRef<Set<string>>(new Set());
   const { camera } = useThree();
-  const trailPositions = useRef<THREE.Vector3[]>([]);
-  const dummy = useMemo(() => new THREE.Object3D(), []);
-  const trailCount = 20;
+  const moveDirRef = useRef(new THREE.Vector3());
+  const [isMoving, setIsMoving] = useState(false);
+  const coyoteTime = useRef(0); // coyote time for easier jumping
 
   useEffect(() => {
     pos.current.set(...checkpoint);
     velocity.current.set(0, 0, 0);
-    trailPositions.current = [];
   }, [checkpoint, deathCount]);
 
   useEffect(() => {
@@ -228,15 +365,15 @@ const Player: React.FC<{
   }, []);
 
   useFrame((_, delta) => {
-    if (!bodyRef.current || !headRef.current) return;
+    if (!bodyRef.current) return;
     const dt = Math.min(delta, 0.05);
     const k = keys.current;
-    const speed = 8;
-    const jumpForce = 8;
-    const gravity = -20;
+    const speed = 7;
+    const jumpForce = 9;
+    const gravity = -18;
     const mi = mobileInput.current;
 
-    // Movement (keyboard + mobile joystick) relative to camera angle
+    // Movement
     const rawDir = new THREE.Vector3();
     if (k.has('w') || k.has('arrowup')) rawDir.z -= 1;
     if (k.has('s') || k.has('arrowdown')) rawDir.z += 1;
@@ -244,22 +381,38 @@ const Player: React.FC<{
     if (k.has('d') || k.has('arrowright')) rawDir.x += 1;
     rawDir.x += mi.x;
     rawDir.z += mi.z;
+    const moving = rawDir.length() > 0.05;
+    setIsMoving(moving);
     rawDir.normalize();
 
-    // Rotate movement direction by camera angle
     const angle = mi.cameraAngle;
     const moveDir = new THREE.Vector3(
       rawDir.x * Math.cos(angle) - rawDir.z * Math.sin(angle),
       0,
       rawDir.x * Math.sin(angle) + rawDir.z * Math.cos(angle),
     ).multiplyScalar(speed * dt);
+    moveDirRef.current.copy(moveDir);
     pos.current.x += moveDir.x;
     pos.current.z += moveDir.z;
 
-    // Jump (keyboard + mobile button)
-    if (((k.has(' ') || k.has('space')) || mi.jump) && grounded.current) {
+    // Rotate character to face movement direction
+    if (moving && bodyRef.current) {
+      const targetAngle = Math.atan2(moveDir.x, moveDir.z);
+      bodyRef.current.rotation.y = THREE.MathUtils.lerp(bodyRef.current.rotation.y, targetAngle, 0.15);
+    }
+
+    // Coyote time tracking
+    if (grounded.current) {
+      coyoteTime.current = 0.12; // 120ms coyote time
+    } else {
+      coyoteTime.current -= dt;
+    }
+
+    // Jump
+    if (((k.has(' ') || k.has('space')) || mi.jump) && (grounded.current || coyoteTime.current > 0)) {
       velocity.current.y = jumpForce;
       grounded.current = false;
+      coyoteTime.current = 0;
       mi.jump = false;
     }
 
@@ -275,19 +428,19 @@ const Player: React.FC<{
       const halfW = pw / 2, halfD = pd / 2;
 
       if (
-        pos.current.x > px - halfW && pos.current.x < px + halfW &&
-        pos.current.z > pz - halfD && pos.current.z < pz + halfD &&
-        pos.current.y - 0.5 <= py + ph / 2 && pos.current.y - 0.5 > py - ph / 2 - 0.5 &&
+        pos.current.x > px - halfW - 0.2 && pos.current.x < px + halfW + 0.2 &&
+        pos.current.z > pz - halfD - 0.2 && pos.current.z < pz + halfD + 0.2 &&
+        pos.current.y - 0.8 <= py + ph / 2 && pos.current.y - 0.8 > py - ph / 2 - 0.6 &&
         velocity.current.y <= 0
       ) {
-        pos.current.y = py + ph / 2 + 0.5;
+        pos.current.y = py + ph / 2 + 0.8;
         velocity.current.y = 0;
         grounded.current = true;
 
         if (p.type === 'kill') { onDeath(); return; }
-        if (p.type === 'bouncy') { velocity.current.y = 12; grounded.current = false; }
-        if (p.type === 'speed') { pos.current.x += moveDir.x * 3; pos.current.z += moveDir.z * 3; }
-        if (p.type === 'checkpoint') setCheckpoint([px, py + ph / 2 + 0.5, pz]);
+        if (p.type === 'bouncy') { velocity.current.y = 13; grounded.current = false; }
+        if (p.type === 'speed') { pos.current.x += moveDir.x * 2; pos.current.z += moveDir.z * 2; }
+        if (p.type === 'checkpoint') setCheckpoint([px, py + ph / 2 + 0.8, pz]);
         if (p.type === 'finish') { onLevelComplete(); return; }
         break;
       }
@@ -297,26 +450,10 @@ const Player: React.FC<{
     if (pos.current.y < -20) { onDeath(); return; }
 
     bodyRef.current.position.copy(pos.current);
-    headRef.current.position.set(pos.current.x, pos.current.y + 0.75, pos.current.z);
 
-    // Trail effect
-    trailPositions.current.unshift(pos.current.clone());
-    if (trailPositions.current.length > trailCount) trailPositions.current.pop();
-    if (trailRef.current) {
-      for (let i = 0; i < trailCount; i++) {
-        if (trailPositions.current[i]) {
-          dummy.position.copy(trailPositions.current[i]);
-          dummy.scale.setScalar(Math.max(0.01, (1 - i / trailCount) * 0.3));
-          dummy.updateMatrix();
-          trailRef.current.setMatrixAt(i, dummy.matrix);
-        }
-      }
-      trailRef.current.instanceMatrix.needsUpdate = true;
-    }
-
-    // Camera follow with rotation
-    const camDist = 14;
-    const camHeight = 8;
+    // Smooth camera follow
+    const camDist = 12;
+    const camHeight = 7;
     const camAngle = mi.cameraAngle;
     const camOffset = new THREE.Vector3(
       Math.sin(camAngle) * camDist,
@@ -324,28 +461,17 @@ const Player: React.FC<{
       Math.cos(camAngle) * camDist,
     );
     const camTarget = pos.current.clone().add(camOffset);
-    camera.position.lerp(camTarget, 0.08);
-    camera.lookAt(pos.current);
+    camera.position.lerp(camTarget, 0.06);
+    camera.lookAt(pos.current.x, pos.current.y + 1, pos.current.z);
   });
 
   return (
-    <group>
-      {/* Trail */}
-      <instancedMesh ref={trailRef} args={[undefined, undefined, trailCount]}>
-        <sphereGeometry args={[1, 8, 8]} />
-        <meshStandardMaterial color="#4ECDC4" emissive="#4ECDC4" emissiveIntensity={1} transparent opacity={0.3} />
-      </instancedMesh>
-      {/* Body */}
-      <mesh ref={bodyRef} position={checkpoint} castShadow>
-        <boxGeometry args={[0.8, 1, 0.5]} />
-        <meshStandardMaterial color="#4ECDC4" roughness={0.2} metalness={0.6} />
-      </mesh>
-      {/* Head */}
-      <mesh ref={headRef} position={[checkpoint[0], checkpoint[1] + 0.75, checkpoint[2]]} castShadow>
-        <boxGeometry args={[0.6, 0.6, 0.6]} />
-        <meshStandardMaterial color="#FFD93D" roughness={0.2} metalness={0.3} />
-      </mesh>
-    </group>
+    <RobloxCharacter
+      bodyRef={bodyRef}
+      checkpoint={checkpoint}
+      isMoving={isMoving}
+      moveDir={moveDirRef.current}
+    />
   );
 };
 
@@ -360,7 +486,7 @@ const ObbyScene: React.FC<{
   const platforms = useMemo(() => generateLevel(level), [level]);
   const startPos: [number, number, number] = useMemo(() => {
     const first = platforms[0];
-    return [first.position[0], first.position[1] + 1, first.position[2]];
+    return [first.position[0], first.position[1] + 1.3, first.position[2]];
   }, [platforms]);
   const [checkpoint, setCheckpoint] = useState<[number, number, number]>(startPos);
 
@@ -368,10 +494,10 @@ const ObbyScene: React.FC<{
 
   return (
     <>
-      <ambientLight intensity={0.3} />
+      <ambientLight intensity={0.4} />
       <directionalLight
         position={[15, 25, 10]}
-        intensity={1.2}
+        intensity={1.4}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -385,11 +511,11 @@ const ObbyScene: React.FC<{
       <pointLight position={[0, 15, 0]} intensity={0.8} color="#4ECDC4" distance={50} />
       <pointLight position={[20, 10, 20]} intensity={0.5} color="#FF6B6B" distance={40} />
       <pointLight position={[-10, 8, -10]} intensity={0.4} color="#BB86FC" distance={35} />
-      <hemisphereLight args={['#1a1a3e', '#0a0a1e', 0.3]} />
+      <hemisphereLight args={['#87CEEB', '#1a1a2e', 0.5]} />
 
-      <Sky sunPosition={[100, 50, 100]} turbidity={8} rayleigh={2} />
+      <Sky sunPosition={[100, 60, 100]} turbidity={6} rayleigh={1.5} />
       <Stars radius={100} depth={50} count={3000} factor={5} saturation={1} />
-      <fog attach="fog" args={['#0a0a2e', 40, 100]} />
+      <fog attach="fog" args={['#1a1a3e', 50, 120]} />
 
       <FloatingParticles />
 
@@ -424,7 +550,7 @@ const MobileJoystick: React.FC<{
   const knobRef = useRef<HTMLDivElement>(null);
   const touchId = useRef<number | null>(null);
   const center = useRef({ x: 0, y: 0 });
-  const radius = 50;
+  const radius = 55;
 
   const handleStart = useCallback((e: React.TouchEvent) => {
     if (touchId.current !== null) return;
@@ -478,11 +604,17 @@ const MobileJoystick: React.FC<{
       onTouchMove={handleTouchMove}
       onTouchEnd={handleEnd}
       onTouchCancel={handleEnd}
-      className="absolute bottom-8 left-8 w-32 h-32 rounded-full border-2 border-white/30 bg-white/10 backdrop-blur-sm flex items-center justify-center touch-none z-50"
+      className="absolute bottom-6 left-6 w-36 h-36 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center touch-none z-50"
+      style={{ border: '3px solid rgba(255,255,255,0.25)', boxShadow: '0 0 20px rgba(78,205,196,0.3)' }}
     >
       <div
         ref={knobRef}
-        className="w-14 h-14 rounded-full bg-white/40 border-2 border-white/60 shadow-lg shadow-white/20 pointer-events-none"
+        className="w-16 h-16 rounded-full pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, rgba(78,205,196,0.8) 0%, rgba(78,205,196,0.4) 100%)',
+          border: '3px solid rgba(255,255,255,0.5)',
+          boxShadow: '0 0 15px rgba(78,205,196,0.5)',
+        }}
       />
     </div>
   );
@@ -498,9 +630,14 @@ const MobileJumpButton: React.FC<{
         e.preventDefault();
         mobileInput.current.jump = true;
       }}
-      className="absolute bottom-10 right-8 w-20 h-20 rounded-full bg-primary/40 border-2 border-primary/60 backdrop-blur-sm flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-primary/30 active:scale-90 transition-transform touch-none z-50 select-none"
+      className="absolute bottom-8 right-6 w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold active:scale-90 transition-transform touch-none z-50 select-none"
+      style={{
+        background: 'radial-gradient(circle, rgba(33,150,243,0.7) 0%, rgba(33,150,243,0.3) 100%)',
+        border: '3px solid rgba(255,255,255,0.35)',
+        boxShadow: '0 0 20px rgba(33,150,243,0.4)',
+      }}
     >
-      ⬆
+      JUMP
     </button>
   );
 };
@@ -582,25 +719,30 @@ const RobloxObby: React.FC = () => {
       {/* HUD */}
       <div className="flex justify-between w-full max-w-4xl mb-2 px-4 flex-wrap gap-2">
         <div className="flex items-center gap-4">
-          <span className="text-lg font-bold text-primary">Level {level}/{totalLevels}</span>
-          <span className="text-sm text-muted-foreground">Deaths: {deaths}</span>
+          <span className="text-lg font-bold text-primary">🏔️ Level {level}/{totalLevels}</span>
+          <span className="text-sm text-muted-foreground">💀 {deaths}</span>
         </div>
-        {!isMobile && (
-          <div className="flex gap-2 flex-wrap">
-            <span className="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-400">🔵 Normal</span>
-            <span className="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400">🔴 Kill</span>
-            <span className="text-xs px-2 py-1 rounded bg-orange-500/20 text-orange-400">🟠 Moving</span>
-            <span className="text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-400">🟣 Vanishing</span>
-            <span className="text-xs px-2 py-1 rounded bg-emerald-500/20 text-emerald-400">🟢 Bouncy</span>
-          </div>
-        )}
+        <div className="flex gap-1.5 flex-wrap">
+          <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-400">Normal</span>
+          <span className="text-xs px-2 py-1 rounded-full bg-red-500/20 text-red-400">☠️ Kill</span>
+          <span className="text-xs px-2 py-1 rounded-full bg-orange-500/20 text-orange-400">↔ Moving</span>
+          <span className="text-xs px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-400">🦘 Bouncy</span>
+          <span className="text-xs px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-400">⭐ Checkpoint</span>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div className="w-full max-w-4xl px-4 mb-2">
+        <div className="w-full bg-muted rounded-full h-2">
+          <div className="bg-primary h-2 rounded-full transition-all duration-500" style={{ width: `${(level / totalLevels) * 100}%` }} />
+        </div>
       </div>
 
       {/* 3D Canvas */}
-      <div className="w-full rounded-xl overflow-hidden border border-border relative" style={{ height: showTouchControls ? 400 : 500 }}>
+      <div className="w-full rounded-xl overflow-hidden border border-border relative" style={{ height: showTouchControls ? 450 : 550 }}>
         <Canvas
           shadows
-          camera={{ position: [0, 10, 15], fov: 60 }}
+          camera={{ position: [0, 10, 15], fov: 55 }}
           gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
           dpr={[1, 1.5]}
         >
@@ -613,12 +755,9 @@ const RobloxObby: React.FC = () => {
           />
         </Canvas>
 
-        {/* Swipe to look - center area */}
         {showTouchControls && (
           <SwipeToLook mobileInput={mobileInput} />
         )}
-
-        {/* Mobile Controls */}
         {showTouchControls && (
           <>
             <MobileJoystick mobileInput={mobileInput} />
@@ -630,15 +769,16 @@ const RobloxObby: React.FC = () => {
       {/* Level complete overlay */}
       {showComplete && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-card border border-border rounded-2xl p-8 text-center max-w-md mx-4">
-            <h2 className="text-3xl font-bold text-primary mb-2">🎉 Level {level} Complete!</h2>
-            <p className="text-muted-foreground mb-1">Deaths this run: {deaths}</p>
+          <div className="bg-card border border-border rounded-2xl p-8 text-center max-w-md mx-4 shadow-2xl">
+            <div className="text-5xl mb-3">🎉</div>
+            <h2 className="text-3xl font-bold text-primary mb-2">Level {level} Complete!</h2>
+            <p className="text-muted-foreground mb-1">Deaths: {deaths}</p>
             <div className="w-full bg-muted rounded-full h-3 my-4">
               <div className="bg-primary h-3 rounded-full transition-all" style={{ width: `${(level / totalLevels) * 100}%` }} />
             </div>
             <p className="text-sm text-muted-foreground mb-4">{level}/{totalLevels} levels completed</p>
             {level < totalLevels ? (
-              <button onClick={nextLevel} className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-lg">
+              <button onClick={nextLevel} className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-lg hover:opacity-90 transition-opacity">
                 Next Level →
               </button>
             ) : (
@@ -654,7 +794,7 @@ const RobloxObby: React.FC = () => {
 
       <div className="mt-2 text-xs text-muted-foreground text-center">
         {showTouchControls ? (
-          <span><strong>Joystick</strong> to move • <strong>⬆ Button</strong> to jump • Avoid red platforms!</span>
+          <span><strong>Joystick</strong> to move • <strong>JUMP</strong> to jump • <strong>Swipe</strong> to look around • Avoid red platforms!</span>
         ) : (
           <span><strong>WASD</strong> to move • <strong>Space</strong> to jump • Avoid red platforms • Reach the green goal!</span>
         )}
