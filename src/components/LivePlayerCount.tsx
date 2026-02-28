@@ -10,20 +10,21 @@ const LivePlayerCount: React.FC<LivePlayerCountProps> = ({ compact = false }) =>
   const [trend, setTrend] = useState<'up' | 'down' | 'stable'>('stable');
 
   useEffect(() => {
-    // Simulate live player count with realistic fluctuations
     const baseCount = 1247;
     const updateCount = () => {
       const fluctuation = Math.floor(Math.random() * 100) - 50;
       const newCount = Math.max(800, baseCount + fluctuation);
       
-      setTrend(newCount > playerCount ? 'up' : newCount < playerCount ? 'down' : 'stable');
-      setPlayerCount(newCount);
+      setPlayerCount(prev => {
+        setTrend(newCount > prev ? 'up' : newCount < prev ? 'down' : 'stable');
+        return newCount;
+      });
     };
 
     updateCount();
     const interval = setInterval(updateCount, 5000);
     return () => clearInterval(interval);
-  }, [playerCount]);
+  }, []);
 
   if (compact) {
     return (

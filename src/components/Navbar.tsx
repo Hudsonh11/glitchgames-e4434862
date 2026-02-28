@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Gamepad2, User, Trophy, Gift, Settings, Menu, X, Crown, LogOut, Flame, Sparkles } from 'lucide-react';
+import { Gamepad2, User, Trophy, Gift, Settings, Menu, X, Crown, LogOut, Flame, Sparkles, ChevronDown, Zap, Star, TrendingUp, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import SearchGames from '@/components/SearchGames';
 import Notifications from '@/components/Notifications';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
 
 const allGames = [
   { id: 'block-blast', title: 'Block Blast', category: 'Puzzle', rating: 4.8, color: 'hsl(185, 100%, 50%)' },
@@ -22,8 +23,15 @@ const allGames = [
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const { user, isLoggedIn, logout, coins, gems, currentStreak } = useGame();
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const [notifications, setNotifications] = useState([
     { id: '1', type: 'reward' as const, title: 'Daily Reward Ready!', message: 'Your daily reward is waiting for you.', timestamp: new Date(), read: false },
@@ -34,8 +42,6 @@ const Navbar: React.FC = () => {
     { path: '/', label: 'Games', icon: Gamepad2 },
     { path: '/leaderboard', label: 'Leaderboard', icon: Trophy },
     { path: '/rewards', label: 'Rewards', icon: Gift },
-    { path: '/profile', label: 'Profile', icon: User },
-    { path: '/settings', label: 'Settings', icon: Settings },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -44,8 +50,10 @@ const Navbar: React.FC = () => {
   const handleMarkAllRead = () => setNotifications(n => n.map(notif => ({ ...notif, read: true })));
   const handleClearNotification = (id: string) => setNotifications(n => n.filter(notif => notif.id !== id));
 
+  const xpProgress = user ? ((user.xp || 0) % 100) : 0;
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-border/50">
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'glass-panel border-b border-border/50 shadow-lg' : 'bg-background/60 backdrop-blur-md border-b border-transparent'}`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -54,9 +62,12 @@ const Navbar: React.FC = () => {
               <Gamepad2 className="w-6 h-6 text-primary-foreground relative z-10" />
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
             </div>
-            <span className="font-display text-xl font-bold text-gradient hidden sm:block">
-              GLITCH GAMES
-            </span>
+            <div className="hidden sm:block">
+              <span className="font-display text-xl font-bold text-gradient leading-none">
+                GLITCH GAMES
+              </span>
+              <div className="text-[9px] text-muted-foreground tracking-widest uppercase">Play • Compete • Win</div>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
@@ -88,14 +99,12 @@ const Navbar: React.FC = () => {
 
           {/* User Section */}
           <div className="flex items-center gap-2">
-            {/* Search */}
             <div className="hidden sm:block">
               <SearchGames games={allGames} />
             </div>
 
             {isLoggedIn ? (
               <>
-                {/* Notifications */}
                 <Notifications
                   notifications={notifications}
                   onMarkRead={handleMarkRead}
@@ -104,48 +113,102 @@ const Navbar: React.FC = () => {
                 />
 
                 {/* Currency Display */}
-                <div className="hidden lg:flex items-center gap-2">
-                  <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-warning/10 border border-warning/20 hover:border-warning/40 transition-colors">
-                    <span className="text-lg">🪙</span>
-                    <span className="text-warning font-bold text-sm">{coins.toLocaleString()}</span>
-                  </div>
-                  <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-secondary/10 border border-secondary/20 hover:border-secondary/40 transition-colors">
-                    <span className="text-lg">💎</span>
-                    <span className="text-secondary font-bold text-sm">{gems.toLocaleString()}</span>
-                  </div>
+                <div className="hidden lg:flex items-center gap-1.5">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-warning/10 border border-warning/20 hover:border-warning/40 transition-colors cursor-default">
+                        <span className="text-sm">🪙</span>
+                        <span className="text-warning font-bold text-xs">{coins.toLocaleString()}</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>Coins - Earn by playing games</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary/10 border border-secondary/20 hover:border-secondary/40 transition-colors cursor-default">
+                        <span className="text-sm">💎</span>
+                        <span className="text-secondary font-bold text-xs">{gems.toLocaleString()}</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>Gems - Premium currency</TooltipContent>
+                  </Tooltip>
+                  {currentStreak > 0 && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-destructive/10 border border-destructive/20 cursor-default">
+                          <Flame className="w-3.5 h-3.5 text-destructive fill-destructive" />
+                          <span className="text-destructive font-bold text-xs">{currentStreak}</span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>{currentStreak} day streak! 🔥</TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
                 
-                {/* User Avatar with Streak */}
-                <Link to="/profile" className="flex items-center gap-2 group">
-                  <div className="relative">
-                    <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-primary/50 group-hover:border-primary transition-colors group-hover:shadow-glow">
-                      <img src={user?.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                    </div>
-                    {currentStreak > 0 && (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="absolute -top-1.5 -right-1.5 flex items-center justify-center bg-gradient-to-r from-orange-500 to-red-500 rounded-full w-5 h-5 shadow-lg animate-pulse">
-                            <Flame className="w-3 h-3 text-white fill-white" />
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-card border-primary/20">
-                          <div className="flex items-center gap-2">
-                            <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
-                            <span className="font-bold">{currentStreak} day streak!</span>
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-                  </div>
-                  <div className="hidden sm:block">
-                    <p className="text-sm font-display font-bold leading-tight">{user?.username}</p>
-                    <p className="text-xs text-muted-foreground">Level {user?.level}</p>
-                  </div>
-                </Link>
-                
-                <Button variant="ghost" size="icon" onClick={logout} className="hidden md:flex hover:bg-destructive/10 hover:text-destructive">
-                  <LogOut className="w-4 h-4" />
-                </Button>
+                {/* User Profile Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-2 group outline-none">
+                      <div className="relative">
+                        <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-primary/50 group-hover:border-primary transition-colors group-hover:shadow-glow">
+                          <img src={user?.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                        </div>
+                        {/* XP ring indicator */}
+                        <svg className="absolute -inset-0.5 w-10 h-10 -rotate-90" viewBox="0 0 36 36">
+                          <circle cx="18" cy="18" r="16" fill="none" stroke="hsl(var(--muted))" strokeWidth="2" />
+                          <circle cx="18" cy="18" r="16" fill="none" stroke="hsl(var(--primary))" strokeWidth="2"
+                            strokeDasharray={`${xpProgress} ${100 - xpProgress}`} strokeLinecap="round" />
+                        </svg>
+                      </div>
+                      <div className="hidden sm:block text-left">
+                        <p className="text-sm font-display font-bold leading-tight">{user?.username}</p>
+                        <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                          <Star className="w-3 h-3 text-warning fill-warning" />
+                          Level {user?.level}
+                        </p>
+                      </div>
+                      <ChevronDown className="w-3.5 h-3.5 text-muted-foreground hidden sm:block" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel className="flex items-center gap-3 py-3">
+                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/30">
+                        <img src={user?.avatar} alt="" className="w-full h-full object-cover" />
+                      </div>
+                      <div>
+                        <p className="font-bold">{user?.username}</p>
+                        <p className="text-xs text-muted-foreground">Level {user?.level} • {user?.xp || 0} XP</p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
+                        <User className="w-4 h-4" /> Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/settings" className="flex items-center gap-2 cursor-pointer">
+                        <Settings className="w-4 h-4" /> Settings
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/rewards" className="flex items-center gap-2 cursor-pointer">
+                        <Gift className="w-4 h-4" /> Rewards
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="lg:hidden">
+                      <span className="flex items-center gap-2">🪙 {coins.toLocaleString()} coins</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="lg:hidden">
+                      <span className="flex items-center gap-2">💎 {gems.toLocaleString()} gems</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="lg:hidden" />
+                    <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive cursor-pointer">
+                      <LogOut className="w-4 h-4 mr-2" /> Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             ) : (
               <Link to="/login">
@@ -170,16 +233,22 @@ const Navbar: React.FC = () => {
               <div className="flex gap-2 mb-4 px-2">
                 <div className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg bg-warning/10 border border-warning/20">
                   <span>🪙</span>
-                  <span className="text-warning font-bold">{coins}</span>
+                  <span className="text-warning font-bold text-sm">{coins.toLocaleString()}</span>
                 </div>
                 <div className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg bg-secondary/10 border border-secondary/20">
                   <span>💎</span>
-                  <span className="text-secondary font-bold">{gems}</span>
+                  <span className="text-secondary font-bold text-sm">{gems.toLocaleString()}</span>
                 </div>
+                {currentStreak > 0 && (
+                  <div className="flex items-center justify-center gap-1 py-2 px-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                    <Flame className="w-4 h-4 text-destructive fill-destructive" />
+                    <span className="text-destructive font-bold text-sm">{currentStreak}</span>
+                  </div>
+                )}
               </div>
             )}
             
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               {navItems.map(({ path, label, icon: Icon }) => (
                 <Link key={path} to={path} onClick={() => setIsOpen(false)}>
                   <Button variant={isActive(path) ? "gaming" : "ghost"} className="w-full justify-start gap-2">
@@ -188,6 +257,18 @@ const Navbar: React.FC = () => {
                   </Button>
                 </Link>
               ))}
+              <Link to="/profile" onClick={() => setIsOpen(false)}>
+                <Button variant={isActive('/profile') ? "gaming" : "ghost"} className="w-full justify-start gap-2">
+                  <User className="w-4 h-4" />
+                  Profile
+                </Button>
+              </Link>
+              <Link to="/settings" onClick={() => setIsOpen(false)}>
+                <Button variant={isActive('/settings') ? "gaming" : "ghost"} className="w-full justify-start gap-2">
+                  <Settings className="w-4 h-4" />
+                  Settings
+                </Button>
+              </Link>
               {user?.isAdmin && (
                 <Link to="/admin" onClick={() => setIsOpen(false)}>
                   <Button variant="gold" className="w-full justify-start gap-2">
