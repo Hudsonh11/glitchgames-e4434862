@@ -9,7 +9,7 @@ const ReactionTest: React.FC = () => {
   const [reactionTime, setReactionTime] = useState<number | null>(null);
   const [attempts, setAttempts] = useState<number[]>([]);
   const startTimeRef = useRef<number>(0);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   
   const startTest = () => {
     setState('ready');

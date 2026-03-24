@@ -3,7 +3,8 @@ import {
   Gamepad2, Zap, Trophy, Gift, Sparkles, Star, Crown, Rocket, Heart, 
   TrendingUp, Users, Clock, Target, Flame, Play, Shield, Gem, Award,
   Search, ChevronRight, ArrowRight, Eye, Swords, Timer, Layers,
-  Compass, BarChart3, Globe, Headphones, MessageSquare, BookOpen
+  Compass, BarChart3, Globe, Headphones, MessageSquare, BookOpen,
+  Newspaper, Quote, Palette, Music, Cpu, Map, Crosshair, Dices
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -34,6 +35,15 @@ import AnimatedHeroBanner from '@/components/AnimatedHeroBanner';
 import Countdown from '@/components/Countdown';
 import MilestoneTracker from '@/components/MilestoneTracker';
 import StatsOverview from '@/components/StatsOverview';
+import PopularNow from '@/components/PopularNow';
+import GameShowcase from '@/components/GameShowcase';
+import QuickPlayCarousel from '@/components/QuickPlayCarousel';
+import PlayerTestimonials from '@/components/PlayerTestimonials';
+import GenreSpotlight from '@/components/GenreSpotlight';
+import GamingNews from '@/components/GamingNews';
+import QuickAccessBar from '@/components/QuickAccessBar';
+import StaffPicks from '@/components/StaffPicks';
+import DailyBonus from '@/components/DailyBonus';
 import { useGame } from '@/contexts/GameContext';
 import { Progress } from '@/components/ui/progress';
 
@@ -242,6 +252,14 @@ const Index: React.FC = () => {
   }).slice(0, 5), []);
   const newGames = useMemo(() => games.slice(-6), []);
   const spotlightGames = useMemo(() => [...games].sort((a, b) => b.rating - a.rating).slice(0, 3), []);
+  const popularNowGames = useMemo(() => [...games].sort((a, b) => {
+    const pa = parseFloat(a.players.replace('K', ''));
+    const pb = parseFloat(b.players.replace('K', ''));
+    return pb - pa;
+  }).slice(0, 5).map(g => ({ ...g, trend: 'up' as const })), []);
+  const puzzleGames = useMemo(() => games.filter(g => g.category === 'Puzzle').slice(0, 8), []);
+  const arcadeGames = useMemo(() => games.filter(g => g.category === 'Arcade').slice(0, 8), []);
+  const recentlyAdded = useMemo(() => games.slice(-10), []);
 
   const totalGamesPlayed = useMemo(() => Object.values(gameStats).reduce((acc, s) => acc + s.gamesPlayed, 0), [gameStats]);
   const totalScore = useMemo(() => Object.values(gameStats).reduce((acc, s) => acc + s.highScore, 0), [gameStats]);
@@ -269,14 +287,7 @@ const Index: React.FC = () => {
     <div className="min-h-screen bg-background relative">
       <Navbar />
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 1: HERO                                        */}
-      {/* Features: 1-Animated hero, 2-Glitch title, 3-CTA buttons, */}
-      {/* 4-Crown animation, 5-Particle bg, 6-Grid overlay,       */}
-      {/* 7-Floating orbs, 8-Badge pill, 9-Star ratings,          */}
-      {/* 10-Welcome back, 11-Tip of day, 12-Live player count,   */}
-      {/* 13-Stats counters, 14-Quick play                         */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* ═══ HERO ═══ */}
       <section className="relative pt-24 pb-16 px-4 overflow-hidden">
         <UltraParticles count={30} />
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -292,7 +303,7 @@ const Index: React.FC = () => {
 
         <div className="container mx-auto relative z-10">
           {isLoggedIn && user && (
-            <div className="max-w-4xl mx-auto mb-8 space-y-4 animate-fade-in-up">
+            <div className="max-w-4xl mx-auto mb-8 space-y-4 animate-fade-in">
               <WelcomeBack username={user.username} avatar={user.avatar} level={user.level}
                 streak={currentStreak} lastPlayed={lastPlayedGame} hasReward={hasReward} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -304,7 +315,7 @@ const Index: React.FC = () => {
 
           {!isLoggedIn && (
             <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-panel mb-8 animate-fade-in-up">
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-panel mb-8 animate-fade-in">
                 <Sparkles className="w-5 h-5 text-primary animate-pulse" />
                 <span className="text-sm font-bold text-primary uppercase tracking-wider">60+ Premium Games • Free to Play</span>
                 <div className="flex -space-x-1">
@@ -312,7 +323,7 @@ const Index: React.FC = () => {
                 </div>
               </div>
               
-              <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-black mb-6 animate-fade-in-up">
+              <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-black mb-6 animate-fade-in">
                 <span className="text-gradient animate-glitch inline-block">GLITCH</span>
                 <br />
                 <span className="text-foreground relative inline-block">
@@ -321,12 +332,12 @@ const Index: React.FC = () => {
                 </span>
               </h1>
               
-              <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-fade-in-up">
+              <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-fade-in">
                 Play the hottest games, earn <span className="text-warning font-semibold">epic rewards</span>, and compete with players worldwide!
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up">
-                <Button variant="gaming" size="xl" asChild className="group animate-glow-pulse">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
+                <Button variant="gaming" size="xl" asChild className="group">
                   <Link to="/login">
                     <Zap className="w-5 h-5 mr-2 transition-transform group-hover:scale-110" />
                     Join Now - It's Free!
@@ -357,10 +368,21 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 2: ANNOUNCEMENTS + HERO BANNER CAROUSEL        */}
-      {/* Features: 15-Announcements, 16-Rotating hero banner     */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* ═══ QUICK ACCESS BAR ═══ */}
+      <section className="py-4 px-4 relative z-10">
+        <div className="container mx-auto max-w-6xl">
+          <QuickAccessBar />
+        </div>
+      </section>
+
+      {/* ═══ FEATURED GAME SHOWCASE (Auto-rotating carousel) ═══ */}
+      <section className="py-6 px-4 relative z-10">
+        <div className="container mx-auto max-w-6xl">
+          <GameShowcase games={games} />
+        </div>
+      </section>
+
+      {/* ═══ ANNOUNCEMENTS + HERO BANNER ═══ */}
       <section className="py-6 px-4 relative z-10">
         <div className="container mx-auto max-w-6xl space-y-6">
           <AnimatedHeroBanner />
@@ -368,10 +390,16 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 3: SPOTLIGHT GAMES                             */}
-      {/* Features: 17-Spotlight cards, 18-Hover zoom, 19-Featured badge */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* ═══ DAILY BONUS (logged in) ═══ */}
+      {isLoggedIn && (
+        <section className="py-4 px-4 relative z-10">
+          <div className="container mx-auto max-w-6xl">
+            <DailyBonus />
+          </div>
+        </section>
+      )}
+
+      {/* ═══ SPOTLIGHT GAMES ═══ */}
       <section className="py-12 px-4 relative z-10">
         <div className="container mx-auto max-w-6xl">
           <SectionHeader icon={Star} title="Spotlight" subtitle="Editor's picks — the very best games on the platform" iconColor="text-warning" />
@@ -383,28 +411,36 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 4: GAME OF THE DAY + EVENT COUNTDOWN           */}
-      {/* Features: 20-GOTD, 21-Countdown timer, 22-Search       */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* ═══ QUICK PLAY CAROUSELS ═══ */}
+      <section className="py-8 px-4 relative z-10">
+        <div className="container mx-auto max-w-6xl space-y-8">
+          <QuickPlayCarousel games={puzzleGames} title="🧩 Puzzle Games" />
+          <QuickPlayCarousel games={arcadeGames} title="🕹️ Arcade Classics" />
+          <QuickPlayCarousel games={recentlyAdded} title="🆕 Recently Added" />
+        </div>
+      </section>
+
+      {/* ═══ GAME OF THE DAY + POPULAR NOW + NEWS ═══ */}
       <section className="py-8 px-4 relative z-10">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 space-y-6">
               <GameOfTheDay games={games} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <PopularNow games={popularNowGames} />
+                <GamingNews />
+              </div>
             </div>
             <div className="space-y-6">
               <Countdown targetDate={eventDate} title="🎉 Weekend Tournament" subtitle="Double XP for all players!" />
               <SearchGames games={games.map(g => ({ id: g.id, title: g.title, category: g.category, rating: g.rating, color: g.color }))} />
+              <GenreSpotlight games={games} />
             </div>
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 5: QUICK CATEGORIES                            */}
-      {/* Features: 23-Category grid, 24-Game counts, 25-Category icons */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* ═══ QUICK CATEGORIES ═══ */}
       <section className="py-8 px-4 relative z-10">
         <div className="container mx-auto max-w-6xl">
           <SectionHeader icon={Compass} title="Browse Categories" subtitle="Find your perfect game genre" />
@@ -418,10 +454,7 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 6: TRENDING + LEADERBOARD + RECENT WINNERS     */}
-      {/* Features: 26-Trending, 27-Mini leaderboard, 28-Recent winners */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* ═══ TRENDING + LEADERBOARD + RECENT WINNERS ═══ */}
       <section className="py-8 px-4 relative z-10">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -438,14 +471,10 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 7: TOP RATED + MOST POPULAR LISTS              */}
-      {/* Features: 29-Top rated list, 30-Most popular list,      */}
-      {/* 31-Compact rows, 32-Rank numbers                        */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* ═══ TOP RATED + MOST POPULAR + STAFF PICKS ═══ */}
       <section className="py-8 px-4 relative z-10">
         <div className="container mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="glass-panel rounded-2xl p-6">
               <h3 className="font-display text-xl font-bold mb-4 flex items-center gap-2">
                 <Award className="w-5 h-5 text-warning" /> Top Rated
@@ -462,21 +491,19 @@ const Index: React.FC = () => {
                 {mostPopular.map((game, i) => <CompactGameRow key={game.id} game={game} rank={i + 1} />)}
               </div>
             </div>
+            <StaffPicks games={games} />
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 8: NEW THIS WEEK                               */}
-      {/* Features: 33-New releases, 34-New badge, 35-Staggered animation */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* ═══ NEW THIS WEEK ═══ */}
       <section className="py-12 px-4 relative z-10">
         <div className="container mx-auto max-w-6xl">
           <SectionHeader icon={Rocket} title="New This Week" subtitle="Fresh games just added to the library" iconColor="text-success"
             action={<Link to="/#games"><Button variant="outline" size="sm" className="gap-1">View All <ArrowRight className="w-4 h-4" /></Button></Link>} />
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             {newGames.map((game, i) => (
-              <div key={game.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 0.08}s` }}>
+              <div key={game.id} className="animate-fade-in" style={{ animationDelay: `${i * 0.08}s` }}>
                 <Link to={`/game/${game.id}`} className="group block">
                   <div className="relative rounded-xl overflow-hidden aspect-square mb-2 transition-transform duration-300 group-hover:scale-105">
                     <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${game.image})` }} />
@@ -504,12 +531,7 @@ const Index: React.FC = () => {
         </div>
       )}
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 9: ALL GAMES LIBRARY                           */}
-      {/* Features: 36-Category filter tabs, 37-Game count,       */}
-      {/* 38-Game cards with 3D tilt, 39-Load more, 40-Empty state, */}
-      {/* 41-Daily rewards CTA                                    */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* ═══ ALL GAMES LIBRARY ═══ */}
       <section id="games" className="py-16 px-4 relative">
         <UltraParticles count={15} className="opacity-50" />
         <div className="container mx-auto max-w-6xl relative z-10">
@@ -541,7 +563,7 @@ const Index: React.FC = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {displayedGames.map((game, index) => (
-              <div key={game.id} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(index * 0.04, 0.4)}s` }}>
+              <div key={game.id} className="animate-fade-in" style={{ animationDelay: `${Math.min(index * 0.04, 0.4)}s` }}>
                 <GameCard {...game} />
               </div>
             ))}
@@ -565,11 +587,7 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 10: QUESTS + CHALLENGES + SEASON PASS          */}
-      {/* Features: 42-Daily quests, 43-Weekly challenge,         */}
-      {/* 44-Season pass progress, 45-Quest rewards               */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* ═══ QUESTS + CHALLENGES + SEASON PASS ═══ */}
       <section className="py-12 px-4 relative z-10 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/30 to-transparent" />
         <div className="container mx-auto max-w-6xl relative z-10">
@@ -582,11 +600,7 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 11: ACHIEVEMENTS + MILESTONES                  */}
-      {/* Features: 46-Achievement showcase, 47-Milestone tracker, */}
-      {/* 48-Rarity badges, 49-Progress bars                      */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* ═══ ACHIEVEMENTS + MILESTONES ═══ */}
       <section className="py-12 px-4 relative z-10">
         <div className="container mx-auto max-w-6xl">
           <SectionHeader icon={Trophy} title="Achievements & Milestones" subtitle="Track your gaming journey" iconColor="text-warning" />
@@ -597,11 +611,15 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 12: SOCIAL - FRIEND ACTIVITY + STATS           */}
-      {/* Features: 50-Friend activity feed, 51-Stats overview,   */}
-      {/* 52-Player stats                                         */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* ═══ PLAYER TESTIMONIALS ═══ */}
+      <section className="py-12 px-4 relative z-10">
+        <div className="container mx-auto max-w-6xl">
+          <SectionHeader icon={MessageSquare} title="What Players Say" subtitle="Real reviews from our community" iconColor="text-secondary" />
+          <PlayerTestimonials />
+        </div>
+      </section>
+
+      {/* ═══ SOCIAL - FRIEND ACTIVITY + STATS ═══ */}
       {isLoggedIn && (
         <section className="py-12 px-4 relative z-10">
           <div className="container mx-auto max-w-6xl">
@@ -623,11 +641,7 @@ const Index: React.FC = () => {
         </section>
       )}
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 13: WHY CHOOSE GLITCH GAMES                   */}
-      {/* Features: 53-Feature cards, 54-Stats in cards,          */}
-      {/* 55-Gradient icons, 56-Hover effects                     */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* ═══ WHY CHOOSE GLITCH GAMES ═══ */}
       <section className="py-16 px-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/50 to-transparent" />
         <UltraParticles count={10} className="opacity-30" />
@@ -651,21 +665,14 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 14: PLATFORM STATS                             */}
-      {/* Features: 57-Platform stats, 58-Animated counters,      */}
-      {/* 59-Community call to action                              */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* ═══ PLATFORM STATS ═══ */}
       <section className="py-12 px-4 relative z-10">
         <div className="container mx-auto max-w-5xl">
           <PlatformStats />
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SECTION 15: COMMUNITY CTA                              */}
-      {/* Features: 60-Join CTA, 61-Social proof, 62-Gradient bg  */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* ═══ COMMUNITY CTA ═══ */}
       {!isLoggedIn && (
         <section className="py-16 px-4 relative z-10">
           <div className="container mx-auto max-w-4xl">
