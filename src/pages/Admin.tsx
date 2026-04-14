@@ -670,6 +670,16 @@ const Admin: React.FC = () => {
               </div>
             </TabsContent>
           </Tabs>
+
+          {/* User Detail Modal */}
+          {detailUserId && (
+            <AdminUserDetail
+              userId={detailUserId}
+              open={!!detailUserId}
+              onClose={() => setDetailUserId(null)}
+              isBanned={bannedUsers.includes(detailUserId)}
+            />
+          )}
         </div>
       </div>
     </div>
