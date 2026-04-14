@@ -396,10 +396,10 @@ const Admin: React.FC = () => {
                               )}
                             </td>
                             <td className="py-3 px-4">
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-3 cursor-pointer" onClick={() => setDetailUserId(u.id)}>
                                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${u.username}`} alt="" className="w-9 h-9 rounded-full" />
                                 <div>
-                                  <p className="font-medium text-sm">{u.username}</p>
+                                  <p className="font-medium text-sm hover:text-primary transition-colors">{u.username}</p>
                                   <p className="text-[10px] text-muted-foreground truncate max-w-[120px]">{u.id.slice(0, 8)}...</p>
                                 </div>
                               </div>
