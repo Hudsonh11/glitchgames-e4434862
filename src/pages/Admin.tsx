@@ -6,7 +6,7 @@ import {
   Eye, Database, Coins, Gem, Award, Flag, FileText,
   Bell, Megaphone, Lock, Unlock, Mail, Download, Upload,
   Filter, ArrowUpDown, ChevronDown, CheckCircle, XCircle,
-  Zap, Globe, Server, Cpu, HardDrive, Settings
+  Zap, Globe, Server, Cpu, HardDrive, Settings, PieChart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,9 @@ import Navbar from '@/components/Navbar';
 import AdminWelcome from '@/components/AdminWelcome';
 import AdminStats from '@/components/AdminStats';
 import AdminUserActions from '@/components/AdminUserActions';
+import AdminAnalytics from '@/components/AdminAnalytics';
+import AdminCMS from '@/components/AdminCMS';
+import AdminUserDetail from '@/components/AdminUserDetail';
 import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -51,6 +54,7 @@ const Admin: React.FC = () => {
   const [maintenanceNote, setMaintenanceNote] = useState('');
   const [autoBackup, setAutoBackup] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(true);
+  const [detailUserId, setDetailUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.isAdmin && !showWelcome) {
@@ -187,15 +191,21 @@ const Admin: React.FC = () => {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid grid-cols-5 w-full max-w-2xl">
+            <TabsList className="grid grid-cols-7 w-full max-w-3xl">
               <TabsTrigger value="overview" className="gap-1.5 text-xs">
                 <BarChart3 className="w-3.5 h-3.5" /> Overview
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="gap-1.5 text-xs">
+                <PieChart className="w-3.5 h-3.5" /> Analytics
               </TabsTrigger>
               <TabsTrigger value="users" className="gap-1.5 text-xs">
                 <Users className="w-3.5 h-3.5" /> Users
               </TabsTrigger>
               <TabsTrigger value="games" className="gap-1.5 text-xs">
                 <Gamepad2 className="w-3.5 h-3.5" /> Games
+              </TabsTrigger>
+              <TabsTrigger value="cms" className="gap-1.5 text-xs">
+                <Megaphone className="w-3.5 h-3.5" /> CMS
               </TabsTrigger>
               <TabsTrigger value="system" className="gap-1.5 text-xs">
                 <Server className="w-3.5 h-3.5" /> System
@@ -204,6 +214,16 @@ const Admin: React.FC = () => {
                 <Activity className="w-3.5 h-3.5" /> Logs
               </TabsTrigger>
             </TabsList>
+
+            {/* ═══ Analytics Tab ═══ */}
+            <TabsContent value="analytics">
+              <AdminAnalytics />
+            </TabsContent>
+
+            {/* ═══ CMS Tab ═══ */}
+            <TabsContent value="cms">
+              <AdminCMS />
+            </TabsContent>
 
             {/* ═══ Overview Tab ═══ */}
             <TabsContent value="overview" className="space-y-6">
@@ -376,10 +396,10 @@ const Admin: React.FC = () => {
                               )}
                             </td>
                             <td className="py-3 px-4">
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-3 cursor-pointer" onClick={() => setDetailUserId(u.id)}>
                                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${u.username}`} alt="" className="w-9 h-9 rounded-full" />
                                 <div>
-                                  <p className="font-medium text-sm">{u.username}</p>
+                                  <p className="font-medium text-sm hover:text-primary transition-colors">{u.username}</p>
                                   <p className="text-[10px] text-muted-foreground truncate max-w-[120px]">{u.id.slice(0, 8)}...</p>
                                 </div>
                               </div>
@@ -650,6 +670,16 @@ const Admin: React.FC = () => {
               </div>
             </TabsContent>
           </Tabs>
+
+          {/* User Detail Modal */}
+          {detailUserId && (
+            <AdminUserDetail
+              userId={detailUserId}
+              open={!!detailUserId}
+              onClose={() => setDetailUserId(null)}
+              isBanned={bannedUsers.includes(detailUserId)}
+            />
+          )}
         </div>
       </div>
     </div>
