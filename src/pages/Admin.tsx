@@ -54,6 +54,7 @@ const Admin: React.FC = () => {
   const [maintenanceNote, setMaintenanceNote] = useState('');
   const [autoBackup, setAutoBackup] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(true);
+  const [detailUserId, setDetailUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.isAdmin && !showWelcome) {
