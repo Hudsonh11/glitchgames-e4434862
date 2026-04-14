@@ -191,15 +191,21 @@ const Admin: React.FC = () => {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid grid-cols-5 w-full max-w-2xl">
+            <TabsList className="grid grid-cols-7 w-full max-w-3xl">
               <TabsTrigger value="overview" className="gap-1.5 text-xs">
                 <BarChart3 className="w-3.5 h-3.5" /> Overview
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="gap-1.5 text-xs">
+                <PieChart className="w-3.5 h-3.5" /> Analytics
               </TabsTrigger>
               <TabsTrigger value="users" className="gap-1.5 text-xs">
                 <Users className="w-3.5 h-3.5" /> Users
               </TabsTrigger>
               <TabsTrigger value="games" className="gap-1.5 text-xs">
                 <Gamepad2 className="w-3.5 h-3.5" /> Games
+              </TabsTrigger>
+              <TabsTrigger value="cms" className="gap-1.5 text-xs">
+                <Megaphone className="w-3.5 h-3.5" /> CMS
               </TabsTrigger>
               <TabsTrigger value="system" className="gap-1.5 text-xs">
                 <Server className="w-3.5 h-3.5" /> System
@@ -208,6 +214,16 @@ const Admin: React.FC = () => {
                 <Activity className="w-3.5 h-3.5" /> Logs
               </TabsTrigger>
             </TabsList>
+
+            {/* ═══ Analytics Tab ═══ */}
+            <TabsContent value="analytics">
+              <AdminAnalytics />
+            </TabsContent>
+
+            {/* ═══ CMS Tab ═══ */}
+            <TabsContent value="cms">
+              <AdminCMS />
+            </TabsContent>
 
             {/* ═══ Overview Tab ═══ */}
             <TabsContent value="overview" className="space-y-6">
