@@ -6,7 +6,7 @@ import {
   Eye, Database, Coins, Gem, Award, Flag, FileText,
   Bell, Megaphone, Lock, Unlock, Mail, Download, Upload,
   Filter, ArrowUpDown, ChevronDown, CheckCircle, XCircle,
-  Zap, Globe, Server, Cpu, HardDrive, Settings
+  Zap, Globe, Server, Cpu, HardDrive, Settings, PieChart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,9 @@ import Navbar from '@/components/Navbar';
 import AdminWelcome from '@/components/AdminWelcome';
 import AdminStats from '@/components/AdminStats';
 import AdminUserActions from '@/components/AdminUserActions';
+import AdminAnalytics from '@/components/AdminAnalytics';
+import AdminCMS from '@/components/AdminCMS';
+import AdminUserDetail from '@/components/AdminUserDetail';
 import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
