@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { Gift, Calendar, Flame, Check, Lock, Sparkles, Trophy, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
@@ -14,6 +14,7 @@ import UltraLoadingSpinner from '@/components/UltraLoadingSpinner';
 import SeasonPass from '@/components/SeasonPass';
 import MilestoneTracker from '@/components/MilestoneTracker';
 import StreakFreezeShield from '@/components/StreakFreezeShield';
+import { supabase } from '@/integrations/supabase/client';
 
 const generateReward = (day: number) => {
   const cycle = Math.floor((day - 1) / 7);
@@ -33,6 +34,33 @@ const Rewards: React.FC = () => {
   const { isLoggedIn, isLoading, claimDailyReward, currentStreak, lastClaimDate, coins, gems, user, gameStats, achievements } = useGame();
   const { toast } = useToast();
   const [showConfetti, setShowConfetti] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  // Check premium status
+  React.useEffect(() => {
+    const checkPremium = async () => {
+      if (!user?.id) return;
+      const { data } = await supabase
+        .from('battle_pass_purchases')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('season', 'season_1')
+        .eq('status', 'completed')
+        .maybeSingle();
+      setIsPremium(!!data);
+    };
+    checkPremium();
+  }, [user?.id]);
+
+  // Show success toast after purchase redirect
+  React.useEffect(() => {
+    if (searchParams.get('purchase') === 'success') {
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 4000);
+      toast({ title: '🎉 Premium Unlocked!', description: 'Welcome to the Premium Battle Pass! Enjoy your exclusive rewards + 1000 coins & 50 gems bonus!' });
+    }
+  }, [searchParams]);
 
   const today = new Date().toISOString().split('T')[0];
   const canClaim = lastClaimDate !== today;
@@ -205,9 +233,10 @@ const Rewards: React.FC = () => {
             currentTier={Math.floor(totalGamesPlayed / 5) + 1}
             currentXP={(user?.xp || 0) % 500}
             xpPerTier={500}
-            isPremium={false}
+            isPremium={isPremium}
             seasonName="Season 1: Neon Legends"
             daysLeft={42}
+            onPremiumChange={setIsPremium}
           />
         </div>
       </div>
