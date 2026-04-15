@@ -1,10 +1,12 @@
 import React from 'react';
-import { Crown, Lock, Star, Gift, Sparkles, ChevronRight, Zap } from 'lucide-react';
+import { Crown, Lock, Star, Gift, Sparkles, ChevronRight, Zap, Loader2, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import UltraCard from '@/components/UltraCard';
 import UltraBadge from '@/components/UltraBadge';
 import UltraProgressBar from '@/components/UltraProgressBar';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface SeasonReward {
   tier: number;
@@ -19,6 +21,7 @@ interface SeasonPassProps {
   isPremium: boolean;
   seasonName: string;
   daysLeft: number;
+  onPremiumChange?: (isPremium: boolean) => void;
 }
 
 const rewards: SeasonReward[] = [
@@ -44,8 +47,38 @@ const SeasonPass: React.FC<SeasonPassProps> = ({
   isPremium,
   seasonName,
   daysLeft,
+  onPremiumChange,
 }) => {
   const tierProgress = (currentXP % xpPerTier) / xpPerTier * 100;
+  const [purchasing, setPurchasing] = React.useState(false);
+  const { toast } = useToast();
+
+  const handleUpgrade = async () => {
+    setPurchasing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: {
+          season: 'season_1',
+          returnUrl: window.location.origin,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error === 'Already purchased') {
+        toast({ title: 'Already Owned!', description: 'You already have the Premium Battle Pass!' });
+        onPremiumChange?.(true);
+        return;
+      }
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (err: any) {
+      console.error('Purchase error:', err);
+      toast({ title: 'Error', description: 'Could not start checkout. Please try again.', variant: 'destructive' });
+    } finally {
+      setPurchasing(false);
+    }
+  };
 
   return (
     <UltraCard variant="premium" glow className="overflow-hidden">
@@ -66,10 +99,20 @@ const SeasonPass: React.FC<SeasonPassProps> = ({
               {isPremium ? 'Premium Pass' : 'Free Pass'}
             </UltraBadge>
             {!isPremium && (
-              <Button variant="gaming" size="sm" className="mt-2">
-                <Sparkles className="w-4 h-4 mr-1" />
-                Upgrade
+              <Button variant="gaming" size="sm" className="mt-2" onClick={handleUpgrade} disabled={purchasing}>
+                {purchasing ? (
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4 mr-1" />
+                )}
+                {purchasing ? 'Loading...' : 'Upgrade $4.99'}
               </Button>
+            )}
+            {isPremium && (
+              <div className="mt-2 flex items-center gap-1 text-success text-sm font-medium">
+                <CheckCircle className="w-4 h-4" />
+                Active
+              </div>
             )}
           </div>
         </div>
