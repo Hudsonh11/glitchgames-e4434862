@@ -100,9 +100,11 @@ const DoodleJump: React.FC = () => {
         for (const p of s.platforms) {
           if (s.px + 16 > p.x && s.px - 16 < p.x + p.w &&
               s.py + 20 > p.y && s.py + 20 < p.y + 12) {
-            if (p.type === 'broken') continue;
+            if (p.type === 'broken') {
+              p.y = 99999;
+              continue;
+            }
             s.vy = p.type === 'spring' ? -18 : -11;
-            if (p.type === 'broken') p.y = 99999;
           }
         }
       }
