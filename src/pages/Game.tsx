@@ -136,6 +136,10 @@ const games: Record<string, { component: React.FC<any>; title: string; category:
   'gravity-runner': { component: GravityRunner, title: 'Gravity Runner', category: 'Runner' },
   'ice-slider': { component: IceSlider, title: 'Ice Slider', category: 'Puzzle' },
   'roblox-obby': { component: RobloxObby, title: 'Roblox Obby', category: '3D' },
+  'stack-tower-3d': { component: StackTower, title: 'Stack Tower', category: 'Skill' },
+  'helix-jump': { component: HelixJump, title: 'Helix Jump', category: 'Arcade' },
+  'cube-runner': { component: CubeRunner, title: 'Cube Runner', category: 'Runner' },
+  'doodle-jump': { component: DoodleJump, title: 'Doodle Jump', category: 'Arcade' },
 };
 
 const Game: React.FC = () => {

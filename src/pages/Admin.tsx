@@ -20,6 +20,7 @@ import AdminUserActions from '@/components/AdminUserActions';
 import AdminAnalytics from '@/components/AdminAnalytics';
 import AdminCMS from '@/components/AdminCMS';
 import AdminUserDetail from '@/components/AdminUserDetail';
+import AdminInsights from '@/components/AdminInsights';
 import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -191,9 +192,12 @@ const Admin: React.FC = () => {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid grid-cols-7 w-full max-w-3xl">
+            <TabsList className="grid grid-cols-4 md:grid-cols-8 w-full max-w-4xl gap-1">
               <TabsTrigger value="overview" className="gap-1.5 text-xs">
                 <BarChart3 className="w-3.5 h-3.5" /> Overview
+              </TabsTrigger>
+              <TabsTrigger value="insights" className="gap-1.5 text-xs">
+                <Zap className="w-3.5 h-3.5" /> Insights
               </TabsTrigger>
               <TabsTrigger value="analytics" className="gap-1.5 text-xs">
                 <PieChart className="w-3.5 h-3.5" /> Analytics
@@ -214,6 +218,11 @@ const Admin: React.FC = () => {
                 <Activity className="w-3.5 h-3.5" /> Logs
               </TabsTrigger>
             </TabsList>
+
+            {/* ═══ Insights Tab ═══ */}
+            <TabsContent value="insights">
+              <AdminInsights />
+            </TabsContent>
 
             {/* ═══ Analytics Tab ═══ */}
             <TabsContent value="analytics">
