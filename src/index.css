@@ -101,6 +101,36 @@
   }
 }
 
+/* Accessibility: respect user's reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* High contrast mode */
+.high-contrast {
+  --border: 0 0% 50%;
+  --muted-foreground: 0 0% 80%;
+}
+
+/* Page transition utility */
+.page-enter {
+  animation: page-fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes page-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @layer utilities {
   .text-gradient {
     background: var(--gradient-hero);

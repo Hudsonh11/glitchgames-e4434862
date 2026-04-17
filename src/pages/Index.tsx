@@ -108,6 +108,10 @@ const games = [
   { id: 'gravity-runner', title: 'Gravity Runner', description: 'Flip gravity to dodge obstacles in space!', image: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=400&h=300&fit=crop', category: 'Runner', rating: 4.8, players: '16.9K', color: 'hsl(185, 90%, 45%)' },
   { id: 'ice-slider', title: 'Ice Slider', description: 'Slide on ice to reach the goal - plan your moves!', image: 'https://images.unsplash.com/photo-1494059980473-813e73ee784b?w=400&h=300&fit=crop', category: 'Puzzle', rating: 4.5, players: '8.9K', color: 'hsl(195, 80%, 60%)' },
   { id: 'roblox-obby', title: 'Roblox Obby', description: '3D obstacle course with 50 levels! Jump, dodge, and conquer!', image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=300&fit=crop', category: '3D', rating: 4.9, players: '42.7K', color: 'hsl(140, 80%, 50%)' },
+  { id: 'stack-tower-3d', title: 'Stack Tower', description: 'Tap to drop blocks and build the tallest tower! NEW!', image: 'https://images.unsplash.com/photo-1493711662062-fa541f7f3d24?w=400&h=300&fit=crop', category: 'Skill', rating: 4.8, players: 'NEW', color: 'hsl(185, 100%, 50%)' },
+  { id: 'helix-jump', title: 'Helix Jump', description: 'Bounce a ball through a spinning tower without hitting red zones! NEW!', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop', category: 'Arcade', rating: 4.9, players: 'NEW', color: 'hsl(45, 100%, 55%)' },
+  { id: 'cube-runner', title: 'Cube Runner', description: 'Dodge red blocks and grab gold coins on a neon highway! NEW!', image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=300&fit=crop', category: 'Runner', rating: 4.8, players: 'NEW', color: 'hsl(280, 100%, 60%)' },
+  { id: 'doodle-jump', title: 'Doodle Jump', description: 'Bounce up endless platforms — watch out for broken ones! NEW!', image: 'https://images.unsplash.com/photo-1531525645387-7f14be1bdbbd?w=400&h=300&fit=crop', category: 'Arcade', rating: 4.7, players: 'NEW', color: 'hsl(142, 76%, 50%)' },
 ];
 
 const categories = ['All', ...Array.from(new Set(games.map(g => g.category))).sort()];
