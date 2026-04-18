@@ -178,13 +178,15 @@ const BrickBreaker: React.FC<BrickBreakerProps> = ({ onScoreUpdate }) => {
 
     const handleTouchMove = (e: TouchEvent) => {
       if (!canvasRef.current || !gameStarted) return;
+      e.preventDefault();
       const rect = canvasRef.current.getBoundingClientRect();
-      const x = e.touches[0].clientX - rect.left - PADDLE_WIDTH / 2;
+      const scale = CANVAS_WIDTH / rect.width;
+      const x = (e.touches[0].clientX - rect.left) * scale - PADDLE_WIDTH / 2;
       setPaddleX(Math.max(0, Math.min(CANVAS_WIDTH - PADDLE_WIDTH, x)));
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('touchmove', handleTouchMove);
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchmove', handleTouchMove);
@@ -212,8 +214,8 @@ const BrickBreaker: React.FC<BrickBreakerProps> = ({ onScoreUpdate }) => {
       {/* Game Area */}
       <div
         ref={canvasRef}
-        className="relative bg-background rounded-xl border-2 border-primary overflow-hidden cursor-none"
-        style={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }}
+        className="relative bg-background rounded-xl border-2 border-primary overflow-hidden cursor-none touch-none max-w-full"
+        style={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT, aspectRatio: `${CANVAS_WIDTH}/${CANVAS_HEIGHT}` }}
       >
         {/* Bricks */}
         {bricks.map((brick, i) => brick.active && (

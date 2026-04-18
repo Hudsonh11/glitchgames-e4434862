@@ -161,7 +161,7 @@ const CrossyRoad: React.FC<CrossyRoadProps> = ({ onScoreUpdate }) => {
         </div>
       </div>
 
-      <div className="relative w-[400px] h-[400px] overflow-hidden rounded-xl border-2 border-primary">
+      <div className="relative w-[400px] h-[400px] max-w-full overflow-hidden rounded-xl border-2 border-primary" style={{ aspectRatio: '1/1' }}>
         {/* Lanes */}
         {lanes.map((lane, index) => (
           <div

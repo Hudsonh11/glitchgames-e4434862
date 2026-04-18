@@ -105,7 +105,7 @@ const Leaderboard: React.FC = () => {
               <Trophy className="w-10 h-10 text-warning" />
               <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-warning animate-pulse" />
             </div>
-            <h1 className="font-display text-4xl font-bold mb-2 text-gradient">Global Leaderboard</h1>
+            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-gradient break-words">Global Leaderboard</h1>
             <p className="text-muted-foreground">Compete with players worldwide across all 50 games!</p>
           </div>
 

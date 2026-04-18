@@ -102,7 +102,8 @@ const DodgeBall: React.FC<DodgeBallProps> = ({ onScoreUpdate }) => {
       <div className="text-xl font-bold text-primary">Score: {score}</div>
 
       <div 
-        className="relative w-[400px] h-[400px] bg-gradient-to-b from-indigo-900 to-purple-900 rounded-xl overflow-hidden border-2 border-primary"
+        className="relative w-[400px] h-[400px] max-w-full bg-gradient-to-b from-indigo-900 to-purple-900 rounded-xl overflow-hidden border-2 border-primary touch-none"
+        style={{ aspectRatio: '1/1' }}
       >
         {/* Stars background */}
         {[...Array(20)].map((_, i) => (

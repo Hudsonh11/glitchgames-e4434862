@@ -148,7 +148,7 @@ const Settings: React.FC = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-hero mb-4">
               <Sparkles className="w-8 h-8 text-primary-foreground" />
             </div>
-            <h1 className="font-display text-4xl font-bold mb-2 text-gradient">Settings</h1>
+            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-gradient break-words">Settings</h1>
             <p className="text-muted-foreground">Tune your experience</p>
           </div>
 

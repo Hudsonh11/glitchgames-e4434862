@@ -112,13 +112,15 @@ const PongGame: React.FC<PongGameProps> = ({ onScoreUpdate }) => {
 
     const handleTouchMove = (e: TouchEvent) => {
       if (!canvasRef.current || !gameStarted) return;
+      e.preventDefault();
       const rect = canvasRef.current.getBoundingClientRect();
-      const y = e.touches[0].clientY - rect.top - PADDLE_HEIGHT / 2;
+      const scale = CANVAS_HEIGHT / rect.height;
+      const y = (e.touches[0].clientY - rect.top) * scale - PADDLE_HEIGHT / 2;
       setPlayerY(Math.max(0, Math.min(CANVAS_HEIGHT - PADDLE_HEIGHT, y)));
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('touchmove', handleTouchMove);
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchmove', handleTouchMove);
@@ -161,8 +163,8 @@ const PongGame: React.FC<PongGameProps> = ({ onScoreUpdate }) => {
       {/* Game Area */}
       <div
         ref={canvasRef}
-        className="relative bg-background rounded-xl border-2 border-primary overflow-hidden cursor-none"
-        style={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }}
+        className="relative bg-background rounded-xl border-2 border-primary overflow-hidden cursor-none touch-none max-w-full"
+        style={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT, aspectRatio: `${CANVAS_WIDTH}/${CANVAS_HEIGHT}` }}
       >
         {/* Center line */}
         <div className="absolute left-1/2 top-0 w-0.5 h-full bg-primary/30 border-dashed" />

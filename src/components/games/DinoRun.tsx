@@ -533,7 +533,7 @@ const DinoRun: React.FC<DinoRunProps> = ({ onScoreUpdate }) => {
       </div>
       
       <div 
-        className={`relative w-[500px] h-[200px] rounded-lg border-2 border-primary overflow-hidden cursor-pointer transition-all duration-500 ${
+        className={`relative w-[500px] h-[200px] max-w-full rounded-lg border-2 border-primary overflow-hidden cursor-pointer transition-all duration-500 ${
           gameState.isNightMode 
             ? 'bg-gradient-to-b from-indigo-950 to-slate-900' 
             : 'bg-gradient-to-b from-sky-200 to-sky-100'

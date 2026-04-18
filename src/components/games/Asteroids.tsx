@@ -144,7 +144,8 @@ const Asteroids: React.FC<AsteroidsProps> = ({ onScoreUpdate }) => {
       <div className="text-xl font-bold text-primary">Score: {score}</div>
       
       <div 
-        className="relative w-[400px] h-[400px] bg-black rounded-lg border-2 border-primary overflow-hidden"
+        className="relative w-[400px] h-[400px] max-w-full bg-black rounded-lg border-2 border-primary overflow-hidden touch-none"
+        style={{ aspectRatio: '1/1' }}
       >
         {/* Stars */}
         {[...Array(30)].map((_, i) => (

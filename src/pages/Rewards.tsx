@@ -151,7 +151,7 @@ const Rewards: React.FC = () => {
               <Gift className="w-10 h-10 text-success" />
               <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-warning animate-pulse" />
             </div>
-            <h1 className="font-display text-4xl font-bold mb-2 text-gradient">Endless Rewards</h1>
+            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-gradient break-words">Endless Rewards</h1>
             <p className="text-muted-foreground">Log in every day for better rewards!</p>
           </div>
 
@@ -164,7 +164,7 @@ const Rewards: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm">Current Streak</p>
-                  <p className="font-display text-4xl font-bold text-gradient">{currentStreak} Days</p>
+                  <p className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-gradient">{currentStreak} Days</p>
                 </div>
               </div>
               <div className="text-right">

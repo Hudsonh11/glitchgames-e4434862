@@ -117,8 +117,8 @@ const SpaceInvaders: React.FC<SpaceInvadersProps> = ({ onScoreUpdate }) => {
       <div className="text-xl font-bold text-primary">Score: {score}</div>
       
       <div 
-        className="relative w-[400px] h-[400px] bg-black rounded-lg border-2 border-primary overflow-hidden"
-        style={{ background: 'linear-gradient(to bottom, #0a0a20, #000)' }}
+        className="relative w-[400px] h-[400px] max-w-full bg-black rounded-lg border-2 border-primary overflow-hidden touch-none"
+        style={{ background: 'linear-gradient(to bottom, #0a0a20, #000)', aspectRatio: '1/1' }}
       >
         {/* Stars background */}
         {[...Array(20)].map((_, i) => (
