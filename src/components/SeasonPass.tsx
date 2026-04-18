@@ -21,7 +21,6 @@ interface SeasonPassProps {
   isPremium: boolean;
   seasonName: string;
   daysLeft: number;
-  onPremiumChange?: (isPremium: boolean) => void;
 }
 
 const rewards: SeasonReward[] = [
@@ -47,7 +46,6 @@ const SeasonPass: React.FC<SeasonPassProps> = ({
   isPremium,
   seasonName,
   daysLeft,
-  onPremiumChange,
 }) => {
   const tierProgress = (currentXP % xpPerTier) / xpPerTier * 100;
   const [purchasing, setPurchasing] = React.useState(false);
@@ -65,8 +63,7 @@ const SeasonPass: React.FC<SeasonPassProps> = ({
 
       if (error) throw error;
       if (data?.error === 'Already purchased') {
-        toast({ title: 'Already Owned!', description: 'You already have the Premium Battle Pass!' });
-        onPremiumChange?.(true);
+        toast({ title: 'Already Owned!', description: 'You already have the Premium Battle Pass! Refresh to see it.' });
         return;
       }
       if (data?.url) {
