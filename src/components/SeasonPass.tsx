@@ -46,7 +46,6 @@ const SeasonPass: React.FC<SeasonPassProps> = ({
   isPremium,
   seasonName,
   daysLeft,
-  onPremiumChange,
 }) => {
   const tierProgress = (currentXP % xpPerTier) / xpPerTier * 100;
   const [purchasing, setPurchasing] = React.useState(false);
