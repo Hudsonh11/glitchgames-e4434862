@@ -65,8 +65,7 @@ const SeasonPass: React.FC<SeasonPassProps> = ({
 
       if (error) throw error;
       if (data?.error === 'Already purchased') {
-        toast({ title: 'Already Owned!', description: 'You already have the Premium Battle Pass!' });
-        onPremiumChange?.(true);
+        toast({ title: 'Already Owned!', description: 'You already have the Premium Battle Pass! Refresh to see it.' });
         return;
       }
       if (data?.url) {
