@@ -123,7 +123,8 @@ const FruitSlice: React.FC<FruitSliceProps> = ({ onScoreUpdate }) => {
 
       <div 
         ref={canvasRef}
-        className="relative w-[400px] h-[400px] bg-gradient-to-b from-sky-900 to-sky-700 rounded-xl overflow-hidden border-4 border-primary"
+        className="relative w-[400px] h-[400px] max-w-full bg-gradient-to-b from-sky-900 to-sky-700 rounded-xl overflow-hidden border-4 border-primary touch-none"
+        style={{ aspectRatio: '1/1' }}
       >
         {/* Fruits */}
         {fruits.map(fruit => (

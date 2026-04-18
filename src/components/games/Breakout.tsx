@@ -138,7 +138,8 @@ const Breakout: React.FC<BreakoutProps> = ({ onScoreUpdate }) => {
       </div>
 
       <div 
-        className="relative w-[400px] h-[400px] bg-gray-900 rounded-xl overflow-hidden border-2 border-primary"
+        className="relative w-[400px] h-[400px] max-w-full bg-gray-900 rounded-xl overflow-hidden border-2 border-primary touch-none"
+        style={{ aspectRatio: '1/1' }}
       >
         {/* Bricks */}
         {bricks.filter(b => b.alive).map((brick, i) => (
