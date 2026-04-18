@@ -21,7 +21,6 @@ interface SeasonPassProps {
   isPremium: boolean;
   seasonName: string;
   daysLeft: number;
-  onPremiumChange?: (isPremium: boolean) => void;
 }
 
 const rewards: SeasonReward[] = [
