@@ -258,8 +258,8 @@ const Rewards: React.FC = () => {
             isPremium={isPremium}
             seasonName="Season 1: Neon Legends"
             daysLeft={42}
-            onPremiumChange={setIsPremium}
           />
+
         </div>
       </div>
     </div>
