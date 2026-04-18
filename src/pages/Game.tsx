@@ -64,6 +64,12 @@ import StackTower from '@/components/games/StackTower';
 import HelixJump from '@/components/games/HelixJump';
 import CubeRunner from '@/components/games/CubeRunner';
 import DoodleJump from '@/components/games/DoodleJump';
+import BallSort from '@/components/games/BallSort';
+import Match3 from '@/components/games/Match3';
+import Nonogram from '@/components/games/Nonogram';
+import WordConnect from '@/components/games/WordConnect';
+import SlimeVolley from '@/components/games/SlimeVolley';
+import TowerDefense from '@/components/games/TowerDefense';
 import { useGame } from '@/contexts/GameContext';
 import Navbar from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
@@ -140,6 +146,12 @@ const games: Record<string, { component: React.FC<any>; title: string; category:
   'helix-jump': { component: HelixJump, title: 'Helix Jump', category: 'Arcade' },
   'cube-runner': { component: CubeRunner, title: 'Cube Runner', category: 'Runner' },
   'doodle-jump': { component: DoodleJump, title: 'Doodle Jump', category: 'Arcade' },
+  'ball-sort': { component: BallSort, title: 'Ball Sort', category: 'Puzzle' },
+  'match-3': { component: Match3, title: 'Match-3 Mania', category: 'Puzzle' },
+  'nonogram': { component: Nonogram, title: 'Nonogram', category: 'Puzzle' },
+  'word-connect': { component: WordConnect, title: 'Word Connect', category: 'Word' },
+  'slime-volley': { component: SlimeVolley, title: 'Slime Volley', category: 'Sports' },
+  'tower-defense': { component: TowerDefense, title: 'Tower Defense', category: 'Strategy' },
 };
 
 const Game: React.FC = () => {
