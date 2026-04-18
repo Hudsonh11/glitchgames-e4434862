@@ -37,10 +37,15 @@ const Rewards: React.FC = () => {
   const [isPremium, setIsPremium] = useState(false);
   const [searchParams] = useSearchParams();
 
-  // Check premium status
+  // Verify premium status from server (single source of truth).
+  // Polls briefly when ?purchase=success in case the Stripe webhook is still processing.
   React.useEffect(() => {
-    const checkPremium = async () => {
-      if (!user?.id) return;
+    if (!user?.id) return;
+    let cancelled = false;
+    const justPurchased = searchParams.get('purchase') === 'success';
+    const maxAttempts = justPurchased ? 8 : 1;
+
+    const verify = async (attempt = 0) => {
       const { data } = await supabase
         .from('battle_pass_purchases')
         .select('id')
@@ -48,19 +53,36 @@ const Rewards: React.FC = () => {
         .eq('season', 'season_1')
         .eq('status', 'completed')
         .maybeSingle();
-      setIsPremium(!!data);
-    };
-    checkPremium();
-  }, [user?.id]);
 
-  // Show success toast after purchase redirect
-  React.useEffect(() => {
-    if (searchParams.get('purchase') === 'success') {
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 4000);
-      toast({ title: '🎉 Premium Unlocked!', description: 'Welcome to the Premium Battle Pass! Enjoy your exclusive rewards + 1000 coins & 50 gems bonus!' });
-    }
-  }, [searchParams]);
+      if (cancelled) return;
+
+      if (data) {
+        setIsPremium(true);
+        if (justPurchased) {
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 4000);
+          toast({
+            title: '🎉 Premium Unlocked!',
+            description: 'Welcome to the Premium Battle Pass! Enjoy your exclusive rewards + 1000 coins & 50 gems bonus!',
+          });
+        }
+      } else if (attempt + 1 < maxAttempts) {
+        setTimeout(() => verify(attempt + 1), 1500);
+      } else {
+        setIsPremium(false);
+        if (justPurchased) {
+          toast({
+            title: 'Payment not confirmed',
+            description: 'We could not verify your purchase. If you completed payment, please refresh in a moment.',
+            variant: 'destructive',
+          });
+        }
+      }
+    };
+
+    verify();
+    return () => { cancelled = true; };
+  }, [user?.id, searchParams]);
 
   const today = new Date().toISOString().split('T')[0];
   const canClaim = lastClaimDate !== today;
