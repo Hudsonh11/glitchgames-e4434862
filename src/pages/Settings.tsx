@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { 
-  Volume2, VolumeX, Bell, Shield, Palette, HelpCircle, 
+import {
+  Volume2, VolumeX, Bell, Shield, Palette, HelpCircle,
   Monitor, Moon, Sun, Zap, Eye, Languages, Download, Trash2,
-  Keyboard, Gamepad2, RefreshCw, Database, AlertTriangle,
-  User, Lock, Mail, Clock, Vibrate, MessageSquare, Trophy,
-  Sparkles, Target, BellRing, BellOff, LogOut
+  Gamepad2, RefreshCw, AlertTriangle, User, Sparkles, LogOut, Bug,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -13,30 +11,25 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import Navbar from '@/components/Navbar';
 import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import BugReportModal from '@/components/BugReportModal';
+import UltraCard from '@/components/UltraCard';
 
 const Settings: React.FC = () => {
   const { isLoggedIn, soundSettings, updateSoundSettings, user, logout } = useGame();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isBugReportOpen, setIsBugReportOpen] = useState(false);
-  
-  // Local settings state
+
+  // ── settings state (persisted to localStorage) ──────────────────────────
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
   const [reducedMotion, setReducedMotion] = useState(() => localStorage.getItem('reducedMotion') === 'true');
   const [highContrast, setHighContrast] = useState(() => localStorage.getItem('highContrast') === 'true');
@@ -45,8 +38,6 @@ const Settings: React.FC = () => {
   const [showFPS, setShowFPS] = useState(() => localStorage.getItem('showFPS') === 'true');
   const [gamepadEnabled, setGamepadEnabled] = useState(() => localStorage.getItem('gamepadEnabled') !== 'false');
   const [particleEffects, setParticleEffects] = useState(() => localStorage.getItem('particleEffects') !== 'false');
-  
-  // New settings
   const [screenShake, setScreenShake] = useState(() => localStorage.getItem('screenShake') !== 'false');
   const [hapticFeedback, setHapticFeedback] = useState(() => localStorage.getItem('hapticFeedback') !== 'false');
   const [colorblindMode, setColorblindMode] = useState(() => localStorage.getItem('colorblindMode') || 'none');
@@ -57,705 +48,308 @@ const Settings: React.FC = () => {
   const [chatSounds, setChatSounds] = useState(() => localStorage.getItem('chatSounds') !== 'false');
   const [leaderboardNotifications, setLeaderboardNotifications] = useState(() => localStorage.getItem('leaderboardNotifications') !== 'false');
   const [achievementPopups, setAchievementPopups] = useState(() => localStorage.getItem('achievementPopups') !== 'false');
-  
-  // Delete account state
+
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem('theme', theme);
-    document.documentElement.classList.toggle('light', theme === 'light');
-  }, [theme]);
+  // ── persistence side effects ────────────────────────────────────────────
+  useEffect(() => { localStorage.setItem('theme', theme); document.documentElement.classList.toggle('light', theme === 'light'); }, [theme]);
+  useEffect(() => { localStorage.setItem('reducedMotion', String(reducedMotion)); document.documentElement.classList.toggle('reduce-motion', reducedMotion); }, [reducedMotion]);
+  useEffect(() => { localStorage.setItem('highContrast', String(highContrast)); document.documentElement.classList.toggle('high-contrast', highContrast); }, [highContrast]);
+  useEffect(() => { localStorage.setItem('language', language); }, [language]);
+  useEffect(() => { localStorage.setItem('autoSave', String(autoSave)); }, [autoSave]);
+  useEffect(() => { localStorage.setItem('showFPS', String(showFPS)); }, [showFPS]);
+  useEffect(() => { localStorage.setItem('gamepadEnabled', String(gamepadEnabled)); }, [gamepadEnabled]);
+  useEffect(() => { localStorage.setItem('particleEffects', String(particleEffects)); }, [particleEffects]);
+  useEffect(() => { localStorage.setItem('screenShake', String(screenShake)); }, [screenShake]);
+  useEffect(() => { localStorage.setItem('hapticFeedback', String(hapticFeedback)); }, [hapticFeedback]);
+  useEffect(() => { localStorage.setItem('colorblindMode', colorblindMode); document.documentElement.setAttribute('data-colorblind', colorblindMode); }, [colorblindMode]);
+  useEffect(() => { localStorage.setItem('fontSize', String(fontSize)); document.documentElement.style.setProperty('--user-font-scale', `${fontSize / 100}`); }, [fontSize]);
+  useEffect(() => { localStorage.setItem('autoPlay', String(autoPlay)); }, [autoPlay]);
+  useEffect(() => { localStorage.setItem('showTutorials', String(showTutorials)); }, [showTutorials]);
+  useEffect(() => { localStorage.setItem('confirmQuit', String(confirmQuit)); }, [confirmQuit]);
+  useEffect(() => { localStorage.setItem('chatSounds', String(chatSounds)); }, [chatSounds]);
+  useEffect(() => { localStorage.setItem('leaderboardNotifications', String(leaderboardNotifications)); }, [leaderboardNotifications]);
+  useEffect(() => { localStorage.setItem('achievementPopups', String(achievementPopups)); }, [achievementPopups]);
 
-  useEffect(() => {
-    localStorage.setItem('reducedMotion', String(reducedMotion));
-    document.documentElement.classList.toggle('reduce-motion', reducedMotion);
-  }, [reducedMotion]);
+  if (!isLoggedIn) return <Navigate to="/login" />;
 
-  useEffect(() => {
-    localStorage.setItem('highContrast', String(highContrast));
-  }, [highContrast]);
-
-  useEffect(() => {
-    localStorage.setItem('language', language);
-  }, [language]);
-
-  useEffect(() => {
-    localStorage.setItem('autoSave', String(autoSave));
-  }, [autoSave]);
-
-  useEffect(() => {
-    localStorage.setItem('showFPS', String(showFPS));
-  }, [showFPS]);
-
-  useEffect(() => {
-    localStorage.setItem('gamepadEnabled', String(gamepadEnabled));
-  }, [gamepadEnabled]);
-
-  useEffect(() => {
-    localStorage.setItem('particleEffects', String(particleEffects));
-  }, [particleEffects]);
-
-  // New settings effects
-  useEffect(() => {
-    localStorage.setItem('screenShake', String(screenShake));
-  }, [screenShake]);
-
-  useEffect(() => {
-    localStorage.setItem('hapticFeedback', String(hapticFeedback));
-  }, [hapticFeedback]);
-
-  useEffect(() => {
-    localStorage.setItem('colorblindMode', colorblindMode);
-    document.documentElement.setAttribute('data-colorblind', colorblindMode);
-  }, [colorblindMode]);
-
-  useEffect(() => {
-    localStorage.setItem('fontSize', String(fontSize));
-    document.documentElement.style.setProperty('--user-font-scale', `${fontSize / 100}`);
-  }, [fontSize]);
-
-  useEffect(() => {
-    localStorage.setItem('autoPlay', String(autoPlay));
-  }, [autoPlay]);
-
-  useEffect(() => {
-    localStorage.setItem('showTutorials', String(showTutorials));
-  }, [showTutorials]);
-
-  useEffect(() => {
-    localStorage.setItem('confirmQuit', String(confirmQuit));
-  }, [confirmQuit]);
-
-  useEffect(() => {
-    localStorage.setItem('chatSounds', String(chatSounds));
-  }, [chatSounds]);
-
-  useEffect(() => {
-    localStorage.setItem('leaderboardNotifications', String(leaderboardNotifications));
-  }, [leaderboardNotifications]);
-
-  useEffect(() => {
-    localStorage.setItem('achievementPopups', String(achievementPopups));
-  }, [achievementPopups]);
-
-  if (!isLoggedIn) {
-    return <Navigate to="/login" />;
-  }
-
+  // ── actions ─────────────────────────────────────────────────────────────
   const handleExportData = () => {
     const data = {
-      username: user?.username,
-      coins: user?.coins,
-      gems: user?.gems,
-      level: user?.level,
-      xp: user?.xp,
-      settings: {
-        sound: soundSettings,
-        theme,
-        reducedMotion,
-        highContrast,
-        language,
-      },
+      username: user?.username, coins: user?.coins, gems: user?.gems, level: user?.level, xp: user?.xp,
+      settings: { sound: soundSettings, theme, reducedMotion, highContrast, language },
       exportDate: new Date().toISOString(),
     };
-    
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `gameverse-data-${user?.username}.json`;
-    a.click();
+    a.href = url; a.download = `glitch-games-data-${user?.username}.json`; a.click();
     URL.revokeObjectURL(url);
-    
-    toast({
-      title: 'Data Exported',
-      description: 'Your data has been downloaded successfully.',
-    });
+    toast({ title: 'Data Exported', description: 'Your data has been downloaded.' });
   };
 
   const handleResetSettings = () => {
     localStorage.clear();
     updateSoundSettings({ masterVolume: 80, musicVolume: 70, sfxVolume: 80, isMuted: false });
-    setTheme('dark');
-    setReducedMotion(false);
-    setHighContrast(false);
-    setLanguage('en');
-    setAutoSave(true);
-    setShowFPS(false);
-    setGamepadEnabled(true);
-    setParticleEffects(true);
-    setScreenShake(true);
-    setHapticFeedback(true);
-    setColorblindMode('none');
-    setFontSize(100);
-    setAutoPlay(true);
-    setShowTutorials(true);
-    setConfirmQuit(true);
-    setChatSounds(true);
-    setLeaderboardNotifications(true);
-    setAchievementPopups(true);
-    
-    toast({
-      title: 'Settings Reset',
-      description: 'All settings have been restored to defaults.',
-    });
+    setTheme('dark'); setReducedMotion(false); setHighContrast(false); setLanguage('en');
+    setAutoSave(true); setShowFPS(false); setGamepadEnabled(true); setParticleEffects(true);
+    setScreenShake(true); setHapticFeedback(true); setColorblindMode('none'); setFontSize(100);
+    setAutoPlay(true); setShowTutorials(true); setConfirmQuit(true); setChatSounds(true);
+    setLeaderboardNotifications(true); setAchievementPopups(true);
+    toast({ title: 'Settings Reset', description: 'All settings restored to defaults.' });
   };
 
   const handleDeleteAccount = async () => {
     if (deleteConfirmation !== 'DELETE') {
-      toast({
-        title: 'Confirmation Required',
-        description: 'Please type DELETE to confirm account deletion.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Confirmation Required', description: 'Please type DELETE to confirm.', variant: 'destructive' });
       return;
     }
-
     setIsDeleting(true);
-    
     try {
-      // Get the current session for authorization
       const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        toast({
-          title: 'Error',
-          description: 'You must be logged in to delete your account.',
-          variant: 'destructive',
-        });
-        setIsDeleting(false);
-        return;
-      }
-
-      // Call the edge function to delete the account
-      const response = await supabase.functions.invoke('delete-account', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-
-      if (response.error) {
-        throw new Error(response.error.message || 'Failed to delete account');
-      }
-
+      if (!session) { toast({ title: 'Error', description: 'You must be logged in.', variant: 'destructive' }); setIsDeleting(false); return; }
+      const response = await supabase.functions.invoke('delete-account', { headers: { Authorization: `Bearer ${session.access_token}` } });
+      if (response.error) throw new Error(response.error.message || 'Failed to delete account');
       const result = response.data;
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to delete account');
-      }
-
-      // Clear all local data
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      toast({
-        title: 'Account Deleted',
-        description: 'Your account and all data have been permanently deleted.',
-      });
-      
-      // Navigate to home page
+      if (!result?.success) throw new Error(result?.error || 'Failed to delete account');
+      localStorage.clear(); sessionStorage.clear();
+      toast({ title: 'Account Deleted', description: 'Your account has been permanently deleted.' });
       navigate('/');
-      
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to delete account. Please try again.';
-      console.error('Error deleting account:', error);
-      toast({
-        title: 'Error',
-        description: errorMessage,
-        variant: 'destructive',
-      });
-    } finally {
-      setIsDeleting(false);
-    }
+      const msg = error instanceof Error ? error.message : 'Failed to delete account.';
+      toast({ title: 'Error', description: msg, variant: 'destructive' });
+    } finally { setIsDeleting(false); }
   };
 
-  const SettingsSection = ({ 
-    icon: Icon, 
-    title, 
-    children, 
-    iconColor = 'text-primary',
-    gradient = false 
-  }: { 
-    icon: React.ElementType; 
-    title: string; 
-    children: React.ReactNode;
-    iconColor?: string;
-    gradient?: boolean;
-  }) => (
-    <section className="mb-8 animate-fade-in">
-      <div className="flex items-center gap-3 mb-4">
-        <div className={`p-2 rounded-lg ${gradient ? 'bg-gradient-hero' : 'bg-primary/10'}`}>
-          <Icon className={`w-5 h-5 ${gradient ? 'text-primary-foreground' : iconColor}`} />
-        </div>
-        <h2 className="font-display text-xl font-bold">{title}</h2>
-      </div>
-      
-      <div className="p-6 rounded-xl bg-card border border-border hover:border-primary/30 transition-colors shadow-lg">
-        {children}
-      </div>
-    </section>
-  );
-
-  const SettingRow = ({ 
-    icon: Icon, 
-    title, 
-    description, 
-    children,
-    iconColor = 'text-muted-foreground'
-  }: { 
-    icon?: React.ElementType; 
-    title: string; 
-    description: string; 
-    children: React.ReactNode;
-    iconColor?: string;
-  }) => (
-    <div className="flex items-center justify-between py-3 border-b border-border/50 last:border-0">
-      <div className="flex items-center gap-3">
-        {Icon && <Icon className={`w-5 h-5 ${iconColor}`} />}
-        <div>
-          <p className="font-medium">{title}</p>
-          <p className="text-sm text-muted-foreground">{description}</p>
+  // ── UI primitives ───────────────────────────────────────────────────────
+  const Row = ({ icon: Icon, label, description, children }: { icon?: React.ElementType; label: string; description?: string; children: React.ReactNode }) => (
+    <div className="flex items-start justify-between gap-4 py-4 border-b border-border/50 last:border-0">
+      <div className="flex items-start gap-3 flex-1 min-w-0">
+        {Icon && <Icon className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />}
+        <div className="min-w-0">
+          <Label className="text-sm font-medium">{label}</Label>
+          {description && <p className="text-xs text-muted-foreground mt-0.5">{description}</p>}
         </div>
       </div>
-      {children}
+      <div className="shrink-0">{children}</div>
     </div>
   );
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
-      <div className="pt-20 pb-8 px-4">
-        <div className="container mx-auto max-w-3xl">
+      <BugReportModal isOpen={isBugReportOpen} onClose={() => setIsBugReportOpen(false)} />
+
+      <div className="pt-20 pb-12 px-4">
+        <div className="container mx-auto max-w-4xl">
           {/* Header */}
-          <div className="text-center mb-10">
+          <div className="mb-8 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-hero mb-4">
+              <Sparkles className="w-8 h-8 text-primary-foreground" />
+            </div>
             <h1 className="font-display text-4xl font-bold mb-2 text-gradient">Settings</h1>
-            <p className="text-muted-foreground">Customize your gaming experience</p>
+            <p className="text-muted-foreground">Tune your experience</p>
           </div>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-            <Button 
-              variant="outline" 
-              className="flex flex-col h-auto py-4 hover:bg-primary/10 hover:border-primary/50"
-              onClick={() => updateSoundSettings({ isMuted: !soundSettings.isMuted })}
-            >
-              {soundSettings.isMuted ? <VolumeX className="w-6 h-6 mb-2 text-destructive" /> : <Volume2 className="w-6 h-6 mb-2 text-success" />}
-              <span className="text-xs">{soundSettings.isMuted ? 'Unmute' : 'Mute'}</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex flex-col h-auto py-4 hover:bg-primary/10 hover:border-primary/50"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            >
-              {theme === 'dark' ? <Moon className="w-6 h-6 mb-2 text-primary" /> : <Sun className="w-6 h-6 mb-2 text-warning" />}
-              <span className="text-xs">{theme === 'dark' ? 'Dark' : 'Light'}</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex flex-col h-auto py-4 hover:bg-primary/10 hover:border-primary/50"
-              onClick={() => setParticleEffects(!particleEffects)}
-            >
-              <Sparkles className={`w-6 h-6 mb-2 ${particleEffects ? 'text-warning' : 'text-muted-foreground'}`} />
-              <span className="text-xs">Effects {particleEffects ? 'On' : 'Off'}</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex flex-col h-auto py-4 hover:bg-primary/10 hover:border-primary/50"
-              onClick={handleExportData}
-            >
-              <Download className="w-6 h-6 mb-2 text-primary" />
-              <span className="text-xs">Export</span>
-            </Button>
-          </div>
+          <Tabs defaultValue="account" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 mb-6 h-auto">
+              <TabsTrigger value="account" className="flex flex-col gap-1 py-2"><User className="w-4 h-4" /><span className="text-xs">Account</span></TabsTrigger>
+              <TabsTrigger value="appearance" className="flex flex-col gap-1 py-2"><Palette className="w-4 h-4" /><span className="text-xs">Appearance</span></TabsTrigger>
+              <TabsTrigger value="audio" className="flex flex-col gap-1 py-2"><Volume2 className="w-4 h-4" /><span className="text-xs">Audio</span></TabsTrigger>
+              <TabsTrigger value="gameplay" className="flex flex-col gap-1 py-2"><Gamepad2 className="w-4 h-4" /><span className="text-xs">Gameplay</span></TabsTrigger>
+              <TabsTrigger value="notifications" className="flex flex-col gap-1 py-2"><Bell className="w-4 h-4" /><span className="text-xs">Notify</span></TabsTrigger>
+              <TabsTrigger value="privacy" className="flex flex-col gap-1 py-2"><Shield className="w-4 h-4" /><span className="text-xs">Privacy</span></TabsTrigger>
+            </TabsList>
 
-          {/* Sound Settings */}
-          <SettingsSection icon={Volume2} title="Sound Settings" gradient>
-            <div className="space-y-4">
-              <SettingRow 
-                icon={soundSettings.isMuted ? VolumeX : Volume2} 
-                title="Mute All Sounds" 
-                description="Turn off all game audio"
-                iconColor={soundSettings.isMuted ? 'text-destructive' : 'text-success'}
-              >
-                <Switch
-                  checked={soundSettings.isMuted}
-                  onCheckedChange={(checked) => updateSoundSettings({ isMuted: checked })}
-                />
-              </SettingRow>
+            {/* ─── Account ─── */}
+            <TabsContent value="account" className="space-y-4">
+              <UltraCard variant="glass" className="p-6">
+                <h2 className="font-display text-xl font-bold mb-4 flex items-center gap-2"><User className="w-5 h-5 text-primary" /> Account Info</h2>
+                <Row icon={User} label="Username" description="Your public display name">
+                  <span className="font-mono text-sm text-primary">{user?.username}</span>
+                </Row>
+                <Row label="Level" description="Earned through XP">
+                  <span className="font-bold text-secondary">Lv. {user?.level || 1}</span>
+                </Row>
+                <Row icon={Languages} label="Language" description="Interface language">
+                  <Select value={language} onValueChange={setLanguage}>
+                    <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="es">Español</SelectItem>
+                      <SelectItem value="fr">Français</SelectItem>
+                      <SelectItem value="de">Deutsch</SelectItem>
+                      <SelectItem value="ja">日本語</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Row>
+                <Row icon={LogOut} label="Sign out" description="End your current session">
+                  <Button variant="outline" size="sm" onClick={() => { logout(); navigate('/'); }}>Sign out</Button>
+                </Row>
+              </UltraCard>
+            </TabsContent>
 
-              <div className="pt-2">
-                <div className="flex justify-between mb-2">
-                  <span className="font-medium">Master Volume</span>
-                  <span className="text-primary font-bold">{soundSettings.masterVolume}%</span>
-                </div>
-                <Slider
-                  value={[soundSettings.masterVolume]}
-                  onValueChange={([value]) => updateSoundSettings({ masterVolume: value })}
-                  max={100}
-                  step={1}
-                  disabled={soundSettings.isMuted}
-                  className="cursor-pointer"
-                />
-              </div>
+            {/* ─── Appearance ─── */}
+            <TabsContent value="appearance" className="space-y-4">
+              <UltraCard variant="glass" className="p-6">
+                <h2 className="font-display text-xl font-bold mb-4 flex items-center gap-2"><Palette className="w-5 h-5 text-secondary" /> Look & Feel</h2>
+                <Row icon={theme === 'dark' ? Moon : Sun} label="Theme" description="Light or dark mode">
+                  <Select value={theme} onValueChange={setTheme}>
+                    <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="dark">Dark</SelectItem>
+                      <SelectItem value="light">Light</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Row>
+                <Row icon={Eye} label="Reduced motion" description="Minimize animations and transitions">
+                  <Switch checked={reducedMotion} onCheckedChange={setReducedMotion} />
+                </Row>
+                <Row icon={Monitor} label="High contrast" description="Boost color contrast for readability">
+                  <Switch checked={highContrast} onCheckedChange={setHighContrast} />
+                </Row>
+                <Row icon={Eye} label="Colorblind mode" description="Adjust palette for color vision">
+                  <Select value={colorblindMode} onValueChange={setColorblindMode}>
+                    <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Off</SelectItem>
+                      <SelectItem value="protanopia">Protanopia</SelectItem>
+                      <SelectItem value="deuteranopia">Deuteranopia</SelectItem>
+                      <SelectItem value="tritanopia">Tritanopia</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Row>
+                <Row icon={Sparkles} label="Particle effects" description="Background ambient particles">
+                  <Switch checked={particleEffects} onCheckedChange={setParticleEffects} />
+                </Row>
+                <Row label="Font size" description={`${fontSize}% — affects in-game UI scaling`}>
+                  <div className="w-32"><Slider value={[fontSize]} min={80} max={140} step={10} onValueChange={(v) => setFontSize(v[0])} /></div>
+                </Row>
+              </UltraCard>
+            </TabsContent>
 
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span className="font-medium">Music Volume</span>
-                  <span className="text-primary font-bold">{soundSettings.musicVolume}%</span>
-                </div>
-                <Slider
-                  value={[soundSettings.musicVolume]}
-                  onValueChange={([value]) => updateSoundSettings({ musicVolume: value })}
-                  max={100}
-                  step={1}
-                  disabled={soundSettings.isMuted}
-                  className="cursor-pointer"
-                />
-              </div>
+            {/* ─── Audio ─── */}
+            <TabsContent value="audio" className="space-y-4">
+              <UltraCard variant="glass" className="p-6">
+                <h2 className="font-display text-xl font-bold mb-4 flex items-center gap-2"><Volume2 className="w-5 h-5 text-warning" /> Sound</h2>
+                <Row icon={soundSettings.isMuted ? VolumeX : Volume2} label="Mute all" description="Silences every sound effect and track">
+                  <Switch checked={soundSettings.isMuted} onCheckedChange={(v) => updateSoundSettings({ isMuted: v })} />
+                </Row>
+                <Row label="Master volume" description={`${soundSettings.masterVolume}%`}>
+                  <div className="w-40"><Slider value={[soundSettings.masterVolume]} max={100} step={5} onValueChange={(v) => updateSoundSettings({ masterVolume: v[0] })} disabled={soundSettings.isMuted} /></div>
+                </Row>
+                <Row label="Music volume" description={`${soundSettings.musicVolume}%`}>
+                  <div className="w-40"><Slider value={[soundSettings.musicVolume]} max={100} step={5} onValueChange={(v) => updateSoundSettings({ musicVolume: v[0] })} disabled={soundSettings.isMuted} /></div>
+                </Row>
+                <Row label="SFX volume" description={`${soundSettings.sfxVolume}%`}>
+                  <div className="w-40"><Slider value={[soundSettings.sfxVolume]} max={100} step={5} onValueChange={(v) => updateSoundSettings({ sfxVolume: v[0] })} disabled={soundSettings.isMuted} /></div>
+                </Row>
+                <Row label="Chat sounds" description="Play a tone on incoming messages">
+                  <Switch checked={chatSounds} onCheckedChange={setChatSounds} />
+                </Row>
+              </UltraCard>
+            </TabsContent>
 
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span className="font-medium">Sound Effects</span>
-                  <span className="text-primary font-bold">{soundSettings.sfxVolume}%</span>
-                </div>
-                <Slider
-                  value={[soundSettings.sfxVolume]}
-                  onValueChange={([value]) => updateSoundSettings({ sfxVolume: value })}
-                  max={100}
-                  step={1}
-                  disabled={soundSettings.isMuted}
-                  className="cursor-pointer"
-                />
-              </div>
+            {/* ─── Gameplay ─── */}
+            <TabsContent value="gameplay" className="space-y-4">
+              <UltraCard variant="glass" className="p-6">
+                <h2 className="font-display text-xl font-bold mb-4 flex items-center gap-2"><Gamepad2 className="w-5 h-5 text-success" /> Gameplay</h2>
+                <Row icon={Zap} label="Auto-save progress" description="Sync game state to the cloud automatically">
+                  <Switch checked={autoSave} onCheckedChange={setAutoSave} />
+                </Row>
+                <Row icon={Monitor} label="Show FPS" description="Display performance counter in games">
+                  <Switch checked={showFPS} onCheckedChange={setShowFPS} />
+                </Row>
+                <Row icon={Gamepad2} label="Gamepad support" description="Enable controller input where available">
+                  <Switch checked={gamepadEnabled} onCheckedChange={setGamepadEnabled} />
+                </Row>
+                <Row label="Screen shake" description="Camera shake on impacts">
+                  <Switch checked={screenShake} onCheckedChange={setScreenShake} />
+                </Row>
+                <Row label="Haptic feedback" description="Vibrate on mobile actions">
+                  <Switch checked={hapticFeedback} onCheckedChange={setHapticFeedback} />
+                </Row>
+                <Row label="Auto-play music" description="Start music automatically in games">
+                  <Switch checked={autoPlay} onCheckedChange={setAutoPlay} />
+                </Row>
+                <Row label="Show tutorials" description="Display tips on first play">
+                  <Switch checked={showTutorials} onCheckedChange={setShowTutorials} />
+                </Row>
+                <Row label="Confirm before quitting" description="Ask before leaving an active game">
+                  <Switch checked={confirmQuit} onCheckedChange={setConfirmQuit} />
+                </Row>
+              </UltraCard>
+            </TabsContent>
 
-              <SettingRow 
-                icon={MessageSquare} 
-                title="Chat Sounds" 
-                description="Play sounds for chat messages"
-              >
-                <Switch checked={chatSounds} onCheckedChange={setChatSounds} />
-              </SettingRow>
-            </div>
-          </SettingsSection>
+            {/* ─── Notifications ─── */}
+            <TabsContent value="notifications" className="space-y-4">
+              <UltraCard variant="glass" className="p-6">
+                <h2 className="font-display text-xl font-bold mb-4 flex items-center gap-2"><Bell className="w-5 h-5 text-primary" /> Notifications</h2>
+                <Row label="Achievement pop-ups" description="Toast when you unlock an achievement">
+                  <Switch checked={achievementPopups} onCheckedChange={setAchievementPopups} />
+                </Row>
+                <Row label="Leaderboard alerts" description="Notify when you're passed or set a record">
+                  <Switch checked={leaderboardNotifications} onCheckedChange={setLeaderboardNotifications} />
+                </Row>
+              </UltraCard>
+            </TabsContent>
 
-          {/* Display Settings */}
-          <SettingsSection icon={Palette} title="Display & Appearance" iconColor="text-secondary">
-            <div className="space-y-4">
-              <SettingRow icon={theme === 'dark' ? Moon : Sun} title="Theme" description="Choose your preferred color scheme" iconColor={theme === 'dark' ? 'text-primary' : 'text-warning'}>
-                <Select value={theme} onValueChange={setTheme}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="light">Light</SelectItem>
-                  </SelectContent>
-                </Select>
-              </SettingRow>
+            {/* ─── Privacy / Data / Danger ─── */}
+            <TabsContent value="privacy" className="space-y-4">
+              <UltraCard variant="glass" className="p-6">
+                <h2 className="font-display text-xl font-bold mb-4 flex items-center gap-2"><Shield className="w-5 h-5 text-secondary" /> Data</h2>
+                <Row icon={Download} label="Export your data" description="Download a JSON copy of your account">
+                  <Button size="sm" variant="outline" onClick={handleExportData}>Export</Button>
+                </Row>
+                <Row icon={RefreshCw} label="Reset settings" description="Restore everything to defaults">
+                  <Button size="sm" variant="outline" onClick={handleResetSettings}>Reset</Button>
+                </Row>
+                <Row icon={Bug} label="Report a bug" description="Help us squash issues fast">
+                  <Button size="sm" variant="outline" onClick={() => setIsBugReportOpen(true)}>Open</Button>
+                </Row>
+                <Row icon={HelpCircle} label="Support" description="Use the chat bubble bottom-right anytime">
+                  <span className="text-xs text-muted-foreground">Pixel Bot</span>
+                </Row>
+              </UltraCard>
 
-              <SettingRow icon={Zap} title="Particle Effects" description="Show visual effects in games" iconColor="text-warning">
-                <Switch checked={particleEffects} onCheckedChange={setParticleEffects} />
-              </SettingRow>
-
-              <SettingRow icon={Vibrate} title="Screen Shake" description="Enable screen shake effects">
-                <Switch checked={screenShake} onCheckedChange={setScreenShake} />
-              </SettingRow>
-
-              <SettingRow icon={Monitor} title="Show FPS Counter" description="Display frames per second" iconColor="text-success">
-                <Switch checked={showFPS} onCheckedChange={setShowFPS} />
-              </SettingRow>
-
-              <div className="pt-2">
-                <div className="flex justify-between mb-2">
-                  <span className="font-medium">UI Scale</span>
-                  <span className="text-primary font-bold">{fontSize}%</span>
-                </div>
-                <Slider
-                  value={[fontSize]}
-                  onValueChange={([value]) => setFontSize(value)}
-                  min={75}
-                  max={150}
-                  step={5}
-                  className="cursor-pointer"
-                />
-              </div>
-            </div>
-          </SettingsSection>
-
-          {/* Accessibility */}
-          <SettingsSection icon={Eye} title="Accessibility" iconColor="text-success">
-            <div className="space-y-4">
-              <SettingRow title="Reduced Motion" description="Minimize animations for accessibility">
-                <Switch checked={reducedMotion} onCheckedChange={setReducedMotion} />
-              </SettingRow>
-              
-              <SettingRow title="High Contrast" description="Increase color contrast for better visibility">
-                <Switch checked={highContrast} onCheckedChange={setHighContrast} />
-              </SettingRow>
-
-              <SettingRow title="Colorblind Mode" description="Adjust colors for color vision deficiency">
-                <Select value={colorblindMode} onValueChange={setColorblindMode}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="protanopia">Protanopia</SelectItem>
-                    <SelectItem value="deuteranopia">Deuteranopia</SelectItem>
-                    <SelectItem value="tritanopia">Tritanopia</SelectItem>
-                  </SelectContent>
-                </Select>
-              </SettingRow>
-
-              <SettingRow icon={Vibrate} title="Haptic Feedback" description="Vibration feedback on mobile">
-                <Switch checked={hapticFeedback} onCheckedChange={setHapticFeedback} />
-              </SettingRow>
-            </div>
-          </SettingsSection>
-
-          {/* Game Settings */}
-          <SettingsSection icon={Gamepad2} title="Game Settings" iconColor="text-warning">
-            <div className="space-y-4">
-              <SettingRow icon={Keyboard} title="Gamepad Support" description="Enable controller input">
-                <Switch checked={gamepadEnabled} onCheckedChange={setGamepadEnabled} />
-              </SettingRow>
-              
-              <SettingRow icon={Database} title="Auto-Save Progress" description="Automatically save game progress">
-                <Switch checked={autoSave} onCheckedChange={setAutoSave} />
-              </SettingRow>
-
-              <SettingRow icon={Target} title="Show Tutorials" description="Display tutorial hints in games">
-                <Switch checked={showTutorials} onCheckedChange={setShowTutorials} />
-              </SettingRow>
-
-              <SettingRow icon={AlertTriangle} title="Confirm Before Quitting" description="Ask before exiting a game">
-                <Switch checked={confirmQuit} onCheckedChange={setConfirmQuit} />
-              </SettingRow>
-
-              <SettingRow icon={Clock} title="Auto-Play Next Game" description="Automatically start next round">
-                <Switch checked={autoPlay} onCheckedChange={setAutoPlay} />
-              </SettingRow>
-            </div>
-          </SettingsSection>
-
-          {/* Language */}
-          <SettingsSection icon={Languages} title="Language & Region" iconColor="text-primary">
-            <SettingRow title="Language" description="Choose your preferred language">
-              <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">🇺🇸 English</SelectItem>
-                  <SelectItem value="es">🇪🇸 Español</SelectItem>
-                  <SelectItem value="fr">🇫🇷 Français</SelectItem>
-                  <SelectItem value="de">🇩🇪 Deutsch</SelectItem>
-                  <SelectItem value="ja">🇯🇵 日本語</SelectItem>
-                  <SelectItem value="ko">🇰🇷 한국어</SelectItem>
-                  <SelectItem value="pt">🇧🇷 Português</SelectItem>
-                  <SelectItem value="zh">🇨🇳 中文</SelectItem>
-                </SelectContent>
-              </Select>
-            </SettingRow>
-          </SettingsSection>
-
-          {/* Notifications */}
-          <SettingsSection icon={Bell} title="Notifications" iconColor="text-info">
-            <div className="space-y-4">
-              <SettingRow icon={BellRing} title="Daily Reward Reminder" description="Get notified when rewards are available">
-                <Switch defaultChecked />
-              </SettingRow>
-              
-              <SettingRow icon={User} title="Friend Activity" description="When friends beat your high scores">
-                <Switch defaultChecked />
-              </SettingRow>
-
-              <SettingRow icon={Trophy} title="Leaderboard Updates" description="When your rank changes">
-                <Switch checked={leaderboardNotifications} onCheckedChange={setLeaderboardNotifications} />
-              </SettingRow>
-
-              <SettingRow icon={Sparkles} title="Achievement Popups" description="Show achievement unlock notifications">
-                <Switch checked={achievementPopups} onCheckedChange={setAchievementPopups} />
-              </SettingRow>
-              
-              <SettingRow icon={BellOff} title="Promotional Offers" description="Special deals and events">
-                <Switch />
-              </SettingRow>
-            </div>
-          </SettingsSection>
-
-          {/* Privacy & Security */}
-          <SettingsSection icon={Shield} title="Privacy & Security" iconColor="text-destructive">
-            <div className="space-y-4">
-              <SettingRow icon={User} title="Show Profile Publicly" description="Allow others to view your profile">
-                <Switch defaultChecked />
-              </SettingRow>
-              
-              <SettingRow icon={Trophy} title="Show on Leaderboard" description="Display your scores publicly">
-                <Switch defaultChecked />
-              </SettingRow>
-
-              <SettingRow icon={MessageSquare} title="Allow Friend Requests" description="Let others send you friend requests">
-                <Switch defaultChecked />
-              </SettingRow>
-
-              <SettingRow icon={Mail} title="Allow Messages" description="Receive messages from friends">
-                <Switch defaultChecked />
-              </SettingRow>
-            </div>
-          </SettingsSection>
-
-          {/* Data Management - Danger Zone */}
-          <section className="mb-8">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-destructive/20">
-                <Database className="w-5 h-5 text-destructive" />
-              </div>
-              <h2 className="font-display text-xl font-bold">Data Management</h2>
-            </div>
-            
-            <div className="p-6 rounded-xl bg-card border border-destructive/30 space-y-4">
-              <Button 
-                variant="outline" 
-                className="w-full justify-start gap-3 hover:bg-primary/10"
-                onClick={handleExportData}
-              >
-                <Download className="w-4 h-4 text-primary" />
-                Export My Data
-                <span className="ml-auto text-xs text-muted-foreground">Download all your data</span>
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="w-full justify-start gap-3 hover:bg-warning/10"
-                onClick={handleResetSettings}
-              >
-                <RefreshCw className="w-4 h-4 text-warning" />
-                Reset All Settings
-                <span className="ml-auto text-xs text-muted-foreground">Restore defaults</span>
-              </Button>
-
-              <Button 
-                variant="outline" 
-                className="w-full justify-start gap-3 hover:bg-destructive/10"
-                onClick={async () => {
-                  await logout();
-                  navigate('/');
-                  toast({
-                    title: 'Signed Out',
-                    description: 'You have been successfully logged out.',
-                  });
-                }}
-              >
-                <LogOut className="w-4 h-4 text-destructive" />
-                Sign Out
-                <span className="ml-auto text-xs text-muted-foreground">Log out of your account</span>
-              </Button>
-              
-              <div className="pt-4 border-t border-destructive/30">
-                <div className="flex items-center gap-2 text-destructive mb-4">
-                  <AlertTriangle className="w-5 h-5" />
-                  <span className="font-bold">Danger Zone</span>
-                </div>
-                
+              <UltraCard variant="glass" className="p-6 border-destructive/40">
+                <h2 className="font-display text-xl font-bold mb-1 flex items-center gap-2 text-destructive">
+                  <AlertTriangle className="w-5 h-5" /> Danger Zone
+                </h2>
+                <p className="text-xs text-muted-foreground mb-4">These actions cannot be undone.</p>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button 
-                      variant="destructive" 
-                      className="w-full justify-start gap-3"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Delete Account Permanently
-                      <span className="ml-auto text-xs opacity-70">Cannot be undone</span>
+                    <Button variant="destructive" size="sm" className="w-full sm:w-auto">
+                      <Trash2 className="w-4 h-4 mr-2" /> Delete account permanently
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent className="border-destructive/50">
+                  <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle className="flex items-center gap-2 text-destructive">
-                        <AlertTriangle className="w-5 h-5" />
-                        Delete Your Account?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription className="space-y-4">
-                        <p>This action is <strong>permanent and cannot be undone</strong>. All of your data will be deleted:</p>
-                        <ul className="list-disc list-inside space-y-1 text-sm">
-                          <li>Your profile and progress</li>
-                          <li>All coins, gems, and rewards</li>
-                          <li>Game statistics and high scores</li>
-                          <li>Friends and messages</li>
-                          <li>Achievements and badges</li>
-                        </ul>
-                        <div className="pt-4">
-                          <Label htmlFor="delete-confirm" className="text-foreground">
-                            Type <strong className="text-destructive">DELETE</strong> to confirm:
-                          </Label>
-                          <Input
-                            id="delete-confirm"
-                            value={deleteConfirmation}
-                            onChange={(e) => setDeleteConfirmation(e.target.value)}
-                            placeholder="Type DELETE here"
-                            className="mt-2 border-destructive/50 focus:border-destructive"
-                          />
-                        </div>
+                      <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This permanently removes your profile, scores, friends, purchases, and all related data. Type <strong>DELETE</strong> below to confirm.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
+                    <Input
+                      placeholder="Type DELETE to confirm"
+                      value={deleteConfirmation}
+                      onChange={(e) => setDeleteConfirmation(e.target.value)}
+                      className="my-2"
+                    />
                     <AlertDialogFooter>
-                      <AlertDialogCancel onClick={() => setDeleteConfirmation('')}>
-                        Cancel
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleDeleteAccount}
-                        disabled={deleteConfirmation !== 'DELETE' || isDeleting}
-                        className="bg-destructive hover:bg-destructive/90"
-                      >
-                        {isDeleting ? 'Deleting...' : 'Delete Forever'}
+                      <AlertDialogCancel onClick={() => setDeleteConfirmation('')}>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDeleteAccount} disabled={isDeleting || deleteConfirmation !== 'DELETE'} className="bg-destructive hover:bg-destructive/90">
+                        {isDeleting ? 'Deleting...' : 'Delete forever'}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-              </div>
-            </div>
-          </section>
-
-          {/* Help & Support */}
-          <SettingsSection icon={HelpCircle} title="Help & Support" iconColor="text-info">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <Button variant="outline" className="justify-start hover:bg-primary/10">
-                📖 Game Tutorials
-              </Button>
-              <Button variant="outline" className="justify-start hover:bg-primary/10">
-                ❓ FAQ
-              </Button>
-              <Button variant="outline" className="justify-start hover:bg-primary/10">
-                📧 Contact Support
-              </Button>
-              <Button 
-                variant="outline" 
-                className="justify-start hover:bg-primary/10"
-                onClick={() => setIsBugReportOpen(true)}
-              >
-                🐛 Report a Bug
-              </Button>
-              <Button variant="outline" className="justify-start hover:bg-primary/10">
-                📜 Terms of Service
-              </Button>
-              <Button variant="outline" className="justify-start hover:bg-primary/10">
-                🔒 Privacy Policy
-              </Button>
-            </div>
-          </SettingsSection>
-
-          {/* Version Info */}
-          <div className="text-center text-sm text-muted-foreground py-8">
-            <p>Glitch Games v2.5.0</p>
-            <p className="text-xs mt-1">Made with 💜 by the Glitch Team</p>
-          </div>
+              </UltraCard>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
-
-      {/* Bug Report Modal */}
-      <BugReportModal isOpen={isBugReportOpen} onClose={() => setIsBugReportOpen(false)} />
     </div>
   );
 };
