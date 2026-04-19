@@ -41,6 +41,11 @@ const AdminPower: React.FC = () => {
   const [bcContent, setBcContent] = useState('');
   const [bcSending, setBcSending] = useState(false);
 
+  // Reset Battle Pass
+  const [resetUsername, setResetUsername] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetAllLoading, setResetAllLoading] = useState(false);
+
   // Audit log
   const [audit, setAudit] = useState<AuditEntry[]>([]);
   const [auditLoading, setAuditLoading] = useState(true);
