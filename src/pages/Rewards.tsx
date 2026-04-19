@@ -106,6 +106,40 @@ const Rewards: React.FC = () => {
     return () => { cancelled = true; };
   }, [user?.id, searchParams]);
 
+  // Realtime: when a Battle Pass is granted to this user (by Stripe webhook OR
+  // by an admin via admin-grant-pass), flip the UI to Premium instantly and
+  // notify them with a celebratory toast — no refresh required.
+  React.useEffect(() => {
+    if (!user?.id) return;
+    const channel = supabase
+      .channel(`bp-purchases-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'battle_pass_purchases',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const row = payload.new as { status?: string; amount_cents?: number };
+          if (row?.status !== 'completed') return;
+          setIsPremium(true);
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 4000);
+          const wasGift = (row.amount_cents ?? 0) === 0;
+          toast({
+            title: wasGift ? '🎁 Premium Battle Pass Granted!' : '🎉 Premium Unlocked!',
+            description: wasGift
+              ? 'An admin gifted you the Premium Battle Pass. All exclusive rewards are now unlocked!'
+              : 'Welcome to Premium! Enjoy your exclusive rewards.',
+          });
+        },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user?.id, toast]);
+
   const today = new Date().toISOString().split('T')[0];
   const canClaim = lastClaimDate !== today;
   const nextRewardDay = currentStreak + 1;
