@@ -81,7 +81,7 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${returnUrl || "https://glitchgames.lovable.app"}/rewards?purchase=success`,
+      success_url: `${returnUrl || "https://glitchgames.lovable.app"}/rewards?purchase=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${returnUrl || "https://glitchgames.lovable.app"}/rewards?purchase=cancelled`,
       metadata: {
         user_id: user.id,

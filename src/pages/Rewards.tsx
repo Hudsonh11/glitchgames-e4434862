@@ -37,15 +37,18 @@ const Rewards: React.FC = () => {
   const [isPremium, setIsPremium] = useState(false);
   const [searchParams] = useSearchParams();
 
-  // Verify premium status from server (single source of truth).
-  // Polls briefly when ?purchase=success in case the Stripe webhook is still processing.
+  // Verify premium status from server. When returning from Stripe checkout
+  // (?purchase=success&session_id=cs_...) we hit the `verify-purchase` edge
+  // function, which asks Stripe directly whether the session was paid and
+  // grants the pass via the service role. The DB has UNIQUE(stripe_session_id)
+  // so retries / replays cannot grant twice.
   React.useEffect(() => {
     if (!user?.id) return;
     let cancelled = false;
     const justPurchased = searchParams.get('purchase') === 'success';
-    const maxAttempts = justPurchased ? 8 : 1;
+    const sessionId = searchParams.get('session_id');
 
-    const verify = async (attempt = 0) => {
+    const checkExistingPurchase = async () => {
       const { data } = await supabase
         .from('battle_pass_purchases')
         .select('id')
@@ -53,34 +56,53 @@ const Rewards: React.FC = () => {
         .eq('season', 'season_1')
         .eq('status', 'completed')
         .maybeSingle();
-
       if (cancelled) return;
+      setIsPremium(!!data);
+      return !!data;
+    };
 
-      if (data) {
-        setIsPremium(true);
-        if (justPurchased) {
-          setShowConfetti(true);
-          setTimeout(() => setShowConfetti(false), 4000);
-          toast({
-            title: '🎉 Premium Unlocked!',
-            description: 'Welcome to the Premium Battle Pass! Enjoy your exclusive rewards + 1000 coins & 50 gems bonus!',
+    const run = async () => {
+      // Always read current state first.
+      const owned = await checkExistingPurchase();
+
+      // Only attempt to verify a payment if Stripe redirected with a session id.
+      // Without it, no amount of URL tampering can grant the pass.
+      if (justPurchased && sessionId) {
+        try {
+          const { data, error } = await supabase.functions.invoke('verify-purchase', {
+            body: { session_id: sessionId },
           });
+          if (cancelled) return;
+
+          if (!error && data?.ok) {
+            setIsPremium(true);
+            setShowConfetti(true);
+            setTimeout(() => setShowConfetti(false), 4000);
+            toast({
+              title: '🎉 Premium Unlocked!',
+              description: 'Welcome to the Premium Battle Pass! Enjoy your exclusive rewards + 1000 coins & 50 gems bonus!',
+            });
+          } else if (!owned) {
+            toast({
+              title: 'Payment not confirmed',
+              description: 'We could not verify your purchase. If you completed payment, please refresh in a moment.',
+              variant: 'destructive',
+            });
+          }
+        } catch (e) {
+          console.error('verify-purchase failed', e);
         }
-      } else if (attempt + 1 < maxAttempts) {
-        setTimeout(() => verify(attempt + 1), 1500);
-      } else {
-        setIsPremium(false);
-        if (justPurchased) {
-          toast({
-            title: 'Payment not confirmed',
-            description: 'We could not verify your purchase. If you completed payment, please refresh in a moment.',
-            variant: 'destructive',
-          });
-        }
+      } else if (justPurchased && !sessionId && !owned) {
+        // Someone tried to spoof success without a real session id.
+        toast({
+          title: 'Invalid checkout return',
+          description: 'No valid payment session was provided.',
+          variant: 'destructive',
+        });
       }
     };
 
-    verify();
+    run();
     return () => { cancelled = true; };
   }, [user?.id, searchParams]);
 
@@ -156,20 +178,20 @@ const Rewards: React.FC = () => {
           </div>
 
           {/* Streak Banner */}
-          <UltraCard variant="premium" glow className="p-6 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-xl bg-gradient-hero flex items-center justify-center">
-                  <Flame className="w-9 h-9 text-primary-foreground animate-pulse" />
+          <UltraCard variant="premium" glow className="p-4 sm:p-6 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-hero flex items-center justify-center shrink-0">
+                  <Flame className="w-7 h-7 sm:w-9 sm:h-9 text-primary-foreground animate-pulse" />
                 </div>
-                <div>
-                  <p className="text-muted-foreground text-sm">Current Streak</p>
-                  <p className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-gradient">{currentStreak} Days</p>
+                <div className="min-w-0">
+                  <p className="text-muted-foreground text-xs sm:text-sm">Current Streak</p>
+                  <p className="font-display text-xl sm:text-3xl md:text-4xl font-bold text-gradient truncate">{currentStreak} Days</p>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-muted-foreground text-sm">Next Reward</p>
-                <p className="font-display text-2xl font-bold">Day {nextRewardDay}</p>
+              <div className="text-left sm:text-right shrink-0">
+                <p className="text-muted-foreground text-xs sm:text-sm">Next Reward</p>
+                <p className="font-display text-lg sm:text-2xl font-bold">Day {nextRewardDay}</p>
                 {bonusMultiplier > 0 && (
                   <UltraBadge variant="legendary" size="sm">+{bonusMultiplier}% Bonus</UltraBadge>
                 )}

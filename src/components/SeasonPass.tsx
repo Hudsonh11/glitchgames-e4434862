@@ -80,33 +80,33 @@ const SeasonPass: React.FC<SeasonPassProps> = ({
   return (
     <UltraCard variant="premium" glow className="overflow-hidden">
       {/* Header */}
-      <div className="relative p-6 bg-gradient-hero">
+      <div className="relative p-4 sm:p-6 bg-gradient-hero">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" />
-        <div className="relative flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Crown className="w-6 h-6 text-warning fill-warning" />
-              <h2 className="font-display text-2xl font-bold text-white">{seasonName}</h2>
+        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 mb-1 sm:mb-2">
+              <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-warning fill-warning shrink-0" />
+              <h2 className="font-display text-lg sm:text-2xl font-bold text-white truncate">{seasonName}</h2>
             </div>
-            <p className="text-white/70 text-sm">{daysLeft} days remaining</p>
+            <p className="text-white/70 text-xs sm:text-sm">{daysLeft} days remaining</p>
           </div>
-          
-          <div className="text-right">
+
+          <div className="flex sm:flex-col items-center sm:items-end gap-2 sm:gap-1 shrink-0">
             <UltraBadge variant={isPremium ? 'legendary' : 'common'} size="sm">
-              {isPremium ? 'Premium Pass' : 'Free Pass'}
+              {isPremium ? 'Premium' : 'Free Pass'}
             </UltraBadge>
             {!isPremium && (
-              <Button variant="gaming" size="sm" className="mt-2" onClick={handleUpgrade} disabled={purchasing}>
+              <Button variant="gaming" size="sm" onClick={handleUpgrade} disabled={purchasing} className="text-xs sm:text-sm">
                 {purchasing ? (
                   <Loader2 className="w-4 h-4 mr-1 animate-spin" />
                 ) : (
                   <Sparkles className="w-4 h-4 mr-1" />
                 )}
-                {purchasing ? 'Loading...' : 'Upgrade $4.99'}
+                {purchasing ? 'Loading…' : 'Upgrade $4.99'}
               </Button>
             )}
             {isPremium && (
-              <div className="mt-2 flex items-center gap-1 text-success text-sm font-medium">
+              <div className="flex items-center gap-1 text-success text-xs sm:text-sm font-medium">
                 <CheckCircle className="w-4 h-4" />
                 Active
               </div>
