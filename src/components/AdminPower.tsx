@@ -204,6 +204,67 @@ const AdminPower: React.FC = () => {
         </div>
       </UltraCard>
 
+      {/* Reset Battle Pass */}
+      <UltraCard variant="glass" className="p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Trash2 className="w-5 h-5 text-destructive" />
+          <h3 className="font-display text-lg font-bold">Reset Battle Pass</h3>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          Remove Premium from a single player by username, or wipe Premium for everyone in the current season.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-2 mb-3">
+          <Input
+            placeholder="Username to revoke…"
+            value={resetUsername}
+            onChange={(e) => setResetUsername(e.target.value)}
+            className="flex-1"
+          />
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button disabled={!resetUsername.trim() || resetLoading} variant="destructive">
+                {resetLoading ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1" />}
+                Revoke
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Revoke Premium from {resetUsername.trim()}?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This removes their Premium Battle Pass for season_1. They can repurchase or be re-granted later.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={revokeOne}>Revoke</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" size="sm" disabled={resetAllLoading} className="w-full">
+              {resetAllLoading ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <AlertTriangle className="w-4 h-4 mr-1" />}
+              Reset Premium for ALL Players
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Reset everyone's Battle Pass?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Removes Premium from every player for season_1. Paid users will need to repurchase. This cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={revokeAll} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Yes, reset all
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </UltraCard>
+
       {/* Broadcast */}
       <UltraCard variant="glass" className="p-5">
         <div className="flex items-center gap-2 mb-4">
