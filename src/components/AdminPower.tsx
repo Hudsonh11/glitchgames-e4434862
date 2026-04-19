@@ -61,34 +61,12 @@ const AdminPower: React.FC = () => {
     if (!grantTarget || !user?.id) return;
     setGrantLoading(true);
     try {
-      // Use an admin-only marker session id so it's distinct + idempotent.
-      const markerId = `admin_grant_${user.id}_${grantTarget.user_id}_season_1`;
-      const { error } = await supabase.from('battle_pass_purchases').insert({
-        user_id: grantTarget.user_id,
-        season: 'season_1',
-        status: 'completed',
-        amount_cents: 0,
-        currency: 'usd',
-        stripe_session_id: markerId,
+      const { data, error } = await supabase.functions.invoke('admin-grant-pass', {
+        body: { target_user_id: grantTarget.user_id, season: 'season_1' },
       });
-      if (error && (error as { code?: string }).code !== '23505') throw error;
-
-      await supabase.from('admin_audit_log').insert({
-        admin_id: user.id,
-        action: 'grant_battle_pass',
-        target_type: 'user',
-        target_id: grantTarget.user_id,
-        details: { season: 'season_1', username: grantTarget.username },
-      });
-
-      await supabase.from('activity_feed').insert({
-        user_id: grantTarget.user_id,
-        activity_type: 'purchase',
-        content: 'Was granted the Premium Battle Pass by an admin! 🎁',
-      });
-
+      if (error) throw error;
       toast({
-        title: error ? 'Already had pass' : 'Battle Pass Granted',
+        title: data?.already_had ? 'Already had pass' : 'Battle Pass Granted',
         description: `${grantTarget.username} now has Premium.`,
       });
       setGrantTarget(null);
