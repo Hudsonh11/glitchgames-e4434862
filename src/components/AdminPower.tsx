@@ -119,6 +119,48 @@ const AdminPower: React.FC = () => {
     }
   };
 
+  const revokeOne = async () => {
+    if (!resetUsername.trim()) return;
+    setResetLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-reset-pass', {
+        body: { username: resetUsername.trim(), season: 'season_1' },
+      });
+      if (error) throw error;
+      toast({
+        title: data?.revoked > 0 ? 'Battle Pass Revoked' : 'Nothing to revoke',
+        description: data?.revoked > 0
+          ? `Removed Premium from ${resetUsername.trim()}.`
+          : `${resetUsername.trim()} did not have Premium.`,
+      });
+      setResetUsername('');
+      loadAudit();
+    } catch (e) {
+      toast({ title: 'Revoke failed', description: (e as Error).message, variant: 'destructive' });
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const revokeAll = async () => {
+    setResetAllLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-reset-pass', {
+        body: { all: true, season: 'season_1' },
+      });
+      if (error) throw error;
+      toast({
+        title: 'All Battle Passes Reset',
+        description: `Removed Premium from ${data?.revoked ?? 0} player(s).`,
+      });
+      loadAudit();
+    } catch (e) {
+      toast({ title: 'Reset failed', description: (e as Error).message, variant: 'destructive' });
+    } finally {
+      setResetAllLoading(false);
+    }
+  };
+
   const adminName = (id: string) => allUsers.find(u => u.id === id)?.username || id.slice(0, 8);
 
   return (
