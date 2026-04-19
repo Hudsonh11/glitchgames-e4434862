@@ -178,20 +178,20 @@ const Rewards: React.FC = () => {
           </div>
 
           {/* Streak Banner */}
-          <UltraCard variant="premium" glow className="p-6 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-xl bg-gradient-hero flex items-center justify-center">
-                  <Flame className="w-9 h-9 text-primary-foreground animate-pulse" />
+          <UltraCard variant="premium" glow className="p-4 sm:p-6 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-hero flex items-center justify-center shrink-0">
+                  <Flame className="w-7 h-7 sm:w-9 sm:h-9 text-primary-foreground animate-pulse" />
                 </div>
-                <div>
-                  <p className="text-muted-foreground text-sm">Current Streak</p>
-                  <p className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-gradient">{currentStreak} Days</p>
+                <div className="min-w-0">
+                  <p className="text-muted-foreground text-xs sm:text-sm">Current Streak</p>
+                  <p className="font-display text-xl sm:text-3xl md:text-4xl font-bold text-gradient truncate">{currentStreak} Days</p>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-muted-foreground text-sm">Next Reward</p>
-                <p className="font-display text-2xl font-bold">Day {nextRewardDay}</p>
+              <div className="text-left sm:text-right shrink-0">
+                <p className="text-muted-foreground text-xs sm:text-sm">Next Reward</p>
+                <p className="font-display text-lg sm:text-2xl font-bold">Day {nextRewardDay}</p>
                 {bonusMultiplier > 0 && (
                   <UltraBadge variant="legendary" size="sm">+{bonusMultiplier}% Bonus</UltraBadge>
                 )}
