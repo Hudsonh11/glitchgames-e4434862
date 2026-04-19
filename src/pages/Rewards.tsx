@@ -136,6 +136,23 @@ const Rewards: React.FC = () => {
           });
         },
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'battle_pass_purchases',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          setIsPremium(false);
+          toast({
+            title: 'Battle Pass Removed',
+            description: 'Your Premium Battle Pass has been reset by an admin.',
+            variant: 'destructive',
+          });
+        },
+      )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [user?.id, toast]);

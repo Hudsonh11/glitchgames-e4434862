@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Crown, Megaphone, ScrollText, Send, Loader2, Search, RefreshCw } from 'lucide-react';
+import { Crown, Megaphone, ScrollText, Send, Loader2, Search, RefreshCw, Trash2, AlertTriangle } from 'lucide-react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,6 +40,11 @@ const AdminPower: React.FC = () => {
   const [bcTitle, setBcTitle] = useState('');
   const [bcContent, setBcContent] = useState('');
   const [bcSending, setBcSending] = useState(false);
+
+  // Reset Battle Pass
+  const [resetUsername, setResetUsername] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetAllLoading, setResetAllLoading] = useState(false);
 
   // Audit log
   const [audit, setAudit] = useState<AuditEntry[]>([]);
@@ -109,6 +119,48 @@ const AdminPower: React.FC = () => {
     }
   };
 
+  const revokeOne = async () => {
+    if (!resetUsername.trim()) return;
+    setResetLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-reset-pass', {
+        body: { username: resetUsername.trim(), season: 'season_1' },
+      });
+      if (error) throw error;
+      toast({
+        title: data?.revoked > 0 ? 'Battle Pass Revoked' : 'Nothing to revoke',
+        description: data?.revoked > 0
+          ? `Removed Premium from ${resetUsername.trim()}.`
+          : `${resetUsername.trim()} did not have Premium.`,
+      });
+      setResetUsername('');
+      loadAudit();
+    } catch (e) {
+      toast({ title: 'Revoke failed', description: (e as Error).message, variant: 'destructive' });
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const revokeAll = async () => {
+    setResetAllLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-reset-pass', {
+        body: { all: true, season: 'season_1' },
+      });
+      if (error) throw error;
+      toast({
+        title: 'All Battle Passes Reset',
+        description: `Removed Premium from ${data?.revoked ?? 0} player(s).`,
+      });
+      loadAudit();
+    } catch (e) {
+      toast({ title: 'Reset failed', description: (e as Error).message, variant: 'destructive' });
+    } finally {
+      setResetAllLoading(false);
+    }
+  };
+
   const adminName = (id: string) => allUsers.find(u => u.id === id)?.username || id.slice(0, 8);
 
   return (
@@ -150,6 +202,67 @@ const AdminPower: React.FC = () => {
             Grant
           </Button>
         </div>
+      </UltraCard>
+
+      {/* Reset Battle Pass */}
+      <UltraCard variant="glass" className="p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Trash2 className="w-5 h-5 text-destructive" />
+          <h3 className="font-display text-lg font-bold">Reset Battle Pass</h3>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          Remove Premium from a single player by username, or wipe Premium for everyone in the current season.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-2 mb-3">
+          <Input
+            placeholder="Username to revoke…"
+            value={resetUsername}
+            onChange={(e) => setResetUsername(e.target.value)}
+            className="flex-1"
+          />
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button disabled={!resetUsername.trim() || resetLoading} variant="destructive">
+                {resetLoading ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1" />}
+                Revoke
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Revoke Premium from {resetUsername.trim()}?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This removes their Premium Battle Pass for season_1. They can repurchase or be re-granted later.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={revokeOne}>Revoke</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" size="sm" disabled={resetAllLoading} className="w-full">
+              {resetAllLoading ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <AlertTriangle className="w-4 h-4 mr-1" />}
+              Reset Premium for ALL Players
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Reset everyone's Battle Pass?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Removes Premium from every player for season_1. Paid users will need to repurchase. This cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={revokeAll} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Yes, reset all
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </UltraCard>
 
       {/* Broadcast */}
