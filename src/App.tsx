@@ -19,6 +19,8 @@ import OnlineStatus from "@/components/OnlineStatus";
 import KeyboardShortcuts from "@/components/KeyboardShortcuts";
 import CookieConsent from "@/components/CookieConsent";
 import BackToTop from "@/components/BackToTop";
+import InstallPrompt from "@/components/InstallPrompt";
+import OnboardingTour from "@/components/OnboardingTour";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +48,8 @@ const App = () => (
           <SupportBot />
           <CookieConsent />
           <BackToTop />
+          <InstallPrompt />
+          <OnboardingTour />
         </TooltipProvider>
       </GameProvider>
     </BrowserRouter>

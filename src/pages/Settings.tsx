@@ -22,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import BugReportModal from '@/components/BugReportModal';
 import UltraCard from '@/components/UltraCard';
+import ThemePicker from '@/components/ThemePicker';
 
 const Settings: React.FC = () => {
   const { isLoggedIn, soundSettings, updateSoundSettings, user, logout } = useGame();
@@ -192,6 +193,9 @@ const Settings: React.FC = () => {
 
             {/* ─── Appearance ─── */}
             <TabsContent value="appearance" className="space-y-4">
+              <UltraCard variant="glass" className="p-6">
+                <ThemePicker />
+              </UltraCard>
               <UltraCard variant="glass" className="p-6">
                 <h2 className="font-display text-xl font-bold mb-4 flex items-center gap-2"><Palette className="w-5 h-5 text-secondary" /> Look & Feel</h2>
                 <Row icon={theme === 'dark' ? Moon : Sun} label="Theme" description="Light or dark mode">
