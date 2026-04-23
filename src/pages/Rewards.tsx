@@ -14,6 +14,8 @@ import UltraLoadingSpinner from '@/components/UltraLoadingSpinner';
 import SeasonPass from '@/components/SeasonPass';
 import MilestoneTracker from '@/components/MilestoneTracker';
 import StreakFreezeShield from '@/components/StreakFreezeShield';
+import QuestSystem from '@/components/QuestSystem';
+import PrestigeSystem from '@/components/PrestigeSystem';
 import { supabase } from '@/integrations/supabase/client';
 
 const generateReward = (day: number) => {
