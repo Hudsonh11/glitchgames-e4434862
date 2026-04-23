@@ -318,6 +318,16 @@ const Rewards: React.FC = () => {
             })}
           </div>
 
+          {/* Quests */}
+          <div className="mb-8">
+            <QuestSystem />
+          </div>
+
+          {/* Prestige */}
+          <div className="mb-8">
+            <PrestigeSystem />
+          </div>
+
           {/* Milestones */}
           <div className="mb-8">
             <MilestoneTracker milestones={milestones} title="Milestone Rewards" />

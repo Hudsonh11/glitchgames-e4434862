@@ -52,7 +52,8 @@ const App = () => (
           <BackToTop />
           <InstallPrompt />
           <OnboardingTour />
-        </TooltipProvider>
+          </TooltipProvider>
+        </I18nProvider>
       </GameProvider>
     </BrowserRouter>
   </QueryClientProvider>
