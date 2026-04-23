@@ -424,8 +424,19 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         [gameId]: { ...current, ...newStats },
       });
 
-      // Update profile XP
-      const newXp = user.xp + Math.floor(score / 10);
+      // Apply prestige XP multiplier if any
+      let xpMult = 1;
+      try {
+        const { data: prestige } = await supabase
+          .from('user_prestige')
+          .select('xp_multiplier')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        if (prestige?.xp_multiplier) xpMult = Number(prestige.xp_multiplier);
+      } catch { /* non-fatal */ }
+
+      // Update profile XP (with prestige bonus)
+      const newXp = user.xp + Math.floor((score / 10) * xpMult);
       await supabase
         .from('profiles')
         .update({ xp: newXp })
@@ -437,6 +448,10 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         totalScore: user.totalScore + score,
         xp: newXp,
       });
+
+      // Bump quest progress (non-blocking)
+      const { bumpQuestProgress } = await import('@/lib/questProgress');
+      bumpQuestProgress({ userId: user.id, score });
     }
   };
 
