@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { GameProvider } from "@/contexts/GameContext";
+import { I18nProvider } from "@/contexts/I18nContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
@@ -28,8 +29,9 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <GameProvider>
-        <TooltipProvider>
-          <Toaster />
+        <I18nProvider>
+          <TooltipProvider>
+            <Toaster />
           <Sonner />
           <OnlineStatus />
           <KeyboardShortcuts />
@@ -50,7 +52,8 @@ const App = () => (
           <BackToTop />
           <InstallPrompt />
           <OnboardingTour />
-        </TooltipProvider>
+          </TooltipProvider>
+        </I18nProvider>
       </GameProvider>
     </BrowserRouter>
   </QueryClientProvider>

@@ -560,6 +560,51 @@ export type Database = {
         }
         Relationships: []
       }
+      quests: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          goal_target: number
+          goal_type: string
+          id: string
+          quest_key: string
+          quest_type: string
+          reward_coins: number
+          reward_gems: number
+          reward_xp: number
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description: string
+          goal_target?: number
+          goal_type: string
+          id?: string
+          quest_key: string
+          quest_type?: string
+          reward_coins?: number
+          reward_gems?: number
+          reward_xp?: number
+          title: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          goal_target?: number
+          goal_type?: string
+          id?: string
+          quest_key?: string
+          quest_type?: string
+          reward_coins?: number
+          reward_gems?: number
+          reward_xp?: number
+          title?: string
+        }
+        Relationships: []
+      }
       ranked_stats: {
         Row: {
           best_win_streak: number
@@ -599,6 +644,78 @@ export type Database = {
           user_id?: string
           win_streak?: number
           wins?: number
+        }
+        Relationships: []
+      }
+      user_prestige: {
+        Row: {
+          coin_multiplier: number
+          created_at: string
+          id: string
+          last_prestige_at: string | null
+          prestige_level: number
+          total_resets: number
+          updated_at: string
+          user_id: string
+          xp_multiplier: number
+        }
+        Insert: {
+          coin_multiplier?: number
+          created_at?: string
+          id?: string
+          last_prestige_at?: string | null
+          prestige_level?: number
+          total_resets?: number
+          updated_at?: string
+          user_id: string
+          xp_multiplier?: number
+        }
+        Update: {
+          coin_multiplier?: number
+          created_at?: string
+          id?: string
+          last_prestige_at?: string | null
+          prestige_level?: number
+          total_resets?: number
+          updated_at?: string
+          user_id?: string
+          xp_multiplier?: number
+        }
+        Relationships: []
+      }
+      user_quest_progress: {
+        Row: {
+          claimed: boolean
+          completed_at: string | null
+          created_at: string
+          id: string
+          period_start: string
+          progress: number
+          quest_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          claimed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          period_start?: string
+          progress?: number
+          quest_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          claimed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          period_start?: string
+          progress?: number
+          quest_key?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

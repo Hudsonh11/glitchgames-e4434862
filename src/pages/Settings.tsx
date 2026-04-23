@@ -23,6 +23,7 @@ import { supabase } from '@/integrations/supabase/client';
 import BugReportModal from '@/components/BugReportModal';
 import UltraCard from '@/components/UltraCard';
 import ThemePicker from '@/components/ThemePicker';
+import PushNotificationToggle from '@/components/PushNotificationToggle';
 
 const Settings: React.FC = () => {
   const { isLoggedIn, soundSettings, updateSoundSettings, user, logout } = useGame();
@@ -290,6 +291,9 @@ const Settings: React.FC = () => {
             <TabsContent value="notifications" className="space-y-4">
               <UltraCard variant="glass" className="p-6">
                 <h2 className="font-display text-xl font-bold mb-4 flex items-center gap-2"><Bell className="w-5 h-5 text-primary" /> Notifications</h2>
+                <div className="mb-4 pb-4 border-b border-border/50">
+                  <PushNotificationToggle />
+                </div>
                 <Row label="Achievement pop-ups" description="Toast when you unlock an achievement">
                   <Switch checked={achievementPopups} onCheckedChange={setAchievementPopups} />
                 </Row>
