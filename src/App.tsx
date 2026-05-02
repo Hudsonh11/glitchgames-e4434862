@@ -14,6 +14,7 @@ import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
 import Game from "./pages/Game";
 import Recovery from "./pages/Recovery";
+import Social from "./pages/Social";
 import NotFound from "./pages/NotFound";
 import SupportBot from "@/components/SupportBot";
 import OnlineStatus from "@/components/OnlineStatus";
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/game/:id" element={<Game />} />
             <Route path="/recovery" element={<Recovery />} />
+            <Route path="/social" element={<Social />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <SupportBot />

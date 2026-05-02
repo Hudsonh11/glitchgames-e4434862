@@ -22,6 +22,9 @@ import AdminCMS from '@/components/AdminCMS';
 import AdminUserDetail from '@/components/AdminUserDetail';
 import AdminInsights from '@/components/AdminInsights';
 import AdminPower from '@/components/AdminPower';
+import AdminMaintenance from '@/components/AdminMaintenance';
+import AdminGameConfig from '@/components/AdminGameConfig';
+import AdminBulkActions from '@/components/AdminBulkActions';
 import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -193,7 +196,7 @@ const Admin: React.FC = () => {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 w-full max-w-5xl gap-1">
+            <TabsList className="flex flex-wrap w-full gap-1 h-auto">
               <TabsTrigger value="overview" className="gap-1.5 text-xs">
                 <BarChart3 className="w-3.5 h-3.5" /> Overview
               </TabsTrigger>
@@ -209,8 +212,17 @@ const Admin: React.FC = () => {
               <TabsTrigger value="games" className="gap-1.5 text-xs">
                 <Gamepad2 className="w-3.5 h-3.5" /> Games
               </TabsTrigger>
+              <TabsTrigger value="gameconfig" className="gap-1.5 text-xs">
+                <Settings className="w-3.5 h-3.5" /> Game Config
+              </TabsTrigger>
               <TabsTrigger value="cms" className="gap-1.5 text-xs">
                 <Megaphone className="w-3.5 h-3.5" /> CMS
+              </TabsTrigger>
+              <TabsTrigger value="bulk" className="gap-1.5 text-xs">
+                <Zap className="w-3.5 h-3.5" /> Bulk
+              </TabsTrigger>
+              <TabsTrigger value="maintenance" className="gap-1.5 text-xs">
+                <Clock className="w-3.5 h-3.5" /> Maintenance
               </TabsTrigger>
               <TabsTrigger value="power" className="gap-1.5 text-xs">
                 <Crown className="w-3.5 h-3.5" /> Power
@@ -222,6 +234,10 @@ const Admin: React.FC = () => {
                 <Activity className="w-3.5 h-3.5" /> Logs
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="gameconfig"><AdminGameConfig /></TabsContent>
+            <TabsContent value="bulk"><AdminBulkActions /></TabsContent>
+            <TabsContent value="maintenance"><AdminMaintenance /></TabsContent>
 
             {/* ═══ Power Tab ═══ */}
             <TabsContent value="power">
