@@ -275,6 +275,106 @@ export type Database = {
         }
         Relationships: []
       }
+      clan_chat: {
+        Row: {
+          clan_id: string
+          content: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          clan_id: string
+          content: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          clan_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clan_chat_clan_id_fkey"
+            columns: ["clan_id"]
+            isOneToOne: false
+            referencedRelation: "clans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clan_members: {
+        Row: {
+          clan_id: string
+          id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          clan_id: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          clan_id?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clan_members_clan_id_fkey"
+            columns: ["clan_id"]
+            isOneToOne: false
+            referencedRelation: "clans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clans: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          member_count: number
+          name: string
+          owner_id: string
+          tag: string
+          total_xp: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          member_count?: number
+          name: string
+          owner_id: string
+          tag: string
+          total_xp?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          member_count?: number
+          name?: string
+          owner_id?: string
+          tag?: string
+          total_xp?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       daily_rewards: {
         Row: {
           id: string
@@ -293,6 +393,27 @@ export type Database = {
           last_claim_date?: string | null
           streak?: number
           user_id?: string
+        }
+        Relationships: []
+      }
+      followers: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
         }
         Relationships: []
       }
@@ -319,6 +440,33 @@ export type Database = {
           receiver_id?: string
           sender_id?: string
           status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      game_config: {
+        Row: {
+          config: Json
+          difficulty: string
+          enabled: boolean
+          game_id: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          difficulty?: string
+          enabled?: boolean
+          game_id: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          difficulty?: string
+          enabled?: boolean
+          game_id?: string
+          id?: string
           updated_at?: string
         }
         Relationships: []
@@ -403,6 +551,65 @@ export type Database = {
           sender_id?: string
         }
         Relationships: []
+      }
+      party_lobbies: {
+        Row: {
+          created_at: string
+          game_id: string
+          host_id: string
+          id: string
+          max_players: number
+          name: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          game_id: string
+          host_id: string
+          id?: string
+          max_players?: number
+          name: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          game_id?: string
+          host_id?: string
+          id?: string
+          max_players?: number
+          name?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      party_members: {
+        Row: {
+          id: string
+          joined_at: string
+          lobby_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          lobby_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          lobby_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "party_members_lobby_id_fkey"
+            columns: ["lobby_id"]
+            isOneToOne: false
+            referencedRelation: "party_lobbies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       player_badges: {
         Row: {
@@ -644,6 +851,107 @@ export type Database = {
           user_id?: string
           win_streak?: number
           wins?: number
+        }
+        Relationships: []
+      }
+      scheduled_maintenance: {
+        Row: {
+          active: boolean
+          created_at: string
+          ends_at: string
+          id: string
+          message: string | null
+          starts_at: string
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          ends_at: string
+          id?: string
+          message?: string | null
+          starts_at: string
+          title: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          ends_at?: string
+          id?: string
+          message?: string | null
+          starts_at?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      tournament_participants: {
+        Row: {
+          id: string
+          joined_at: string
+          score: number
+          tournament_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          score?: number
+          tournament_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          score?: number
+          tournament_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournament_participants_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tournaments: {
+        Row: {
+          created_at: string
+          ends_at: string | null
+          game_id: string
+          id: string
+          max_participants: number
+          name: string
+          prize_coins: number
+          prize_gems: number
+          starts_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at?: string | null
+          game_id: string
+          id?: string
+          max_participants?: number
+          name: string
+          prize_coins?: number
+          prize_gems?: number
+          starts_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string | null
+          game_id?: string
+          id?: string
+          max_participants?: number
+          name?: string
+          prize_coins?: number
+          prize_gems?: number
+          starts_at?: string | null
+          status?: string
         }
         Relationships: []
       }
