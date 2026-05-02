@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Gamepad2, User, Trophy, Gift, Settings, Menu, X, Crown, LogOut, Flame, Sparkles, ChevronDown, Zap, Star, TrendingUp, Bell } from 'lucide-react';
+import { Gamepad2, User, Trophy, Gift, Settings, Menu, X, Crown, LogOut, Flame, Sparkles, ChevronDown, Zap, Star, TrendingUp, Bell, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -41,6 +41,7 @@ const Navbar: React.FC = () => {
   const navItems = [
     { path: '/', label: 'Games', icon: Gamepad2 },
     { path: '/leaderboard', label: 'Leaderboard', icon: Trophy },
+    { path: '/social', label: 'Social', icon: Users },
     { path: '/rewards', label: 'Rewards', icon: Gift },
   ];
 
