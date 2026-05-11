@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Shield, Plus, LogOut, Send } from 'lucide-react';
+import { Shield, Plus, LogOut, Send, Trash2 } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 interface Clan {
   id: string; name: string; tag: string; description: string | null;
@@ -106,6 +107,16 @@ const ClansHub: React.FC = () => {
     loadClans(); loadMyClan();
   };
 
+  const deleteClan = async () => {
+    if (!user || !myClan || myClan.owner_id !== user.id) return;
+    await supabase.from('clan_chat').delete().eq('clan_id', myClan.id);
+    await supabase.from('clan_members').delete().eq('clan_id', myClan.id);
+    const { error } = await supabase.from('clans').delete().eq('id', myClan.id);
+    if (error) { toast({ title: 'Could not delete', description: error.message, variant: 'destructive' }); return; }
+    toast({ title: 'Clan disbanded' });
+    loadClans(); loadMyClan();
+  };
+
   const sendChat = async () => {
     if (!user || !myClan || !chatInput.trim()) return;
     await supabase.from('clan_chat').insert({ clan_id: myClan.id, user_id: user.id, content: chatInput.trim() });
@@ -122,7 +133,28 @@ const ClansHub: React.FC = () => {
               <p className="text-sm text-muted-foreground">{myClan.description}</p>
               <p className="text-xs mt-1">Members: {myClan.member_count} · Clan XP: {myClan.total_xp}</p>
             </div>
-            <Button variant="outline" onClick={leaveClan}><LogOut className="w-4 h-4 mr-1" />Leave</Button>
+            <div className="flex gap-2">
+              {myClan.owner_id === user?.id && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive"><Trash2 className="w-4 h-4 mr-1" />Disband</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Disband [{myClan.tag}] {myClan.name}?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This permanently deletes the clan, kicks all members, and erases clan chat. Cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={deleteClan} className="bg-destructive text-destructive-foreground">Disband</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+              <Button variant="outline" onClick={leaveClan}><LogOut className="w-4 h-4 mr-1" />Leave</Button>
+            </div>
           </div>
           <div className="border rounded-lg bg-muted/20 p-3 h-64 overflow-y-auto space-y-2">
             {chat.length === 0 && <p className="text-center text-muted-foreground text-sm pt-12">No messages yet — say hi!</p>}

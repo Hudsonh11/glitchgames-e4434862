@@ -12,56 +12,76 @@ import UltraBadge from '@/components/UltraBadge';
 import UltraAvatar from '@/components/UltraAvatar';
 import UltraLoadingSpinner from '@/components/UltraLoadingSpinner';
 
-// All 50 games with proper IDs matching the game components
+// All games with proper IDs matching the game components and Index.tsx
 const games = [
+  { id: '2048', name: '2048', category: 'Puzzle' },
+  { id: 'asteroids', name: 'Asteroids', category: 'Shooter' },
+  { id: 'ball-sort', name: 'Ball Sort', category: 'Puzzle' },
+  { id: 'balloon-pop', name: 'Balloon Pop', category: 'Arcade' },
   { id: 'block-blast', name: 'Block Blast', category: 'Puzzle' },
   { id: 'block-blast-extreme', name: 'Block Blast Extreme', category: 'Puzzle' },
-  { id: 'clicker', name: 'Click Frenzy', category: 'Idle' },
-  { id: 'geometry-dash', name: 'Geometry Dash', category: 'Action' },
-  { id: 'tetris', name: 'Tetris', category: 'Puzzle' },
-  { id: 'pac-man', name: 'Pac-Man', category: 'Arcade' },
-  { id: 'snake', name: 'Snake', category: 'Arcade' },
-  { id: 'memory', name: 'Memory Match', category: 'Puzzle' },
-  { id: 'flappy', name: 'Flappy Bird', category: 'Arcade' },
-  { id: 'space-invaders', name: 'Space Invaders', category: 'Shooter' },
-  { id: '2048', name: '2048', category: 'Puzzle' },
-  { id: 'racing', name: 'Neon Racer', category: 'Racing' },
-  { id: 'pong', name: 'Pong', category: 'Arcade' },
   { id: 'breakout', name: 'Breakout', category: 'Arcade' },
   { id: 'brick-breaker', name: 'Brick Breaker', category: 'Arcade' },
-  { id: 'asteroids', name: 'Asteroids', category: 'Shooter' },
   { id: 'bubble-shooter', name: 'Bubble Shooter', category: 'Puzzle' },
   { id: 'catch', name: 'Catch Game', category: 'Arcade' },
   { id: 'checkers', name: 'Checkers', category: 'Board' },
   { id: 'chess', name: 'Chess', category: 'Board' },
-  { id: 'color-match', name: 'Color Match', category: 'Puzzle' },
+  { id: 'clicker', name: 'Click Frenzy', category: 'Idle' },
+  { id: 'coin-dash', name: 'Coin Dash', category: 'Arcade' },
+  { id: 'color-match', name: 'Color Match', category: 'Brain' },
   { id: 'color-switch', name: 'Color Switch', category: 'Action' },
   { id: 'connect-four', name: 'Connect Four', category: 'Board' },
   { id: 'crossy-road', name: 'Crossy Road', category: 'Arcade' },
-  { id: 'dino-run', name: 'Dino Run', category: 'Arcade' },
-  { id: 'dodge-ball', name: 'Dodge Ball', category: 'Action' },
-  { id: 'fruit-slice', name: 'Fruit Slice', category: 'Action' },
+  { id: 'cube-runner', name: 'Cube Runner', category: 'Action' },
+  { id: 'dino-run', name: 'Dino Run', category: 'Runner' },
+  { id: 'dodge-ball', name: 'Dodge Ball', category: 'Arcade' },
+  { id: 'doodle-jump', name: 'Doodle Jump', category: 'Arcade' },
+  { id: 'flappy', name: 'Flappy Bird', category: 'Arcade' },
+  { id: 'fruit-slice', name: 'Fruit Slice', category: 'Arcade' },
+  { id: 'geometry-dash', name: 'Geometry Dash', category: 'Action' },
+  { id: 'gravity-runner', name: 'Gravity Runner', category: 'Runner' },
   { id: 'hangman', name: 'Hangman', category: 'Word' },
-  { id: 'jigsaw-puzzle', name: 'Jigsaw Puzzle', category: 'Puzzle' },
-  { id: 'math-blitz', name: 'Math Blitz', category: 'Educational' },
+  { id: 'helix-jump', name: 'Helix Jump', category: 'Arcade' },
+  { id: 'hex-merge', name: 'Hex Merge', category: 'Puzzle' },
+  { id: 'ice-slider', name: 'Ice Slider', category: 'Arcade' },
+  { id: 'jigsaw', name: 'Jigsaw Puzzle', category: 'Puzzle' },
+  { id: 'lights-out', name: 'Lights Out', category: 'Puzzle' },
+  { id: 'match-3', name: 'Match-3 Mania', category: 'Puzzle' },
+  { id: 'math-blitz', name: 'Math Blitz', category: 'Brain' },
   { id: 'maze', name: 'Maze Runner', category: 'Puzzle' },
+  { id: 'memory', name: 'Memory Match', category: 'Puzzle' },
   { id: 'minesweeper', name: 'Minesweeper', category: 'Puzzle' },
-  { id: 'number-guess', name: 'Number Guess', category: 'Puzzle' },
-  { id: 'pattern-memory', name: 'Pattern Memory', category: 'Puzzle' },
+  { id: 'nonogram', name: 'Nonogram', category: 'Puzzle' },
+  { id: 'number-guess', name: 'Number Guess', category: 'Brain' },
+  { id: 'pac-man', name: 'Pac-Man', category: 'Arcade' },
+  { id: 'pattern-memory', name: 'Pattern Memory', category: 'Brain' },
+  { id: 'pipe-connect', name: 'Pipe Connect', category: 'Puzzle' },
   { id: 'platform-jump', name: 'Platform Jump', category: 'Action' },
-  { id: 'quiz', name: 'Quiz Game', category: 'Trivia' },
-  { id: 'reaction-test', name: 'Reaction Test', category: 'Skill' },
-  { id: 'rock-paper-scissors', name: 'Rock Paper Scissors', category: 'Casual' },
-  { id: 'simon-says', name: 'Simon Says', category: 'Puzzle' },
+  { id: 'pong', name: 'Pong', category: 'Arcade' },
+  { id: 'quiz', name: 'Quiz Challenge', category: 'Trivia' },
+  { id: 'racing', name: 'Neon Racer', category: 'Racing' },
+  { id: 'reaction', name: 'Reaction Test', category: 'Skill' },
+  { id: 'roblox-obby', name: 'Roblox Obby', category: 'Action' },
+  { id: 'rps', name: 'Rock Paper Scissors', category: 'Casual' },
+  { id: 'simon-says', name: 'Simon Says', category: 'Brain' },
+  { id: 'skeet-shoot', name: 'Skeet Shoot', category: 'Shooter' },
+  { id: 'slime-volley', name: 'Slime Volley', category: 'Sports' },
+  { id: 'snake', name: 'Snake', category: 'Arcade' },
   { id: 'solitaire', name: 'Solitaire', category: 'Card' },
+  { id: 'space-invaders', name: 'Space Invaders', category: 'Shooter' },
   { id: 'spin-wheel', name: 'Spin Wheel', category: 'Casual' },
-  { id: 'spot-difference', name: 'Spot Difference', category: 'Puzzle' },
+  { id: 'spot-difference', name: 'Spot Difference', category: 'Brain' },
+  { id: 'stack-tower-3d', name: 'Stack Tower', category: 'Skill' },
   { id: 'sudoku', name: 'Sudoku', category: 'Puzzle' },
-  { id: 'temple-run', name: 'Temple Run', category: 'Action' },
+  { id: 'temple-run', name: 'Temple Run', category: 'Runner' },
+  { id: 'tetris', name: 'Tetris', category: 'Puzzle' },
   { id: 'tic-tac-toe', name: 'Tic Tac Toe', category: 'Board' },
+  { id: 'tower-defense', name: 'Tower Defense', category: 'Strategy' },
   { id: 'tower-stack', name: 'Tower Stack', category: 'Skill' },
   { id: 'type-racer', name: 'Type Racer', category: 'Skill' },
   { id: 'whack-a-mole', name: 'Whack-a-Mole', category: 'Arcade' },
+  { id: 'word-connect', name: 'Word Connect', category: 'Word' },
+  { id: 'word-scramble', name: 'Word Scramble', category: 'Word' },
   { id: 'word-search', name: 'Word Search', category: 'Word' },
   { id: 'wordle', name: 'Wordle', category: 'Word' },
 ];
@@ -69,7 +89,7 @@ const games = [
 const categories = ['All', ...Array.from(new Set(games.map(g => g.category))).sort()];
 
 const Leaderboard: React.FC = () => {
-  const [selectedGame, setSelectedGame] = useState('block-blast');
+  const [selectedGame, setSelectedGame] = useState(games[0].id);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -106,7 +126,7 @@ const Leaderboard: React.FC = () => {
               <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-warning animate-pulse" />
             </div>
             <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-gradient break-words">Global Leaderboard</h1>
-            <p className="text-muted-foreground">Compete with players worldwide across all 50 games!</p>
+            <p className="text-muted-foreground">Compete with players worldwide across all {games.length} games!</p>
           </div>
 
           {/* Search and Category Filter */}
