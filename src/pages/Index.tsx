@@ -46,6 +46,8 @@ import StaffPicks from '@/components/StaffPicks';
 import DailyBonus from '@/components/DailyBonus';
 import { useGame } from '@/contexts/GameContext';
 import { Progress } from '@/components/ui/progress';
+import { getCurrentSeason } from '@/lib/season';
+const __SEASON__ = getCurrentSeason();
 
 const games = [
   { id: 'block-blast', title: 'Block Blast', description: 'Match and blast colorful blocks in this addictive puzzle game!', image: 'https://images.unsplash.com/photo-1614294149010-950b698f72c0?w=400&h=300&fit=crop', category: 'Puzzle', rating: 4.8, players: '12.5K', color: 'hsl(185, 100%, 50%)' },
@@ -605,7 +607,7 @@ const Index: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <DailyQuests />
             <WeeklyChallenge />
-            <SeasonPass currentTier={3} currentXP={750} xpPerTier={1000} isPremium={false} seasonName="Season 1: Neon Uprising" daysLeft={21} />
+            <SeasonPass currentTier={3} currentXP={750} xpPerTier={1000} isPremium={false} seasonName={`Season ${__SEASON__.index}: ${__SEASON__.name}`} daysLeft={__SEASON__.daysLeft} />
           </div>
         </div>
       </section>

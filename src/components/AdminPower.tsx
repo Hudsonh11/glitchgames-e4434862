@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Crown, Megaphone, ScrollText, Send, Loader2, Search, RefreshCw, Trash2, AlertTriangle } from 'lucide-react';
+import { Crown, Megaphone, ScrollText, Send, Loader2, Search, RefreshCw, Trash2, AlertTriangle, Coins } from 'lucide-react';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -163,8 +163,44 @@ const AdminPower: React.FC = () => {
 
   const adminName = (id: string) => allUsers.find(u => u.id === id)?.username || id.slice(0, 8);
 
+  const [coinsLoading, setCoinsLoading] = useState(false);
+  const giveMeMaxCoins = async () => {
+    if (!user?.id) return;
+    setCoinsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ coins: 999_999_999, gems: 999_999 })
+        .eq('user_id', user.id);
+      if (error) throw error;
+      await supabase.from('admin_audit_log').insert({
+        admin_id: user.id, action: 'self_grant_currency', target_type: 'profile', target_id: user.id,
+        details: { coins: 999_999_999, gems: 999_999 },
+      });
+      toast({ title: '💰 Loaded up!', description: 'Refresh to see the new balance everywhere.' });
+    } catch (e) {
+      toast({ title: 'Failed', description: (e as Error).message, variant: 'destructive' });
+    } finally {
+      setCoinsLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Self Grant Currency */}
+      <UltraCard variant="premium" glow className="p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Coins className="w-5 h-5 text-warning" />
+          <h3 className="font-display text-lg font-bold">Admin Cheat: Max Currency</h3>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          Sets your own balance to 999,999,999 coins and 999,999 gems. Logged in audit trail.
+        </p>
+        <Button onClick={giveMeMaxCoins} disabled={coinsLoading} variant="gaming" className="w-full">
+          {coinsLoading ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Coins className="w-4 h-4 mr-1" />}
+          Give me infinite coins & gems
+        </Button>
+      </UltraCard>
       {/* Battle Pass Grant */}
       <UltraCard variant="glass" className="p-5">
         <div className="flex items-center gap-2 mb-4">
