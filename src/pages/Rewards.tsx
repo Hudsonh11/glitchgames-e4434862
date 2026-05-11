@@ -17,6 +17,7 @@ import StreakFreezeShield from '@/components/StreakFreezeShield';
 import QuestSystem from '@/components/QuestSystem';
 import PrestigeSystem from '@/components/PrestigeSystem';
 import { supabase } from '@/integrations/supabase/client';
+import { getCurrentSeason } from '@/lib/season';
 
 const generateReward = (day: number) => {
   const cycle = Math.floor((day - 1) / 7);
@@ -38,6 +39,7 @@ const Rewards: React.FC = () => {
   const [showConfetti, setShowConfetti] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [searchParams] = useSearchParams();
+  const currentSeason = useMemo(() => getCurrentSeason(), []);
 
   // Verify premium status from server. When returning from Stripe checkout
   // (?purchase=success&session_id=cs_...) we hit the `verify-purchase` edge
@@ -55,7 +57,7 @@ const Rewards: React.FC = () => {
         .from('battle_pass_purchases')
         .select('id')
         .eq('user_id', user.id)
-        .eq('season', 'season_1')
+        .eq('season', currentSeason.key)
         .eq('status', 'completed')
         .maybeSingle();
       if (cancelled) return;
@@ -341,8 +343,8 @@ const Rewards: React.FC = () => {
             currentXP={(user?.xp || 0) % 500}
             xpPerTier={500}
             isPremium={isPremium}
-            seasonName="Season 1: Neon Legends"
-            daysLeft={42}
+            seasonName={`Season ${currentSeason.index}: ${currentSeason.name}`}
+            daysLeft={currentSeason.daysLeft}
           />
 
         </div>

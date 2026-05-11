@@ -7,6 +7,7 @@ import UltraProgressBar from '@/components/UltraProgressBar';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getCurrentSeason } from '@/lib/season';
 
 interface SeasonReward {
   tier: number;
@@ -54,9 +55,10 @@ const SeasonPass: React.FC<SeasonPassProps> = ({
   const handleUpgrade = async () => {
     setPurchasing(true);
     try {
+      const currentSeason = getCurrentSeason();
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
-          season: 'season_1',
+          season: currentSeason.key,
           returnUrl: window.location.origin,
         },
       });
