@@ -48,6 +48,21 @@ const Profile: React.FC = () => {
   const { toast } = useToast();
   const [purchasedItems, setPurchasedItems] = useState<string[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    (async () => {
+      const { supabase } = await import('@/integrations/supabase/client');
+      const [{ count: fc }, { count: gc }] = await Promise.all([
+        supabase.from('followers').select('*', { count: 'exact', head: true }).eq('following_id', user.id),
+        supabase.from('followers').select('*', { count: 'exact', head: true }).eq('follower_id', user.id),
+      ]);
+      setFollowerCount(fc || 0);
+      setFollowingCount(gc || 0);
+    })();
+  }, [user?.id]);
 
   useEffect(() => {
     const saved = localStorage.getItem(`purchased_items_${user?.id}`);
@@ -153,15 +168,23 @@ const Profile: React.FC = () => {
             />
           </div>
 
-          {/* Currency Display */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <UltraCard variant="glass" className="p-6 flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-warning/20 flex items-center justify-center"><span className="text-2xl">🪙</span></div>
-              <div><p className="text-sm text-muted-foreground">Coins</p><p className="font-display text-2xl font-bold text-warning">{coins.toLocaleString()}</p></div>
+          {/* Currency + Social Display */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <UltraCard variant="glass" className="p-4 flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-warning/20 flex items-center justify-center"><span className="text-xl">🪙</span></div>
+              <div><p className="text-xs text-muted-foreground">Coins</p><p className="font-display text-xl font-bold text-warning">{coins.toLocaleString()}</p></div>
             </UltraCard>
-            <UltraCard variant="glass" className="p-6 flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-secondary/20 flex items-center justify-center"><span className="text-2xl">💎</span></div>
-              <div><p className="text-sm text-muted-foreground">Gems</p><p className="font-display text-2xl font-bold text-secondary">{gems.toLocaleString()}</p></div>
+            <UltraCard variant="glass" className="p-4 flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center"><span className="text-xl">💎</span></div>
+              <div><p className="text-xs text-muted-foreground">Gems</p><p className="font-display text-xl font-bold text-secondary">{gems.toLocaleString()}</p></div>
+            </UltraCard>
+            <UltraCard variant="glass" className="p-4 flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center"><Users className="w-5 h-5 text-primary" /></div>
+              <div><p className="text-xs text-muted-foreground">Followers</p><p className="font-display text-xl font-bold text-primary">{followerCount.toLocaleString()}</p></div>
+            </UltraCard>
+            <UltraCard variant="glass" className="p-4 flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center"><Heart className="w-5 h-5 text-accent" /></div>
+              <div><p className="text-xs text-muted-foreground">Following</p><p className="font-display text-xl font-bold text-accent">{followingCount.toLocaleString()}</p></div>
             </UltraCard>
           </div>
 

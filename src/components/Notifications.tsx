@@ -45,6 +45,11 @@ const Notifications: React.FC<NotificationsProps> = ({
   onClear,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 30000);
+    return () => clearInterval(id);
+  }, []);
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
@@ -141,7 +146,7 @@ const Notifications: React.FC<NotificationsProps> = ({
                             {notification.message}
                           </p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {formatDistanceToNow(notification.timestamp, { addSuffix: true })}
+                            {formatDistanceToNow(new Date(notification.timestamp), { addSuffix: true })}
                           </p>
                         </div>
                         
