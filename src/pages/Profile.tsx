@@ -4,6 +4,7 @@ import { Trophy, Gamepad2, Clock, Calendar, Award, Users, Share2, Swords, Sparkl
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Navbar from '@/components/Navbar';
+import Seo from '@/components/Seo';
 import ProfileShop from '@/components/ProfileShop';
 import ProfileCustomization from '@/components/ProfileCustomization';
 import FriendSystem from '@/components/FriendSystem';
