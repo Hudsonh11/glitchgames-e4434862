@@ -37,6 +37,11 @@ const NotFound = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background relative overflow-hidden">
+      <Helmet>
+        <title>Page Not Found — Glitch Games</title>
+        <meta name="description" content="The level you're looking for doesn't exist. Head back home to play 70+ free browser games on Glitch Games." />
+        <meta name="robots" content="noindex" />
+      </Helmet>
       {/* Animated background orbs */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="ultra-orb ultra-orb-cyan w-[500px] h-[500px] -top-40 -left-40" />
