@@ -72,6 +72,7 @@ import SlimeVolley from '@/components/games/SlimeVolley';
 import TowerDefense from '@/components/games/TowerDefense';
 import { useGame } from '@/contexts/GameContext';
 import Navbar from '@/components/Navbar';
+import Seo from '@/components/Seo';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import UltraParticles from '@/components/UltraParticles';
