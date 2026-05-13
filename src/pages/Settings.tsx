@@ -141,6 +141,11 @@ const Settings: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Settings — Preferences & Account | Glitch Games"
+        description="Manage your Glitch Games preferences: theme, sound, notifications, accessibility, language, and account privacy controls."
+        path="/settings"
+      />
       <Navbar />
       <BugReportModal isOpen={isBugReportOpen} onClose={() => setIsBugReportOpen(false)} />
 
