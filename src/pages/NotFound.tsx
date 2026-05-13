@@ -2,6 +2,7 @@ import { useLocation, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Gamepad2, Home, ArrowLeft, Ghost, Sparkles, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Helmet } from "react-helmet-async";
 
 const NotFound = () => {
   const location = useLocation();
