@@ -1,0 +1,16 @@
+# Glitch Games
+
+> Glitch Games is a free browser gaming platform with 70+ arcade, classic, and indie games. Players earn coins, climb leaderboards, unlock achievements, and join clans.
+
+## Pages
+
+- [Home](/): Browse and play 70+ free games, see featured picks and trending titles.
+- [Leaderboard](/leaderboard): Global rankings across every game with filters by game and timeframe.
+- [Rewards](/rewards): Daily login rewards, battle pass, and currency shop.
+- [Social](/social): Clans, followers, parties, and tournaments.
+- [Profile](/profile): Player stats, achievements, friends, and customization.
+
+## Optional
+
+- [Login](/login): Account sign-in and registration.
+- [Settings](/settings): Theme, accessibility, privacy, and notification preferences.
