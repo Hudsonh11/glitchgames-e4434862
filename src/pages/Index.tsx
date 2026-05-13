@@ -297,6 +297,11 @@ const Index: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
+      <Seo
+        title="Glitch Games — Free Browser Arcade & Classic Games"
+        description="Play 70+ free browser games on Glitch Games. Discover arcade hits, classic puzzles, and indie gems — earn coins, climb leaderboards, and unlock achievements."
+        path="/"
+      />
       <Navbar />
 
       {/* ═══ HERO ═══ */}
