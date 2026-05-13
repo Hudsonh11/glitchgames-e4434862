@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
+import Seo from '@/components/Seo';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import ClansHub from '@/components/ClansHub';
 import FollowersPanel from '@/components/FollowersPanel';
@@ -16,6 +17,11 @@ const Social: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Social Hub — Clans, Friends & Tournaments | Glitch Games"
+        description="Join clans, follow friends, party up, and compete in tournaments on Glitch Games. Chat with your clan and climb the social leaderboards."
+        path="/social"
+      />
       <Navbar />
       <div className="container mx-auto px-4 pt-24 pb-12">
         <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">

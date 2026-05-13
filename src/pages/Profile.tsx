@@ -4,6 +4,7 @@ import { Trophy, Gamepad2, Clock, Calendar, Award, Users, Share2, Swords, Sparkl
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Navbar from '@/components/Navbar';
+import Seo from '@/components/Seo';
 import ProfileShop from '@/components/ProfileShop';
 import ProfileCustomization from '@/components/ProfileCustomization';
 import FriendSystem from '@/components/FriendSystem';
@@ -120,6 +121,11 @@ const Profile: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
+      <Seo
+        title="Your Profile — Stats, Achievements & Friends | Glitch Games"
+        description="View your Glitch Games profile: level, XP, achievements, friends, ranked stats, and game history. Customize your avatar, title, and borders."
+        path="/profile"
+      />
       <Navbar />
       <UltraParticles count={15} />
       

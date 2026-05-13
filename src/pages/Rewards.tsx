@@ -3,6 +3,7 @@ import { Navigate, useSearchParams } from 'react-router-dom';
 import { Gift, Calendar, Flame, Check, Lock, Sparkles, Trophy, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
+import Seo from '@/components/Seo';
 import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
 import UltraParticles from '@/components/UltraParticles';
@@ -217,6 +218,11 @@ const Rewards: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
+      <Seo
+        title="Daily Rewards & Battle Pass — Glitch Games"
+        description="Claim your daily login rewards, complete quests, and unlock battle pass tiers. Earn coins, gems, and exclusive cosmetics on Glitch Games."
+        path="/rewards"
+      />
       <Navbar />
       <UltraConfetti active={showConfetti} />
       <UltraParticles count={20} />

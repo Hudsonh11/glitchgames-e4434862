@@ -72,6 +72,7 @@ import SlimeVolley from '@/components/games/SlimeVolley';
 import TowerDefense from '@/components/games/TowerDefense';
 import { useGame } from '@/contexts/GameContext';
 import Navbar from '@/components/Navbar';
+import Seo from '@/components/Seo';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import UltraParticles from '@/components/UltraParticles';
@@ -177,8 +178,23 @@ const Game: React.FC = () => {
   const GameComponent = gameData.component;
   const stats = id && gameStats[id];
 
+  const seoTitle = `${gameData.title} — Play Free Online | Glitch Games`;
+  const seoDesc = `Play ${gameData.title} free in your browser on Glitch Games. A ${gameData.category.toLowerCase()} game — earn coins, beat your high score, and climb the leaderboard.`;
+  const gameLd = {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    name: gameData.title,
+    genre: gameData.category,
+    description: seoDesc,
+    url: `https://glitchgames.lovable.app/game/${id}`,
+    applicationCategory: "GameApplication",
+    operatingSystem: "Any",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  };
+
   return (
     <div className="min-h-screen bg-background relative">
+      <Seo title={seoTitle} description={seoDesc} path={`/game/${id}`} jsonLd={gameLd} />
       <Navbar />
       <UltraParticles count={10} />
       
