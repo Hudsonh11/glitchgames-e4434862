@@ -103,6 +103,11 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+      <Seo
+        title="Sign In or Sign Up — Glitch Games"
+        description="Log in or create your free Glitch Games account to save progress, earn rewards, climb leaderboards, and play with friends across 70+ games."
+        path="/login"
+      />
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse-glow" />
