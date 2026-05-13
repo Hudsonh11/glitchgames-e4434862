@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Navbar from '@/components/Navbar';
+import Seo from '@/components/Seo';
 import { useGame } from '@/contexts/GameContext';
 import UltraParticles from '@/components/UltraParticles';
 import UltraCard from '@/components/UltraCard';
