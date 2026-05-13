@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
+import Seo from '@/components/Seo';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import ClansHub from '@/components/ClansHub';
 import FollowersPanel from '@/components/FollowersPanel';
