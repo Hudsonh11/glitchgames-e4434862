@@ -116,6 +116,11 @@ const Leaderboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
+      <Seo
+        title="Leaderboard — Top Players & Game Rankings | Glitch Games"
+        description="See the top scores across 70+ Glitch Games. Filter by game and timeframe to track global rankings, weekly champions, and your personal best."
+        path="/leaderboard"
+      />
       <Navbar />
       <UltraParticles count={25} />
       
