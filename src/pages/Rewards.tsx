@@ -3,6 +3,7 @@ import { Navigate, useSearchParams } from 'react-router-dom';
 import { Gift, Calendar, Flame, Check, Lock, Sparkles, Trophy, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
+import Seo from '@/components/Seo';
 import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
 import UltraParticles from '@/components/UltraParticles';
