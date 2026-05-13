@@ -121,6 +121,11 @@ const Profile: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
+      <Seo
+        title="Your Profile — Stats, Achievements & Friends | Glitch Games"
+        description="View your Glitch Games profile: level, XP, achievements, friends, ranked stats, and game history. Customize your avatar, title, and borders."
+        path="/profile"
+      />
       <Navbar />
       <UltraParticles count={15} />
       
