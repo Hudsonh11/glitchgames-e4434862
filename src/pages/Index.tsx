@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import GameCard from '@/components/GameCard';
+import Seo from '@/components/Seo';
 import Navbar from '@/components/Navbar';
 import UltraParticles from '@/components/UltraParticles';
 import UltraStatsCounter from '@/components/UltraStatsCounter';
