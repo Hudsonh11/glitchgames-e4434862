@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useGame } from '@/contexts/GameContext';
 import { useToast } from '@/hooks/use-toast';
+import Seo from '@/components/Seo';
 
 const Login: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
