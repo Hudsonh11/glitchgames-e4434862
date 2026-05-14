@@ -4,6 +4,7 @@ import { Gamepad2, Mail, ArrowLeft, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import Seo from '@/components/Seo';
 
 const Recovery: React.FC = () => {
   const [username, setUsername] = useState('');
