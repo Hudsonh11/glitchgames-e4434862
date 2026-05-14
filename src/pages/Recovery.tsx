@@ -31,6 +31,12 @@ const Recovery: React.FC = () => {
   };
 
   return (
+    <>
+      <Seo
+        title="Account Recovery — Glitch Games"
+        description="Recover your Glitch Games account. Enter your username to receive recovery instructions and regain access to your profile, coins, and achievements."
+        path="/recovery"
+      />
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
