@@ -111,6 +111,7 @@ const Recovery: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
