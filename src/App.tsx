@@ -36,19 +36,21 @@ const App = () => (
           <Sonner />
           <OnlineStatus />
           <KeyboardShortcuts />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/rewards" element={<Rewards />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/game/:id" element={<Game />} />
-            <Route path="/recovery" element={<Recovery />} />
-            <Route path="/social" element={<Social />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <main>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/rewards" element={<Rewards />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/game/:id" element={<Game />} />
+              <Route path="/recovery" element={<Recovery />} />
+              <Route path="/social" element={<Social />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
           <SupportBot />
           <CookieConsent />
           <BackToTop />
