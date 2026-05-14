@@ -172,6 +172,15 @@ const Admin: React.FC = () => {
   const banRate = allUsers.length > 0 ? ((bannedUsers.length / allUsers.length) * 100).toFixed(1) : '0';
 
   return (
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      <Seo
+        title="Admin Panel — Glitch Games"
+        description="Glitch Games admin dashboard for managing users, games, system settings, and platform analytics."
+        path="/admin"
+      />
     <div className="min-h-screen bg-background">
       <Navbar />
       
