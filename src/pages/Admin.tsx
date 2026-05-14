@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { 
   Crown, Users, Gamepad2, AlertTriangle, Ban, Trash2, 
   Power, PowerOff, Search, Shield, UserX, UserCheck,
@@ -14,6 +15,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Navbar from '@/components/Navbar';
+import Seo from '@/components/Seo';
 import AdminWelcome from '@/components/AdminWelcome';
 import AdminStats from '@/components/AdminStats';
 import AdminUserActions from '@/components/AdminUserActions';
@@ -170,6 +172,15 @@ const Admin: React.FC = () => {
   const banRate = allUsers.length > 0 ? ((bannedUsers.length / allUsers.length) * 100).toFixed(1) : '0';
 
   return (
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      <Seo
+        title="Admin Panel — Glitch Games"
+        description="Glitch Games admin dashboard for managing users, games, system settings, and platform analytics."
+        path="/admin"
+      />
     <div className="min-h-screen bg-background">
       <Navbar />
       
@@ -717,6 +728,7 @@ const Admin: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

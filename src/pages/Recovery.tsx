@@ -4,6 +4,7 @@ import { Gamepad2, Mail, ArrowLeft, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import Seo from '@/components/Seo';
 
 const Recovery: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -30,6 +31,12 @@ const Recovery: React.FC = () => {
   };
 
   return (
+    <>
+      <Seo
+        title="Account Recovery — Glitch Games"
+        description="Recover your Glitch Games account. Enter your username to receive recovery instructions and regain access to your profile, coins, and achievements."
+        path="/recovery"
+      />
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
@@ -104,6 +111,7 @@ const Recovery: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
