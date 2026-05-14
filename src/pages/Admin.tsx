@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { 
   Crown, Users, Gamepad2, AlertTriangle, Ban, Trash2, 
   Power, PowerOff, Search, Shield, UserX, UserCheck,
@@ -14,6 +15,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Navbar from '@/components/Navbar';
+import Seo from '@/components/Seo';
 import AdminWelcome from '@/components/AdminWelcome';
 import AdminStats from '@/components/AdminStats';
 import AdminUserActions from '@/components/AdminUserActions';
