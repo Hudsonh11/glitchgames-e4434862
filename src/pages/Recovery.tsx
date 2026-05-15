@@ -50,7 +50,7 @@ const Recovery: React.FC = () => {
           <div className="w-12 h-12 rounded-xl bg-gradient-hero flex items-center justify-center shadow-neon-cyan">
             <Gamepad2 className="w-7 h-7 text-primary-foreground" />
           </div>
-          <span className="font-display text-2xl font-bold text-gradient">NEXUS GAMES</span>
+          <span className="font-display text-2xl font-bold text-gradient">GLITCH GAMES</span>
         </Link>
 
         {/* Form Card */}
