@@ -341,7 +341,7 @@ const Index: React.FC = () => {
                 </div>
               </div>
               
-              <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-black mb-6 animate-fade-in">
+              <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-black mb-6">
                 <span className="text-gradient animate-glitch inline-block">GLITCH</span>
                 <br />
                 <span className="text-foreground relative inline-block">
