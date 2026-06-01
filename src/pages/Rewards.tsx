@@ -43,6 +43,34 @@ const Rewards: React.FC = () => {
   const [isPremium, setIsPremium] = useState(false);
   const [searchParams] = useSearchParams();
   const currentSeason = useMemo(() => getCurrentSeason(), []);
+  const plusStatus = usePlusStatus(user?.id);
+
+  // Verify Plus checkout return (?plus=success&session_id=...)
+  React.useEffect(() => {
+    if (!user?.id) return;
+    if (searchParams.get('plus') !== 'success') return;
+    const sessionId = searchParams.get('session_id');
+    if (!sessionId) return;
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('verify-plus-purchase', {
+          body: { session_id: sessionId },
+        });
+        if (!error && data?.ok) {
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 4000);
+          toast({
+            title: '⚡ Glitch Games Plus Activated!',
+            description: 'Enjoy 30 days of Plus perks — coins, gems, battle pass, and more!',
+          });
+          plusStatus.refresh();
+        }
+      } catch (e) {
+        console.error('verify-plus-purchase failed', e);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, searchParams]);
 
   // Verify premium status from server. When returning from Stripe checkout
   // (?purchase=success&session_id=cs_...) we hit the `verify-purchase` edge
