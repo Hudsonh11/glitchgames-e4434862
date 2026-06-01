@@ -73,6 +73,33 @@ const AdminPower: React.FC = () => {
     ? allUsers.filter(u => u.username.toLowerCase().includes(grantQuery.toLowerCase())).slice(0, 5)
     : [];
 
+  const matchedPlusUsers = plusQuery.length >= 2
+    ? allUsers.filter(u => u.username.toLowerCase().includes(plusQuery.toLowerCase())).slice(0, 5)
+    : [];
+
+  const giftPlus = async () => {
+    if (!plusTarget || !user?.id) return;
+    setPlusLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-grant-plus', {
+        body: { target_user_id: plusTarget.user_id, months: plusMonths },
+      });
+      if (error) throw error;
+      toast({
+        title: '⚡ Plus Gifted',
+        description: `${plusTarget.username} got ${plusMonths} month${plusMonths > 1 ? 's' : ''} of Plus.`,
+      });
+      setPlusTarget(null);
+      setPlusQuery('');
+      setPlusMonths(1);
+      loadAudit();
+    } catch (e) {
+      toast({ title: 'Gift failed', description: (e as Error).message, variant: 'destructive' });
+    } finally {
+      setPlusLoading(false);
+    }
+  };
+
   const grantBattlePass = async () => {
     if (!grantTarget || !user?.id) return;
     setGrantLoading(true);
