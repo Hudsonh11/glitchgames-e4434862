@@ -273,6 +273,55 @@ const AdminPower: React.FC = () => {
         </div>
       </UltraCard>
 
+      {/* Gift Glitch Games Plus */}
+      <UltraCard variant="premium" glow className="p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Zap className="w-5 h-5 text-primary" />
+          <h3 className="font-display text-lg font-bold">Gift Glitch Games Plus</h3>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          Grant a player 1+ months of Plus (free). They get coins, gems, battle pass, and all Plus perks immediately.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by username…"
+              value={plusTarget?.username || plusQuery}
+              onChange={(e) => { setPlusTarget(null); setPlusQuery(e.target.value); }}
+              className="pl-9"
+            />
+            {matchedPlusUsers.length > 0 && !plusTarget && (
+              <div className="absolute z-10 mt-1 w-full bg-popover border border-border rounded-lg shadow-lg overflow-hidden">
+                {matchedPlusUsers.map(u => (
+                  <button
+                    key={u.id}
+                    onClick={() => setPlusTarget({ user_id: u.id, username: u.username })}
+                    className="w-full text-left px-3 py-2 hover:bg-accent text-sm"
+                  >
+                    {u.username}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <Input
+            type="number"
+            min={1}
+            max={36}
+            value={plusMonths}
+            onChange={(e) => setPlusMonths(Math.max(1, Math.min(36, Number(e.target.value) || 1)))}
+            className="w-full sm:w-24"
+            placeholder="Months"
+          />
+          <Button onClick={giftPlus} disabled={!plusTarget || plusLoading} variant="gaming">
+            {plusLoading ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Zap className="w-4 h-4 mr-1" />}
+            Gift
+          </Button>
+        </div>
+      </UltraCard>
+
+
       {/* Reset Battle Pass */}
       <UltraCard variant="glass" className="p-5">
         <div className="flex items-center gap-2 mb-4">
