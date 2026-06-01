@@ -44,7 +44,7 @@ const GameCategories: React.FC = () => {
                 <Icon className="w-6 h-6" style={{ color: category.color }} />
               </div>
               <span className="text-xs font-semibold text-foreground">{category.name}</span>
-              <span className="text-[10px] text-muted-foreground">{category.count} games</span>
+              <span className="text-[10px] text-muted-foreground">{category.count} {category.count === 1 ? 'game' : 'games'}</span>
             </div>
           </Link>
         );
