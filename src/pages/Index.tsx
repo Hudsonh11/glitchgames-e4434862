@@ -708,24 +708,24 @@ const Index: React.FC = () => {
                 <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
                   Create your free account, start playing, and join the most exciting gaming community on the web.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button variant="gaming" size="xl" asChild className="group">
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center">
+                  <Button variant="gaming" size="xl" asChild className="group w-full sm:w-auto px-6 sm:px-10">
                     <Link to="/login">
                       <Rocket className="w-5 h-5 mr-2 transition-transform group-hover:scale-110" />
                       Create Free Account
                     </Link>
                   </Button>
-                  <Button variant="outline" size="xl" asChild className="border-primary/30 hover:border-primary hover:bg-primary/10">
+                  <Button variant="outline" size="xl" asChild className="border-primary/30 hover:border-primary hover:bg-primary/10 w-full sm:w-auto px-6 sm:px-10">
                     <a href="#games">
                       <Eye className="w-5 h-5 mr-2" />
                       Browse Games First
                     </a>
                   </Button>
                 </div>
-                <div className="flex items-center justify-center gap-6 mt-8 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 text-primary" /> No credit card</span>
-                  <span className="flex items-center gap-1.5"><Shield className="w-4 h-4 text-success" /> Privacy first</span>
-                  <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-warning" /> 30 sec signup</span>
+                <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-8 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5 whitespace-nowrap"><Zap className="w-4 h-4 text-primary" /> No credit card</span>
+                  <span className="flex items-center gap-1.5 whitespace-nowrap"><Shield className="w-4 h-4 text-success" /> Privacy first</span>
+                  <span className="flex items-center gap-1.5 whitespace-nowrap"><Clock className="w-4 h-4 text-warning" /> 30 sec signup</span>
                 </div>
               </div>
             </div>
