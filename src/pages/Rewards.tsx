@@ -17,6 +17,8 @@ import MilestoneTracker from '@/components/MilestoneTracker';
 import StreakFreezeShield from '@/components/StreakFreezeShield';
 import QuestSystem from '@/components/QuestSystem';
 import PrestigeSystem from '@/components/PrestigeSystem';
+import PlusSubscriptionCard from '@/components/PlusSubscriptionCard';
+import { usePlusStatus } from '@/hooks/usePlusStatus';
 import { supabase } from '@/integrations/supabase/client';
 import { getCurrentSeason } from '@/lib/season';
 
