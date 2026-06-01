@@ -53,8 +53,8 @@ const PlusSubscriptionCard: React.FC<Props> = ({ status }) => {
       glow
       className="p-6 relative overflow-hidden border-2 border-primary/40"
     >
-      {/* Animated gradient backdrop */}
-      <div className="absolute inset-0 -z-10 opacity-20 bg-[conic-gradient(from_var(--ang,0deg),hsl(var(--primary)),hsl(var(--secondary)),hsl(var(--warning)),hsl(var(--primary)))] animate-spin-slow" />
+      {/* Gradient backdrop */}
+      <div className="absolute inset-0 -z-10 opacity-20 bg-[conic-gradient(from_0deg,hsl(var(--primary)),hsl(var(--secondary)),hsl(var(--warning)),hsl(var(--primary)))]" />
 
       <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
         <div className="flex items-center gap-3 min-w-0">
