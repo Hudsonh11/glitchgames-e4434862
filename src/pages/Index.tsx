@@ -709,15 +709,15 @@ const Index: React.FC = () => {
                   Create your free account, start playing, and join the most exciting gaming community on the web.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center">
-                  <Button variant="gaming" size="xl" asChild className="group w-full sm:w-auto px-6 sm:px-10">
+                  <Button variant="gaming" size="xl" asChild className="group w-full sm:w-auto px-4 sm:px-10 text-base sm:text-lg">
                     <Link to="/login">
-                      <Rocket className="w-5 h-5 mr-2 transition-transform group-hover:scale-110" />
+                      <Rocket className="w-5 h-5 mr-2 transition-transform group-hover:scale-110 shrink-0" />
                       Create Free Account
                     </Link>
                   </Button>
-                  <Button variant="outline" size="xl" asChild className="border-primary/30 hover:border-primary hover:bg-primary/10 w-full sm:w-auto px-6 sm:px-10">
+                  <Button variant="outline" size="xl" asChild className="border-primary/30 hover:border-primary hover:bg-primary/10 w-full sm:w-auto px-4 sm:px-10 text-base sm:text-lg">
                     <a href="#games">
-                      <Eye className="w-5 h-5 mr-2" />
+                      <Eye className="w-5 h-5 mr-2 shrink-0" />
                       Browse Games First
                     </a>
                   </Button>
