@@ -728,6 +728,84 @@ export type Database = {
         }
         Relationships: []
       }
+      plus_loot_claims: {
+        Row: {
+          claimed_at: string
+          coins_awarded: number
+          gems_awarded: number
+          id: string
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          claimed_at?: string
+          coins_awarded?: number
+          gems_awarded?: number
+          id?: string
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          claimed_at?: string
+          coins_awarded?: number
+          gems_awarded?: number
+          id?: string
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
+      plus_subscriptions: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          expires_at: string
+          granted_by: string | null
+          id: string
+          last_reminder_sent_at: string | null
+          source: string
+          starts_at: string
+          status: string
+          stripe_payment_id: string | null
+          stripe_session_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          expires_at: string
+          granted_by?: string | null
+          id?: string
+          last_reminder_sent_at?: string | null
+          source?: string
+          starts_at?: string
+          status?: string
+          stripe_payment_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          expires_at?: string
+          granted_by?: string | null
+          id?: string
+          last_reminder_sent_at?: string | null
+          source?: string
+          starts_at?: string
+          status?: string
+          stripe_payment_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar: string | null
@@ -1057,6 +1135,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_plus_active: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
