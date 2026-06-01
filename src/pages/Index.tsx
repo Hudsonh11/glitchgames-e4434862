@@ -697,7 +697,7 @@ const Index: React.FC = () => {
             <div className="relative rounded-3xl overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20" />
               <div className="absolute inset-0 glass-panel" />
-              <div className="relative z-10 p-10 md:p-16 text-center">
+              <div className="relative z-10 p-6 sm:p-10 md:p-16 text-center">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
                   <Sparkles className="w-4 h-4 text-primary" />
                   <span className="text-sm font-bold text-primary">Join 50,000+ Players</span>
