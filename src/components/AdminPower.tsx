@@ -36,6 +36,12 @@ const AdminPower: React.FC = () => {
   const [grantTarget, setGrantTarget] = useState<ProfileLite | null>(null);
   const [grantLoading, setGrantLoading] = useState(false);
 
+  // Plus gift
+  const [plusQuery, setPlusQuery] = useState('');
+  const [plusTarget, setPlusTarget] = useState<ProfileLite | null>(null);
+  const [plusMonths, setPlusMonths] = useState(1);
+  const [plusLoading, setPlusLoading] = useState(false);
+
   // Broadcast
   const [bcTitle, setBcTitle] = useState('');
   const [bcContent, setBcContent] = useState('');
