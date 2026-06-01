@@ -373,12 +373,17 @@ const Rewards: React.FC = () => {
             <MilestoneTracker milestones={milestones} title="Milestone Rewards" />
           </div>
 
+          {/* Glitch Games Plus */}
+          <div className="mb-8">
+            <PlusSubscriptionCard status={plusStatus} />
+          </div>
+
           {/* Season Pass */}
           <SeasonPass
             currentTier={Math.floor(totalGamesPlayed / 5) + 1}
             currentXP={(user?.xp || 0) % 500}
             xpPerTier={500}
-            isPremium={isPremium}
+            isPremium={isPremium || plusStatus.isActive}
             seasonName={`Season ${currentSeason.index}: ${currentSeason.name}`}
             daysLeft={currentSeason.daysLeft}
           />
