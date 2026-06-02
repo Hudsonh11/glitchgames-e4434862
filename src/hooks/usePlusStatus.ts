@@ -28,7 +28,7 @@ export function usePlusStatus(userId?: string): PlusStatus {
     }
     setLoading(true);
     const { data } = await supabase
-      .from('plus_subscriptions' as never)
+      .from('plus_subscriptions')
       .select('expires_at, source, status')
       .eq('user_id', userId)
       .eq('status', 'active')
