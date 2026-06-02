@@ -104,6 +104,27 @@ const AdminPower: React.FC = () => {
     }
   };
 
+  const revokePlus = async () => {
+    if (!revokePlusUsername.trim() || !user?.id) return;
+    setRevokePlusLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-revoke-plus', {
+        body: { username: revokePlusUsername.trim() },
+      });
+      if (error) throw error;
+      toast({
+        title: '⚡ Plus Revoked',
+        description: `${revokePlusUsername} lost all Plus benefits (${(data as { revoked?: number })?.revoked ?? 0} subscription(s) ended).`,
+      });
+      setRevokePlusUsername('');
+      loadAudit();
+    } catch (e) {
+      toast({ title: 'Revoke failed', description: (e as Error).message, variant: 'destructive' });
+    } finally {
+      setRevokePlusLoading(false);
+    }
+  };
+
   const grantBattlePass = async () => {
     if (!grantTarget || !user?.id) return;
     setGrantLoading(true);
