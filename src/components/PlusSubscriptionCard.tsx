@@ -82,12 +82,12 @@ const PlusSubscriptionCard: React.FC<Props> = ({ status }) => {
     setClaimingLoot(true);
     try {
       const weekStart = startOfWeekISO();
-      const { error } = await supabase.from('plus_loot_claims' as never).insert({
+      const { error } = await supabase.from('plus_loot_claims').insert({
         user_id: userId,
         week_start: weekStart,
         coins_awarded: 1000,
         gems_awarded: 25,
-      } as never);
+      });
       if (error) throw error;
       // award currency
       const { data: profile } = await supabase
