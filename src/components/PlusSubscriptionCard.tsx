@@ -51,7 +51,7 @@ const PlusSubscriptionCard: React.FC<Props> = ({ status }) => {
     if (!userId || !status.isActive) return;
     const weekStart = startOfWeekISO();
     supabase
-      .from('plus_loot_claims' as never)
+      .from('plus_loot_claims')
       .select('id')
       .eq('user_id', userId)
       .eq('week_start', weekStart)
