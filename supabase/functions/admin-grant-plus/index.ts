@@ -64,13 +64,14 @@ serve(async (req) => {
       return json({ error: "Insert failed" }, 500);
     }
 
-    // Bonus currency + battle pass for the gift.
+    // Bonus currency + battle pass + cosmetics for the gift.
     const { data: profile } = await admin.from("profiles")
       .select("coins, gems").eq("user_id", target_user_id).single();
     if (profile) {
       await admin.from("profiles").update({
         coins: (profile.coins ?? 0) + 2000 * m,
         gems: (profile.gems ?? 0) + 100 * m,
+        priority_support: true,
       }).eq("user_id", target_user_id);
     }
     await admin.from("battle_pass_purchases").insert({
@@ -78,8 +79,14 @@ serve(async (req) => {
       season: "season_1",
       status: "completed",
       amount_cents: 0,
-      currency: "usd",
+      currency: "gbp",
       stripe_session_id: `plus_gift_${user.id}_${target_user_id}_${Date.now()}`,
+    });
+    await admin.from("player_titles").insert({
+      user_id: target_user_id, title_id: "plus_member", equipped: false,
+    });
+    await admin.from("player_borders").insert({
+      user_id: target_user_id, border_id: "plus_animated", equipped: false,
     });
 
     await admin.from("admin_audit_log").insert({
