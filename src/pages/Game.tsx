@@ -157,7 +157,12 @@ const games: Record<string, { component: React.FC<any>; title: string; category:
   'word-connect': { component: WordConnect, title: 'Word Connect', category: 'Word' },
   'slime-volley': { component: SlimeVolley, title: 'Slime Volley', category: 'Sports' },
   'tower-defense': { component: TowerDefense, title: 'Tower Defense', category: 'Strategy' },
+  'find-match': { component: FindMatch, title: 'Find Match', category: 'Multiplayer' },
+  'guess-the-person': { component: GuessThePerson, title: 'Guess The Person', category: 'Plus' },
 };
+
+const PLUS_GAMES = new Set(['guess-the-person']);
+
 
 const Game: React.FC = () => {
   const { id } = useParams<{ id: string }>();
