@@ -41,13 +41,13 @@ serve(async (req) => {
       line_items: [
         {
           price_data: {
-            currency: "usd",
+            currency: "gbp",
             product_data: {
               name: "⚡ Glitch Games Plus — 1 Month",
               description:
-                "2,000 coins + 100 gems + Premium Battle Pass + Plus games + 5 exclusive perks. One-time monthly purchase (no auto-renew).",
+                "2,000 coins + 100 gems + Premium Battle Pass + Plus games + all exclusive perks. One-time monthly purchase (no auto-renew).",
             },
-            unit_amount: 499,
+            unit_amount: 799,
           },
           quantity: 1,
         },

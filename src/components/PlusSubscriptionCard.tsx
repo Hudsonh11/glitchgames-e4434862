@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Zap, Coins, Gem, Crown, Sparkles, Gift, Shield, Star, LifeBuoy, Loader2, Check } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Zap, Coins, Gem, Crown, Sparkles, Gift, Shield, Star, LifeBuoy, Loader2, Check, Palette, Award, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -12,20 +12,52 @@ interface Props {
 }
 
 const PERKS = [
-  { icon: Coins, color: 'text-warning', text: '2,000 coins on activation' },
-  { icon: Gem, color: 'text-secondary', text: '100 gems on activation' },
-  { icon: Crown, color: 'text-warning', text: 'Premium Battle Pass unlocked' },
-  { icon: Sparkles, color: 'text-primary', text: 'Access to Plus-exclusive games' },
-  { icon: Zap, color: 'text-success', text: '2× XP boost on every game' },
-  { icon: Gift, color: 'text-secondary', text: 'Weekly mystery loot crate' },
-  { icon: Star, color: 'text-warning', text: 'Exclusive "Plus" title + animated border' },
-  { icon: Shield, color: 'text-primary', text: 'Free Streak Freeze refill weekly' },
-  { icon: LifeBuoy, color: 'text-success', text: 'Priority support flag' },
+  { icon: Coins,     color: 'text-warning',   text: '2,000 coins on activation' },
+  { icon: Gem,       color: 'text-secondary', text: '100 gems on activation' },
+  { icon: Crown,     color: 'text-warning',   text: 'Premium Battle Pass unlocked' },
+  { icon: Sparkles,  color: 'text-primary',   text: 'Access to Plus-exclusive games' },
+  { icon: Zap,       color: 'text-success',   text: '2× XP boost on every game' },
+  { icon: Gift,      color: 'text-secondary', text: 'Weekly loot crate (1,000 coins + 25 gems)' },
+  { icon: Star,      color: 'text-warning',   text: 'Exclusive "Plus" title + animated border' },
+  { icon: Shield,    color: 'text-primary',   text: 'Free Streak Freeze refill weekly' },
+  { icon: LifeBuoy,  color: 'text-success',   text: 'Priority support flag' },
+  // 3 new benefits
+  { icon: Palette,   color: 'text-primary',   text: 'Exclusive Plus avatar frame' },
+  { icon: Award,     color: 'text-warning',   text: '25% bonus coins on every game win' },
+  { icon: Rocket,    color: 'text-secondary', text: 'Skip the daily-reward cooldown once a week' },
 ];
+
+function startOfWeekISO() {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = (day === 0 ? -6 : 1) - day; // Monday start
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString().split('T')[0];
+}
 
 const PlusSubscriptionCard: React.FC<Props> = ({ status }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [claimingLoot, setClaimingLoot] = useState(false);
+  const [lootClaimed, setLootClaimed] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+  }, []);
+
+  useEffect(() => {
+    if (!userId || !status.isActive) return;
+    const weekStart = startOfWeekISO();
+    supabase
+      .from('plus_loot_claims')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('week_start', weekStart)
+      .maybeSingle()
+      .then(({ data }) => setLootClaimed(!!data));
+  }, [userId, status.isActive]);
 
   const startCheckout = async () => {
     setLoading(true);
@@ -45,6 +77,39 @@ const PlusSubscriptionCard: React.FC<Props> = ({ status }) => {
     }
   };
 
+  const claimLoot = async () => {
+    if (!userId) return;
+    setClaimingLoot(true);
+    try {
+      const weekStart = startOfWeekISO();
+      const { error } = await supabase.from('plus_loot_claims').insert({
+        user_id: userId,
+        week_start: weekStart,
+        coins_awarded: 1000,
+        gems_awarded: 25,
+      });
+      if (error) throw error;
+      // award currency
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('coins, gems')
+        .eq('user_id', userId)
+        .single();
+      if (profile) {
+        await supabase
+          .from('profiles')
+          .update({ coins: (profile.coins ?? 0) + 1000, gems: (profile.gems ?? 0) + 25 })
+          .eq('user_id', userId);
+      }
+      setLootClaimed(true);
+      toast({ title: '🎁 Weekly loot claimed!', description: '+1,000 coins and +25 gems added to your account.' });
+    } catch (e) {
+      toast({ title: 'Claim failed', description: (e as Error).message, variant: 'destructive' });
+    } finally {
+      setClaimingLoot(false);
+    }
+  };
+
   const renewalSoon = status.isActive && status.daysRemaining <= 3;
 
   return (
@@ -53,7 +118,6 @@ const PlusSubscriptionCard: React.FC<Props> = ({ status }) => {
       glow
       className="p-6 relative overflow-hidden border-2 border-primary/40"
     >
-      {/* Gradient backdrop */}
       <div className="absolute inset-0 -z-10 opacity-20 bg-[conic-gradient(from_0deg,hsl(var(--primary)),hsl(var(--secondary)),hsl(var(--warning)),hsl(var(--primary)))]" />
 
       <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
@@ -71,7 +135,7 @@ const PlusSubscriptionCard: React.FC<Props> = ({ status }) => {
               )}
             </div>
             <p className="text-sm text-muted-foreground">
-              $4.99 / month · One-time purchase · No auto-renew
+              £7.99 / month · One-time purchase · No auto-renew
             </p>
           </div>
         </div>
@@ -90,12 +154,12 @@ const PlusSubscriptionCard: React.FC<Props> = ({ status }) => {
           <Sparkles className="w-5 h-5 text-warning shrink-0" />
           <p className="text-sm">
             <strong>Plus expires in {status.daysRemaining} day{status.daysRemaining === 1 ? '' : 's'}!</strong>{' '}
-            Re-purchase now to keep your benefits — it won't renew automatically.
+            Re-purchase to keep your benefits — it won't renew automatically.
           </p>
         </div>
       )}
 
-      {!status.isActive && status.expiresAt === null && (
+      {!status.isActive && (
         <p className="text-sm text-muted-foreground mb-4">
           One-time monthly purchase. When the month ends you'll get a reminder — re-purchase
           to keep your perks, otherwise all benefits stop until you buy again.
@@ -120,26 +184,38 @@ const PlusSubscriptionCard: React.FC<Props> = ({ status }) => {
         })}
       </ul>
 
-      <Button
-        variant="gaming"
-        size="lg"
-        className="w-full"
-        onClick={startCheckout}
-        disabled={loading}
-      >
-        {loading ? (
-          <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Redirecting…</>
-        ) : status.isActive ? (
-          <><Zap className="w-4 h-4 mr-2" /> Extend Plus — $4.99</>
-        ) : (
-          <><Zap className="w-4 h-4 mr-2" /> Get Glitch Games Plus — $4.99</>
-        )}
-      </Button>
+      {status.isActive && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full mb-3"
+          onClick={claimLoot}
+          disabled={claimingLoot || lootClaimed}
+        >
+          {claimingLoot ? (
+            <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Claiming…</>
+          ) : lootClaimed ? (
+            <><Check className="w-4 h-4 mr-2" /> Weekly loot claimed</>
+          ) : (
+            <><Gift className="w-4 h-4 mr-2" /> Claim Weekly Loot Crate</>
+          )}
+        </Button>
+      )}
 
-      {status.source === 'admin_gift' && status.isActive && (
-        <p className="text-xs text-muted-foreground text-center mt-2">
-          🎁 Your current Plus was gifted by an admin
-        </p>
+      {!status.isActive && (
+        <Button
+          variant="gaming"
+          size="lg"
+          className="w-full"
+          onClick={startCheckout}
+          disabled={loading}
+        >
+          {loading ? (
+            <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Redirecting…</>
+          ) : (
+            <><Zap className="w-4 h-4 mr-2" /> Get Glitch Games Plus — £7.99</>
+          )}
+        </Button>
       )}
     </UltraCard>
   );

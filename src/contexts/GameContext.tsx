@@ -435,8 +435,24 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (prestige?.xp_multiplier) xpMult = Number(prestige.xp_multiplier);
       } catch { /* non-fatal */ }
 
-      // Update profile XP (with prestige bonus)
-      const newXp = user.xp + Math.floor((score / 10) * xpMult);
+      // Glitch Games Plus: 2× XP boost + 25% coin bonus on every win.
+      let plusActive = false;
+      try {
+        const { data: plus } = await supabase
+          .from('plus_subscriptions')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .gt('expires_at', new Date().toISOString())
+          .limit(1)
+          .maybeSingle();
+        plusActive = !!plus;
+      } catch { /* non-fatal */ }
+
+      const plusMult = plusActive ? 2 : 1;
+
+      // Update profile XP (with prestige + Plus bonus)
+      const newXp = user.xp + Math.floor((score / 10) * xpMult * plusMult);
       await supabase
         .from('profiles')
         .update({ xp: newXp })
@@ -448,6 +464,12 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         totalScore: user.totalScore + score,
         xp: newXp,
       });
+
+      // Plus 25% coin bonus on score-positive runs
+      if (plusActive && score > 0) {
+        const bonus = Math.max(1, Math.floor(score / 40)); // 25% of score/10
+        await addCoins(bonus);
+      }
 
       // Bump quest progress (non-blocking)
       const { bumpQuestProgress } = await import('@/lib/questProgress');

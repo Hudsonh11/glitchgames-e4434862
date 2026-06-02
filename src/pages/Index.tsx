@@ -121,6 +121,8 @@ const games = [
   { id: 'word-connect', title: 'Word Connect', description: 'Connect letters to form every hidden word — vocabulary challenge! NEW!', image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop', category: 'Word', rating: 4.7, players: 'NEW', color: 'hsl(45, 100%, 55%)' },
   { id: 'slime-volley', title: 'Slime Volley', description: 'Bounce the ball over the net in this addictive slime volleyball duel! NEW!', image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400&h=300&fit=crop', category: 'Sports', rating: 4.8, players: 'NEW', color: 'hsl(200, 100%, 50%)' },
   { id: 'tower-defense', title: 'Tower Defense', description: 'Place towers and defend against waves of enemies — strategy at its best! NEW!', image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&h=300&fit=crop', category: 'Strategy', rating: 4.9, players: 'NEW', color: 'hsl(220, 100%, 55%)' },
+  { id: 'find-match', title: 'Find Match', description: 'Spot the matching object before your opponent — 1v1 vs bot or a friend on split screen! First to 10 wins. NEW!', image: 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=400&h=300&fit=crop', category: 'Multiplayer', rating: 4.9, players: 'NEW', color: 'hsl(320, 100%, 60%)' },
+  { id: 'guess-the-person', title: 'Guess The Person', description: 'Ask yes/no questions to guess your opponent\'s character first. Plus exclusive. NEW!', image: 'https://images.unsplash.com/photo-1531256456869-ce942a665e80?w=400&h=300&fit=crop', category: 'Plus', rating: 5.0, players: 'PLUS', color: 'hsl(45, 100%, 55%)' },
 ];
 
 const categories = ['All', ...Array.from(new Set(games.map(g => g.category))).sort()];

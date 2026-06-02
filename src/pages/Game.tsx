@@ -70,7 +70,11 @@ import Nonogram from '@/components/games/Nonogram';
 import WordConnect from '@/components/games/WordConnect';
 import SlimeVolley from '@/components/games/SlimeVolley';
 import TowerDefense from '@/components/games/TowerDefense';
+import FindMatch from '@/components/games/FindMatch';
+import GuessThePerson from '@/components/games/GuessThePerson';
 import { useGame } from '@/contexts/GameContext';
+import { usePlusStatus } from '@/hooks/usePlusStatus';
+import { Zap } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Seo from '@/components/Seo';
 import { Button } from '@/components/ui/button';
@@ -153,11 +157,17 @@ const games: Record<string, { component: React.FC<any>; title: string; category:
   'word-connect': { component: WordConnect, title: 'Word Connect', category: 'Word' },
   'slime-volley': { component: SlimeVolley, title: 'Slime Volley', category: 'Sports' },
   'tower-defense': { component: TowerDefense, title: 'Tower Defense', category: 'Strategy' },
+  'find-match': { component: FindMatch, title: 'Find Match', category: 'Multiplayer' },
+  'guess-the-person': { component: GuessThePerson, title: 'Guess The Person', category: 'Plus' },
 };
+
+const PLUS_GAMES = new Set(['guess-the-person']);
+
 
 const Game: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { isLoggedIn, isLoading, gamesShutdown, user, bannedUsers, gameStats } = useGame();
+  const plus = usePlusStatus(user?.id);
   const [isPaused, setIsPaused] = useState(false);
 
   if (isLoading) {
@@ -174,6 +184,27 @@ const Game: React.FC = () => {
 
   const gameData = id ? games[id] : null;
   if (!gameData) return <Navigate to="/" />;
+
+  // Plus-only games are gated behind an active subscription.
+  if (id && PLUS_GAMES.has(id) && !plus.isActive && !plus.loading) {
+    return (
+      <div className="min-h-screen bg-background relative">
+        <Seo title={`${gameData.title} — Plus Required | Glitch Games`} description={`${gameData.title} is a Glitch Games Plus exclusive.`} path={`/game/${id}`} />
+        <Navbar />
+        <UltraParticles count={10} />
+        <div className="pt-28 px-4 max-w-md mx-auto text-center space-y-4">
+          <Zap className="w-12 h-12 text-warning mx-auto" />
+          <h1 className="font-display text-2xl font-bold text-gradient">Plus Exclusive</h1>
+          <p className="text-muted-foreground text-sm">
+            <strong>{gameData.title}</strong> is only playable with Glitch Games Plus.
+          </p>
+          <Button asChild variant="gaming"><Link to="/rewards">Get Glitch Games Plus</Link></Button>
+          <Button asChild variant="ghost" className="block w-full"><Link to="/">Back to games</Link></Button>
+        </div>
+      </div>
+    );
+  }
+
 
   const GameComponent = gameData.component;
   const stats = id && gameStats[id];
