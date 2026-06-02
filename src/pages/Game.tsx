@@ -185,6 +185,27 @@ const Game: React.FC = () => {
   const gameData = id ? games[id] : null;
   if (!gameData) return <Navigate to="/" />;
 
+  // Plus-only games are gated behind an active subscription.
+  if (id && PLUS_GAMES.has(id) && !plus.isActive && !plus.loading) {
+    return (
+      <div className="min-h-screen bg-background relative">
+        <Seo title={`${gameData.title} — Plus Required | Glitch Games`} description={`${gameData.title} is a Glitch Games Plus exclusive.`} path={`/game/${id}`} />
+        <Navbar />
+        <UltraParticles count={10} />
+        <div className="pt-28 px-4 max-w-md mx-auto text-center space-y-4">
+          <Zap className="w-12 h-12 text-warning mx-auto" />
+          <h1 className="font-display text-2xl font-bold text-gradient">Plus Exclusive</h1>
+          <p className="text-muted-foreground text-sm">
+            <strong>{gameData.title}</strong> is only playable with Glitch Games Plus.
+          </p>
+          <Button asChild variant="gaming"><Link to="/rewards">Get Glitch Games Plus</Link></Button>
+          <Button asChild variant="ghost" className="block w-full"><Link to="/">Back to games</Link></Button>
+        </div>
+      </div>
+    );
+  }
+
+
   const GameComponent = gameData.component;
   const stats = id && gameStats[id];
 
