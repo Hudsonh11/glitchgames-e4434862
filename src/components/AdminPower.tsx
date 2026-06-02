@@ -42,6 +42,10 @@ const AdminPower: React.FC = () => {
   const [plusMonths, setPlusMonths] = useState(1);
   const [plusLoading, setPlusLoading] = useState(false);
 
+  // Plus revoke
+  const [revokePlusUsername, setRevokePlusUsername] = useState('');
+  const [revokePlusLoading, setRevokePlusLoading] = useState(false);
+
   // Broadcast
   const [bcTitle, setBcTitle] = useState('');
   const [bcContent, setBcContent] = useState('');
