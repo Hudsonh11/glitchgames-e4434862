@@ -167,6 +167,7 @@ const PLUS_GAMES = new Set(['guess-the-person']);
 const Game: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { isLoggedIn, isLoading, gamesShutdown, user, bannedUsers, gameStats } = useGame();
+  const plus = usePlusStatus(user?.id);
   const [isPaused, setIsPaused] = useState(false);
 
   if (isLoading) {
