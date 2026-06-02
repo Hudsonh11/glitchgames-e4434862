@@ -764,6 +764,8 @@ export type Database = {
           granted_by: string | null
           id: string
           last_reminder_sent_at: string | null
+          revoked_at: string | null
+          revoked_by: string | null
           source: string
           starts_at: string
           status: string
@@ -780,6 +782,8 @@ export type Database = {
           granted_by?: string | null
           id?: string
           last_reminder_sent_at?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
           source?: string
           starts_at?: string
           status?: string
@@ -796,6 +800,8 @@ export type Database = {
           granted_by?: string | null
           id?: string
           last_reminder_sent_at?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
           source?: string
           starts_at?: string
           status?: string
@@ -814,6 +820,7 @@ export type Database = {
           gems: number
           id: string
           level: number
+          priority_support: boolean
           updated_at: string
           user_id: string
           username: string
@@ -826,6 +833,7 @@ export type Database = {
           gems?: number
           id?: string
           level?: number
+          priority_support?: boolean
           updated_at?: string
           user_id: string
           username: string
@@ -838,6 +846,7 @@ export type Database = {
           gems?: number
           id?: string
           level?: number
+          priority_support?: boolean
           updated_at?: string
           user_id?: string
           username?: string
