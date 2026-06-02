@@ -346,6 +346,45 @@ const AdminPower: React.FC = () => {
         </div>
       </UltraCard>
 
+      {/* Revoke Glitch Games Plus */}
+      <UltraCard variant="glass" className="p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Zap className="w-5 h-5 text-destructive" />
+          <h3 className="font-display text-lg font-bold">Revoke Glitch Games Plus</h3>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          Immediately end the user's Plus subscription. All Plus benefits (2× XP, coin bonus,
+          Plus games, priority support, weekly loot) stop right away. They can re-purchase any time.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Input
+            placeholder="Username to revoke…"
+            value={revokePlusUsername}
+            onChange={(e) => setRevokePlusUsername(e.target.value)}
+            className="flex-1"
+          />
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" disabled={!revokePlusUsername.trim() || revokePlusLoading}>
+                {revokePlusLoading ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1" />}
+                Revoke
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Revoke Plus for {revokePlusUsername}?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This ends their subscription immediately. They lose all Plus benefits until they re-purchase.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={revokePlus}>Revoke Plus</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </UltraCard>
 
       {/* Reset Battle Pass */}
       <UltraCard variant="glass" className="p-5">
