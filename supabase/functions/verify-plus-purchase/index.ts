@@ -57,8 +57,8 @@ serve(async (req) => {
       source: "purchase",
       starts_at: startsAt.toISOString(),
       expires_at: expiresAt.toISOString(),
-      amount_cents: session.amount_total ?? 499,
-      currency: session.currency ?? "usd",
+      amount_cents: session.amount_total ?? 799,
+      currency: session.currency ?? "gbp",
       stripe_session_id: session.id,
       stripe_payment_id: (session.payment_intent as string) || null,
     });
@@ -68,7 +68,7 @@ serve(async (req) => {
       return json({ error: "Failed to record" }, 500);
     }
 
-    // Only grant currency / battle pass on the first insert.
+    // Only grant currency / battle pass / cosmetics on the first insert.
     if (!insertErr) {
       const { data: profile } = await admin.from("profiles")
         .select("coins, gems").eq("user_id", user.id).single();
@@ -76,17 +76,26 @@ serve(async (req) => {
         await admin.from("profiles").update({
           coins: (profile.coins ?? 0) + 2000,
           gems: (profile.gems ?? 0) + 100,
+          priority_support: true,
         }).eq("user_id", user.id);
       }
 
-      // Grant battle pass for current season (idempotent on unique session id).
+      // Battle pass for current season (idempotent on unique session id).
       await admin.from("battle_pass_purchases").insert({
         user_id: user.id,
         season: "season_1",
         status: "completed",
         amount_cents: 0,
-        currency: "usd",
+        currency: "gbp",
         stripe_session_id: `plus_${session.id}`,
+      });
+
+      // Exclusive Plus title + border (idempotent: ignore conflicts).
+      await admin.from("player_titles").insert({
+        user_id: user.id, title_id: "plus_member", equipped: false,
+      });
+      await admin.from("player_borders").insert({
+        user_id: user.id, border_id: "plus_animated", equipped: false,
       });
 
       await admin.from("activity_feed").insert({
