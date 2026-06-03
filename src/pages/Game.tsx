@@ -72,6 +72,7 @@ import SlimeVolley from '@/components/games/SlimeVolley';
 import TowerDefense from '@/components/games/TowerDefense';
 import FindMatch from '@/components/games/FindMatch';
 import GuessThePerson from '@/components/games/GuessThePerson';
+import CrashIt from '@/components/games/CrashIt';
 import { useGame } from '@/contexts/GameContext';
 import { usePlusStatus } from '@/hooks/usePlusStatus';
 import { Zap } from 'lucide-react';
@@ -159,6 +160,7 @@ const games: Record<string, { component: React.FC<any>; title: string; category:
   'tower-defense': { component: TowerDefense, title: 'Tower Defense', category: 'Strategy' },
   'find-match': { component: FindMatch, title: 'Find Match', category: 'Multiplayer' },
   'guess-the-person': { component: GuessThePerson, title: 'Guess The Person', category: 'Plus' },
+  'crash-it': { component: CrashIt, title: 'Crash It', category: 'Multiplayer' },
 };
 
 const PLUS_GAMES = new Set(['guess-the-person']);

@@ -6,6 +6,16 @@ import { Sparkles, Gamepad2, Shield, Zap, Gift, Bug } from 'lucide-react';
 import UltraBadge from '@/components/UltraBadge';
 
 const changelog = [
+  { version: '3.0.0', date: 'Jun 2026', type: 'feature' as const, items: [
+    'Glitch Games Plus subscription (£7.99/mo, one-time, no auto-renew)',
+    'Plus perks: 2× XP, weekly loot crate, bonus coins, exclusive title/border, early access, and more',
+    'Admin gifting & revocation tools for Plus subscriptions',
+    'New games: Find Match, Guess The Person (Plus-only), Crash It',
+    'Pixel AI upgraded to Gemini 3 Flash Lite with expanded site knowledge',
+    'Battle Pass line-item now reflects the current season dynamically',
+    'Streak Freeze rebuilt as a real one-shot shield per 7-day tier',
+    'More push-notification triggers across daily rewards, friends, and Plus',
+  ] },
   { version: '2.5.0', date: 'Feb 2026', type: 'feature' as const, items: ['AI Support Bot (Pixel) with full platform knowledge', 'Cookie consent banner', 'Changelog viewer', 'Keyboard shortcuts guide', 'Game timer widget', 'Enhanced 404 page with glitch effects', 'Back to top button'] },
   { version: '2.4.0', date: 'Jan 2026', type: 'feature' as const, items: ['50+ playable games', 'Season pass system', 'Milestone tracker', 'Stats overview dashboard', 'Game completion modal', 'Online status indicator'] },
   { version: '2.3.0', date: 'Dec 2025', type: 'feature' as const, items: ['Profile customization shop', 'Friend system with messaging', 'Ranked competitive mode', 'Challenge system', 'Bug report modal'] },

@@ -123,6 +123,7 @@ const games = [
   { id: 'tower-defense', title: 'Tower Defense', description: 'Place towers and defend against waves of enemies — strategy at its best! NEW!', image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&h=300&fit=crop', category: 'Strategy', rating: 4.9, players: 'NEW', color: 'hsl(220, 100%, 55%)' },
   { id: 'find-match', title: 'Find Match', description: 'Spot the matching object before your opponent — 1v1 vs bot or a friend on split screen! First to 10 wins. NEW!', image: 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=400&h=300&fit=crop', category: 'Multiplayer', rating: 4.9, players: 'NEW', color: 'hsl(320, 100%, 60%)' },
   { id: 'guess-the-person', title: 'Guess The Person', description: 'Ask yes/no questions to guess your opponent\'s character first. Plus exclusive. NEW!', image: 'https://images.unsplash.com/photo-1531256456869-ce942a665e80?w=400&h=300&fit=crop', category: 'Plus', rating: 5.0, players: 'PLUS', color: 'hsl(45, 100%, 55%)' },
+  { id: 'crash-it', title: 'Crash It', description: 'Smash your wheels into your opponent\'s exposed head. Physics-based 1v1 vs bot or friend on split controls. First to 5 wins. NEW!', image: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400&h=300&fit=crop', category: 'Multiplayer', rating: 4.9, players: 'NEW', color: 'hsl(0, 100%, 60%)' },
 ];
 
 const categories = ['All', ...Array.from(new Set(games.map(g => g.category))).sort()];

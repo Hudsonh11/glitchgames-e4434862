@@ -28,18 +28,31 @@ serve(async (req) => {
       });
     }
 
-    const { season, returnUrl } = await req.json();
+    const { season: requestedSeason, returnUrl } = await req.json();
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "", {
       apiVersion: "2023-10-16",
     });
 
-    // Check if user already has an active pass for this season
+    // Compute the active season dynamically so the Stripe line-item name
+    // always reflects the CURRENT battle pass (not a hardcoded "Season 1").
+    const EPOCH = Date.UTC(2026, 0, 1);
+    const SEASON_MS = 30 * 24 * 60 * 60 * 1000;
+    const SEASON_NAMES = [
+      'Neon Legends', 'Glitch Storm', 'Pixel Awakening', 'Arcade Renaissance',
+      'Cyber Dynasty', 'Quantum Rush', 'Retro Future', 'Crystal Vanguard',
+      'Plasma Surge', 'Echo Reborn', 'Nova Reign', 'Holo Revolution',
+    ];
+    const idx = Math.max(0, Math.floor((Date.now() - EPOCH) / SEASON_MS));
+    const currentKey = `season_${idx + 1}`;
+    const currentName = SEASON_NAMES[idx % SEASON_NAMES.length];
+    const season = requestedSeason || currentKey;
+
     const { data: existing } = await supabaseClient
       .from("battle_pass_purchases")
       .select("id")
       .eq("user_id", user.id)
-      .eq("season", season || "season_1")
+      .eq("season", season)
       .eq("status", "completed")
       .maybeSingle();
 
@@ -50,7 +63,6 @@ serve(async (req) => {
       });
     }
 
-    // Check for existing Stripe customer or create one
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId: string;
     if (customers.data.length > 0) {
@@ -70,12 +82,12 @@ serve(async (req) => {
           price_data: {
             currency: "usd",
             product_data: {
-              name: "🔥 Premium Battle Pass — Season 1: Neon Legends",
+              name: `🔥 Premium Battle Pass — Season ${idx + 1}: ${currentName}`,
               description:
                 "Unlock exclusive rewards, premium cosmetics, bonus XP, and more!",
               images: [],
             },
-            unit_amount: 499, // $4.99
+            unit_amount: 499,
           },
           quantity: 1,
         },
@@ -85,7 +97,7 @@ serve(async (req) => {
       cancel_url: `${returnUrl || "https://glitchgames.lovable.app"}/rewards?purchase=cancelled`,
       metadata: {
         user_id: user.id,
-        season: season || "season_1",
+        season,
       },
     });
 
