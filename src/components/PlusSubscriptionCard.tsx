@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Coins, Gem, Crown, Sparkles, Gift, Shield, Star, LifeBuoy, Loader2, Check, Palette, Award, Rocket } from 'lucide-react';
+import { Zap, Coins, Gem, Crown, Sparkles, Gift, Shield, Star, LifeBuoy, Loader2, Check, Palette, Award, Rocket, Trophy, Headphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -25,6 +25,8 @@ const PERKS = [
   { icon: Palette,   color: 'text-primary',   text: 'Exclusive Plus avatar frame' },
   { icon: Award,     color: 'text-warning',   text: '25% bonus coins on every game win' },
   { icon: Rocket,    color: 'text-secondary', text: 'Skip the daily-reward cooldown once a week' },
+  { icon: Trophy,    color: 'text-warning',   text: 'Ranked leaderboard Plus highlight + season badge' },
+  { icon: Headphones,color: 'text-success',   text: 'Early access to new games before public release' },
 ];
 
 function startOfWeekISO() {
