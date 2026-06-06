@@ -458,49 +458,55 @@ const CrashIt: React.FC = () => {
         c.groundedT = 0;
       }
 
+      const wasAir = c.airT > 0.08;
+      const justLanded = grounded && wasAir;
+      if (justLanded) { try { playSfx('jump'); } catch {/* ignore */} }
+
       // Tangent-aligned drive on ground
       if (grounded) {
-        const refX = penL > penR ? wheels[0].x : wheels[1].x;
-        const dx = 4;
-        const tx = 2 * dx, ty = a.ground(refX + dx) - a.ground(refX - dx);
+        // Use midpoint between wheels for slope sampling for stability
+        const midX = (wheels[0].x + wheels[1].x) / 2;
+        const dxS = 6;
+        const tx = 2 * dxS, ty = a.ground(midX + dxS) - a.ground(midX - dxS);
         const tlen = Math.hypot(tx, ty) || 1;
         const tnx = tx / tlen, tny = ty / tlen; // unit tangent (pointing +x along slope)
 
-        const motor = 1700;
-        if (inp.R) { c.vx += tnx * motor * dt; c.vy += tny * motor * dt; c.av += 2.5 * dt; }
-        if (inp.L) { c.vx -= tnx * motor * dt; c.vy -= tny * motor * dt; c.av -= 2.5 * dt; }
+        const motor = 1500;
+        if (inp.R) { c.vx += tnx * motor * dt; c.vy += tny * motor * dt; }
+        if (inp.L) { c.vx -= tnx * motor * dt; c.vy -= tny * motor * dt; }
 
-        // Project velocity: keep tangent component (with friction), kill normal component
-        const nrm = groundNormal(a, c.x);
-        const vt = c.vx * tnx + c.vy * tny;        // tangential
-        const vn = c.vx * nrm.nx + c.vy * nrm.ny;  // normal (negative = into ground)
-        const newVt = vt * Math.pow(0.04, dt);     // strong tangential friction when no input
-        // if user is pushing, don't damp as hard
-        const damped = (inp.L || inp.R) ? vt * Math.pow(0.55, dt) : newVt;
-        const newVn = vn < 0 ? vn * 0.0 : vn * Math.pow(0.5, dt); // remove into-ground component
-        c.vx = tnx * damped + nrm.nx * newVn;
-        c.vy = tny * damped + nrm.ny * newVn;
+        // Project velocity: keep tangent, kill normal-into-ground
+        const nrm = groundNormal(a, midX);
+        const vt = c.vx * tnx + c.vy * tny;
+        const vn = c.vx * nrm.nx + c.vy * nrm.ny;
+        // Friction: light when accelerating, strong when coasting/braking
+        const frictionK = (inp.L || inp.R) ? 0.85 : 0.18;
+        const newVt = vt * Math.pow(frictionK, dt);
+        const newVn = vn < 0 ? 0 : vn * Math.pow(0.3, dt);
+        c.vx = tnx * newVt + nrm.nx * newVn;
+        c.vy = tny * newVt + nrm.ny * newVn;
 
-        // Angular damping
-        c.av *= Math.pow(0.001, dt);
+        // Strong angular damping on ground
+        c.av *= Math.pow(0.0005, dt);
 
-        // Self-righting if mostly grounded and both wheels are near ground
-        if (penL > -4 && penR > -4) {
-          // align chassis to tangent slope angle
+        // Self-righting: align chassis to slope tangent angle
+        if (penL > -6 && penR > -6) {
           const slopeAngle = Math.atan2(ty, tx);
           let diff = slopeAngle - c.angle;
-          // wrap to [-pi, pi]
           while (diff > Math.PI) diff -= Math.PI * 2;
           while (diff < -Math.PI) diff += Math.PI * 2;
-          c.av += diff * 6 * dt;
+          // Spring + damping toward slope
+          c.av += diff * 14 * dt;
+          c.av *= Math.pow(0.05, dt);
         }
       } else {
-        // Air control
-        const air = 7.0;
+        // Air control — moderate
+        const air = 5.5;
         if (inp.R) c.av += air * dt;
         if (inp.L) c.av -= air * dt;
-        c.av *= Math.pow(0.6, dt);
+        c.av *= Math.pow(0.5, dt);
       }
+
 
       // Gravity
       c.vy += GRAVITY * dt;
