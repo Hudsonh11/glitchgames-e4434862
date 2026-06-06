@@ -285,23 +285,27 @@ const CrashIt: React.FC = () => {
     if (lockRef.current) return;
     lockRef.current = true;
     shakeRef.current = 14;
+    try { playSfx('crash'); } catch {/* ignore */}
     setRoundMsg(`P${loser === 1 ? 2 : 1} scored — ${reason}`);
     setScore((s) => {
       const winnerSide: 1 | 2 = loser === 1 ? 2 : 1;
       const next = winnerSide === 1 ? { ...s, p1: s.p1 + 1 } : { ...s, p2: s.p2 + 1 };
       if (next.p1 >= TARGET_POINTS) {
         setWinner(1);
+        try { playSfx('win'); } catch {/* ignore */}
         updateGameStats('crash-it', next.p1 * 200, 60).catch(() => {});
       } else if (next.p2 >= TARGET_POINTS) {
         setWinner(2);
+        try { playSfx(mode === 'bot' ? 'lose' : 'win'); } catch {/* ignore */}
         updateGameStats('crash-it', next.p1 * 100, 60).catch(() => {});
       } else {
         // Random arena each round
-        setTimeout(() => resetRound(true), 1100);
+        setTimeout(() => { try { playSfx('whoosh'); } catch {/* ignore */} resetRound(true); }, 1100);
       }
       return next;
     });
-  }, [resetRound, updateGameStats]);
+  }, [resetRound, updateGameStats, mode]);
+
 
   // Main loop
   useEffect(() => {
@@ -600,9 +604,11 @@ const CrashIt: React.FC = () => {
           p2.vx += j * nx; p2.vy += j * ny * 0.3;
           // bump angular
           p1.av -= 0.6; p2.av += 0.6;
+          if (-rel > 180) { try { playSfx('pop'); } catch {/* ignore */} shakeRef.current = Math.max(shakeRef.current, 6); }
         }
       }
     }
+
 
     // HEAD COLLISION
     if (!lockRef.current) {
