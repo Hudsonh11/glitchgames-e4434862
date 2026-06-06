@@ -3,9 +3,11 @@ import { Button } from '@/components/ui/button';
 import UltraCard from '@/components/UltraCard';
 import UltraBadge from '@/components/UltraBadge';
 import { useGame } from '@/contexts/GameContext';
+import { playSfx } from '@/lib/sfx';
 import {
   Trophy, RotateCcw, Bot, Users, ChevronUp, ChevronDown, LogOut, Shuffle,
 } from 'lucide-react';
+
 
 /**
  * Crash It — 2D side-view physics duel (Drive Ahead-style).
@@ -34,8 +36,9 @@ const WHEEL_DY = 16;
 const HEAD_DY = -26;
 const HEAD_R = 12;
 
-const MAX_SPEED = 520;
-const MAX_AV = 9;
+const MAX_SPEED = 620;
+const MAX_AV = 8;
+
 
 interface Car {
   x: number; y: number;
