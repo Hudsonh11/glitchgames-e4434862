@@ -566,3 +566,58 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* ===== Extra Effects & Animations (added by Crash It + global polish) ===== */
+@layer utilities {
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-2deg); }
+    50% { transform: rotate(2deg); }
+  }
+  .animate-wiggle { animation: wiggle 0.6s ease-in-out infinite; }
+
+  @keyframes pop-in {
+    0% { transform: scale(0.6); opacity: 0; }
+    60% { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .animate-pop-in { animation: pop-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+
+  @keyframes float-y {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  .animate-float-y { animation: float-y 3s ease-in-out infinite; }
+
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
+    50% { box-shadow: 0 0 24px 4px hsl(var(--primary) / 0.55); }
+  }
+  .animate-glow-pulse { animation: glow-pulse 2.4s ease-in-out infinite; }
+
+  @keyframes shake-x {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-4px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+  }
+  .animate-shake-x { animation: shake-x 0.45s ease-in-out; }
+
+  @keyframes ripple {
+    0% { transform: scale(0); opacity: 0.7; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+  .animate-ripple { animation: ripple 0.7s ease-out; }
+
+  @keyframes slide-up-fade {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  .animate-slide-up-fade { animation: slide-up-fade 0.4s ease-out both; }
+
+  @keyframes tilt-3d {
+    0%, 100% { transform: perspective(800px) rotateY(-2deg) rotateX(1deg); }
+    50% { transform: perspective(800px) rotateY(2deg) rotateX(-1deg); }
+  }
+  .animate-tilt-3d { animation: tilt-3d 6s ease-in-out infinite; }
+}
