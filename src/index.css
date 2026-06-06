@@ -621,3 +621,99 @@
   }
   .animate-tilt-3d { animation: tilt-3d 6s ease-in-out infinite; }
 }
+
+/* ===== More animations (round 2) ===== */
+@layer utilities {
+  @keyframes bounce-in {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.1); opacity: 1; }
+    70% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+  }
+  .animate-bounce-in { animation: bounce-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+  @keyframes rotate-in {
+    0% { transform: rotate(-180deg) scale(0.5); opacity: 0; }
+    100% { transform: rotate(0) scale(1); opacity: 1; }
+  }
+  .animate-rotate-in { animation: rotate-in 0.55s ease-out both; }
+
+  @keyframes flip-in-x {
+    0% { transform: perspective(600px) rotateX(90deg); opacity: 0; }
+    100% { transform: perspective(600px) rotateX(0); opacity: 1; }
+  }
+  .animate-flip-in-x { animation: flip-in-x 0.5s ease-out both; }
+
+  @keyframes flip-in-y {
+    0% { transform: perspective(600px) rotateY(90deg); opacity: 0; }
+    100% { transform: perspective(600px) rotateY(0); opacity: 1; }
+  }
+  .animate-flip-in-y { animation: flip-in-y 0.5s ease-out both; }
+
+  @keyframes zoom-bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.07); }
+  }
+  .animate-zoom-bounce { animation: zoom-bounce 1.8s ease-in-out infinite; }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.12); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.12); }
+    70% { transform: scale(1); }
+  }
+  .animate-heartbeat { animation: heartbeat 1.4s ease-in-out infinite; }
+
+  @keyframes rubber-band {
+    0% { transform: scale3d(1, 1, 1); }
+    30% { transform: scale3d(1.25, 0.75, 1); }
+    40% { transform: scale3d(0.75, 1.25, 1); }
+    50% { transform: scale3d(1.15, 0.85, 1); }
+    65% { transform: scale3d(0.95, 1.05, 1); }
+    75% { transform: scale3d(1.05, 0.95, 1); }
+    100% { transform: scale3d(1, 1, 1); }
+  }
+  .animate-rubber-band { animation: rubber-band 0.9s ease-out both; }
+
+  @keyframes neon-flicker {
+    0%, 19.9%, 22%, 62.9%, 64%, 64.9%, 70%, 100% {
+      opacity: 1;
+      filter: drop-shadow(0 0 6px hsl(var(--primary) / 0.8)) drop-shadow(0 0 18px hsl(var(--primary) / 0.5));
+    }
+    20%, 21.9%, 63%, 63.9%, 65%, 69.9% { opacity: 0.55; filter: none; }
+  }
+  .animate-neon-flicker { animation: neon-flicker 3.5s linear infinite; }
+
+  @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .animate-spin-slow { animation: spin-slow 10s linear infinite; }
+
+  @keyframes scan-line {
+    0% { transform: translateY(-100%); opacity: 0; }
+    10%, 90% { opacity: 0.5; }
+    100% { transform: translateY(100%); opacity: 0; }
+  }
+  .animate-scan-line { animation: scan-line 3s linear infinite; }
+
+  @keyframes gradient-pan {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .animate-gradient-pan { background-size: 200% 200%; animation: gradient-pan 6s ease-in-out infinite; }
+
+  @keyframes shimmer-fast {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .animate-shimmer-fast {
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.3), transparent);
+    background-size: 200% 100%;
+    animation: shimmer-fast 1.5s linear infinite;
+  }
+
+  /* Hover utility classes */
+  .hover-lift { @apply transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg; }
+  .hover-glow { @apply transition-shadow duration-300 hover:shadow-[0_0_25px_hsl(var(--primary)/0.5)]; }
+  .hover-tilt { transition: transform 0.3s ease; }
+  .hover-tilt:hover { transform: perspective(600px) rotateX(4deg) rotateY(-4deg) scale(1.02); }
+}
