@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
+import { playSfx } from '@/lib/sfx';
+
 
 interface UserProfile {
   id: string;
@@ -352,6 +354,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       .eq('user_id', user.id);
 
     setUser({ ...user, coins: newCoins });
+    if (amount > 0) { try { playSfx('coin'); } catch {/* ignore */} }
   };
 
   const addGems = async (amount: number) => {
@@ -364,7 +367,9 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       .eq('user_id', user.id);
 
     setUser({ ...user, gems: newGems });
+    if (amount > 0) { try { playSfx('powerup'); } catch {/* ignore */} }
   };
+
 
   const spendCoins = async (amount: number): Promise<boolean> => {
     if (!user || user.coins < amount) return false;
@@ -579,9 +584,11 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
 
     setAchievements([...achievements, achievementId]);
+    try { playSfx('levelup'); } catch {/* ignore */}
     await addCoins(100);
     await addGems(10);
   };
+
 
   const setGamesShutdown = async (shutdown: boolean) => {
     if (!user?.isAdmin) return;
