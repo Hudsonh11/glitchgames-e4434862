@@ -73,6 +73,7 @@ import TowerDefense from '@/components/games/TowerDefense';
 import FindMatch from '@/components/games/FindMatch';
 import GuessThePerson from '@/components/games/GuessThePerson';
 import CrashIt from '@/components/games/CrashIt';
+import Tanks from '@/components/games/Tanks';
 import { useGame } from '@/contexts/GameContext';
 import { usePlusStatus } from '@/hooks/usePlusStatus';
 import { Zap } from 'lucide-react';
