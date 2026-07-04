@@ -86,13 +86,13 @@ const WordleGame: React.FC<WordleGameProps> = ({ onScoreUpdate }) => {
     for (const guess of guesses) {
       for (let i = 0; i < guess.length; i++) {
         if (guess[i] === key) {
-          if (targetWord[i] === key) return 'bg-green-500';
-          if (targetWord.includes(key)) return 'bg-yellow-500';
-          return 'bg-gray-700';
+          if (targetWord[i] === key) return 'bg-green-500 text-white border-green-600 hover:bg-green-500';
+          if (targetWord.includes(key)) return 'bg-yellow-500 text-black border-yellow-600 hover:bg-yellow-500';
+          return 'bg-zinc-700 text-zinc-400 border-zinc-800 hover:bg-zinc-700';
         }
       }
     }
-    return 'bg-muted hover:bg-muted/80';
+    return 'bg-zinc-200 text-zinc-900 border-zinc-300 hover:bg-white dark:bg-zinc-300 dark:text-zinc-900 dark:hover:bg-zinc-200';
   };
 
   return (
