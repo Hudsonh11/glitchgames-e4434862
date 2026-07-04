@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { playSfx } from '@/lib/sfx';
+import { Delete, CornerDownLeft } from 'lucide-react';
 
 interface WordleGameProps {
   onScoreUpdate?: (score: number) => void;
