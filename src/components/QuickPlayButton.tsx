@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Shuffle, Gamepad2, Sparkles, Zap, ArrowRight } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Shuffle, Sparkles, Zap, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { playSfx } from '@/lib/sfx';
 
 interface QuickPlayButtonProps {
   games: { id: string; title: string; category: string }[];
@@ -13,99 +14,99 @@ const QuickPlayButton: React.FC<QuickPlayButtonProps> = ({ games, isLoggedIn }) 
   const [isHovered, setIsHovered] = useState(false);
   const [selectedGame, setSelectedGame] = useState<typeof games[0] | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
+  const [reelIndex, setReelIndex] = useState(0);
+  const tickRef = useRef<number | null>(null);
 
   const handleQuickPlay = () => {
     if (!isLoggedIn) {
       navigate('/login');
       return;
     }
+    if (isSpinning || games.length === 0) return;
 
     setIsSpinning(true);
-    
-    // Simulate slot machine effect
-    let spins = 0;
-    const maxSpins = 15;
-    const interval = setInterval(() => {
-      const randomGame = games[Math.floor(Math.random() * games.length)];
-      setSelectedGame(randomGame);
-      spins++;
-      
-      if (spins >= maxSpins) {
-        clearInterval(interval);
+    playSfx('powerup');
+
+    // Slot-machine style roll: fast then slow down (ease-out).
+    const totalDuration = 1600;
+    const finalGame = games[Math.floor(Math.random() * games.length)];
+    let elapsed = 0;
+    let step = 55;
+
+    const tick = () => {
+      elapsed += step;
+      // Ease deceleration
+      const progress = Math.min(elapsed / totalDuration, 1);
+      step = 55 + progress * 120;
+      const idx = Math.floor(Math.random() * games.length);
+      setReelIndex(idx);
+      setSelectedGame(games[idx]);
+      playSfx('tick');
+
+      if (elapsed >= totalDuration) {
+        setSelectedGame(finalGame);
+        playSfx('win');
         setIsSpinning(false);
-        // Navigate after a short delay
-        setTimeout(() => {
-          navigate(`/game/${randomGame.id}`);
-        }, 500);
+        setTimeout(() => navigate(`/game/${finalGame.id}`), 700);
+        return;
       }
-    }, 80);
+      tickRef.current = window.setTimeout(tick, step);
+    };
+    tick();
   };
 
   return (
     <div className="relative">
-      {/* Main Button */}
       <Button
         variant="gaming"
         size="xl"
-        className="relative overflow-hidden group px-8"
+        className="relative overflow-hidden group px-8 focus-ring-glow"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={handleQuickPlay}
         disabled={isSpinning}
       >
-        {/* Animated Background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] animate-shimmer" />
-        
-        {/* Content */}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] animate-gradient-pan" />
+
         <div className="relative flex items-center gap-3">
           {isSpinning ? (
             <>
               <Shuffle className="w-5 h-5 animate-spin" />
-              <span className="font-bold">
-                {selectedGame ? selectedGame.title : 'Picking...'}
-              </span>
+              <div className="relative h-6 min-w-[140px] overflow-hidden rounded-md bg-black/25 px-3">
+                <div key={reelIndex} className="animate-count-up font-bold text-white leading-6 truncate">
+                  {selectedGame?.title ?? 'Rolling…'}
+                </div>
+              </div>
             </>
           ) : (
             <>
-              <Zap className="w-5 h-5 transition-transform group-hover:scale-110 group-hover:rotate-12" />
+              <Zap className="w-5 h-5 transition-transform group-hover:scale-125 group-hover:rotate-12" />
               <span className="font-bold">Quick Play</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </>
           )}
         </div>
 
-        {/* Sparkles */}
         <div className="absolute inset-0 pointer-events-none">
           {[...Array(6)].map((_, i) => (
             <Sparkles
               key={i}
-              className={`absolute w-3 h-3 text-white/50 transition-all duration-500 ${
-                isHovered ? 'opacity-100' : 'opacity-0'
+              className={`absolute w-3 h-3 text-white/60 transition-all duration-500 ${
+                isHovered || isSpinning ? 'opacity-100' : 'opacity-0'
               }`}
               style={{
-                left: `${15 + i * 15}%`,
-                top: isHovered ? '20%' : '50%',
-                transitionDelay: `${i * 50}ms`,
+                left: `${10 + i * 15}%`,
+                top: (isHovered || isSpinning) ? `${20 + (i % 2) * 40}%` : '50%',
+                transitionDelay: `${i * 60}ms`,
               }}
             />
           ))}
         </div>
       </Button>
 
-      {/* Tooltip */}
-      {isHovered && !isSpinning && (
-        <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap animate-fade-in">
-          <div className="px-3 py-1.5 rounded-lg bg-background/90 backdrop-blur border border-border text-xs text-muted-foreground">
-            <Gamepad2 className="w-3 h-3 inline mr-1" />
-            Jump into a random game instantly!
-          </div>
-        </div>
-      )}
-
-      {/* Selected Game Preview */}
       {isSpinning && selectedGame && (
-        <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 animate-fade-in">
-          <div className="px-4 py-2 rounded-xl bg-primary/20 border border-primary/50 text-center">
+        <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 animate-elastic-in">
+          <div className="px-4 py-2 rounded-xl bg-primary/20 border border-primary/50 text-center backdrop-blur">
             <span className="text-xs text-muted-foreground block">{selectedGame.category}</span>
             <span className="font-bold text-primary">{selectedGame.title}</span>
           </div>

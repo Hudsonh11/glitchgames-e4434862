@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { playSfx } from '@/lib/sfx';
+import { Delete, CornerDownLeft } from 'lucide-react';
 
 interface WordleGameProps {
   onScoreUpdate?: (score: number) => void;
@@ -36,10 +38,14 @@ const WordleGame: React.FC<WordleGameProps> = ({ onScoreUpdate }) => {
         setGameOver(true);
         const score = (6 - newGuesses.length + 1) * 100;
         onScoreUpdate?.(score);
+        playSfx('win');
         toast.success(`🎉 You won! Score: ${score}`);
       } else if (newGuesses.length >= 6) {
         setGameOver(true);
+        playSfx('lose');
         toast.error(`Game Over! The word was ${targetWord}`);
+      } else {
+        playSfx('pop');
       }
       
       setCurrentGuess('');
@@ -84,13 +90,13 @@ const WordleGame: React.FC<WordleGameProps> = ({ onScoreUpdate }) => {
     for (const guess of guesses) {
       for (let i = 0; i < guess.length; i++) {
         if (guess[i] === key) {
-          if (targetWord[i] === key) return 'bg-green-500';
-          if (targetWord.includes(key)) return 'bg-yellow-500';
-          return 'bg-gray-700';
+          if (targetWord[i] === key) return 'bg-green-500 text-white border-green-600 hover:bg-green-500';
+          if (targetWord.includes(key)) return 'bg-yellow-500 text-black border-yellow-600 hover:bg-yellow-500';
+          return 'bg-zinc-700 text-zinc-400 border-zinc-800 hover:bg-zinc-700';
         }
       }
     }
-    return 'bg-muted hover:bg-muted/80';
+    return 'bg-zinc-200 text-zinc-900 border-zinc-300 hover:bg-white dark:bg-zinc-300 dark:text-zinc-900 dark:hover:bg-zinc-200';
   };
 
   return (
@@ -122,19 +128,27 @@ const WordleGame: React.FC<WordleGameProps> = ({ onScoreUpdate }) => {
         })}
       </div>
 
-      <div className="flex flex-col gap-1 mt-4">
+      <div className="flex flex-col gap-1.5 mt-4 w-full max-w-md">
         {keyboard.map((row, i) => (
           <div key={i} className="flex justify-center gap-1">
-            {row.map(key => (
-              <Button
-                key={key}
-                size="sm"
-                className={`${key.length > 1 ? 'px-3' : 'w-8 md:w-10'} h-10 md:h-12 ${getKeyColor(key)}`}
-                onClick={() => handleKeyPress(key === '⌫' ? 'BACKSPACE' : key)}
-              >
-                {key}
-              </Button>
-            ))}
+            {row.map(key => {
+              const isSpecial = key.length > 1;
+              const label = key === 'ENTER'
+                ? <span className="flex items-center gap-1 text-[10px] md:text-xs font-bold"><CornerDownLeft className="w-3 h-3" />ENTER</span>
+                : key === '⌫'
+                ? <Delete className="w-4 h-4" />
+                : <span className="text-sm md:text-base font-extrabold tracking-wider">{key}</span>;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  className={`${isSpecial ? 'px-2 md:px-3 min-w-[52px]' : 'w-8 md:w-10'} h-11 md:h-14 rounded-md border-b-4 flex items-center justify-center font-bold shadow-sm transition-all active:translate-y-0.5 active:border-b-2 ${getKeyColor(key)}`}
+                  onClick={() => { playSfx('click'); handleKeyPress(key === '⌫' ? 'BACKSPACE' : key); }}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
         ))}
       </div>
