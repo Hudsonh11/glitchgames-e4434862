@@ -38,10 +38,14 @@ const WordleGame: React.FC<WordleGameProps> = ({ onScoreUpdate }) => {
         setGameOver(true);
         const score = (6 - newGuesses.length + 1) * 100;
         onScoreUpdate?.(score);
+        playSfx('win');
         toast.success(`🎉 You won! Score: ${score}`);
       } else if (newGuesses.length >= 6) {
         setGameOver(true);
+        playSfx('lose');
         toast.error(`Game Over! The word was ${targetWord}`);
+      } else {
+        playSfx('pop');
       }
       
       setCurrentGuess('');
