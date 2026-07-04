@@ -301,6 +301,7 @@ const Index: React.FC = () => {
     Runner: Rocket, Word: BookOpen, Brain: BarChart3, Memory: Eye,
     Skill: Timer, Classic: Globe, Card: Compass, Trivia: MessageSquare,
     Racing: Zap, Idle: Clock, Luck: Gift, '3D': Gem, Action: Flame,
+    Multiplayer: Users, Plus: Crown, Sports: Trophy,
   };
 
   const milestones = useMemo(() => [
