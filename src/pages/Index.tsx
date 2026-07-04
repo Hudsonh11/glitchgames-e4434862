@@ -219,19 +219,34 @@ const FeatureCard: React.FC<{
 );
 
 // ─── Quick Category Card ───
-const CategoryCard: React.FC<{ name: string; count: number; icon: React.ElementType; color: string }> = 
-  ({ name, count, icon: Icon, color }) => (
-  <Link to={`/#games`} className="group">
-    <div className="glass-panel rounded-2xl p-5 text-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-glow cursor-pointer">
-      <div className="w-14 h-14 rounded-xl mx-auto mb-3 flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
-        style={{ backgroundColor: `${color}20` }}>
-        <Icon className="w-7 h-7" style={{ color }} />
+// Extract "H, S%, L%" from an "hsl(H, S%, L%)" string so we can build valid
+// hsl()/hsla() values with alpha. Falls back to primary if parsing fails.
+const parseHsl = (raw: string): string => {
+  const m = raw.match(/hsl\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*\)/i);
+  return m ? `${m[1]}, ${m[2]}%, ${m[3]}%` : '185, 100%, 50%';
+};
+
+const CategoryCard: React.FC<{ name: string; count: number; icon: React.ElementType; color: string }> =
+  ({ name, count, icon: Icon, color }) => {
+  const hsl = parseHsl(color);
+  return (
+    <Link to={`/#games`} className="group">
+      <div className="glass-panel rounded-2xl p-5 text-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-glow cursor-pointer hover-lift">
+        <div
+          className="w-14 h-14 rounded-xl mx-auto mb-3 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 shadow-lg animate-pop-in"
+          style={{
+            background: `linear-gradient(135deg, hsla(${hsl}, 0.9), hsla(${hsl}, 0.55))`,
+            boxShadow: `0 6px 24px -6px hsla(${hsl}, 0.6), inset 0 1px 0 hsla(0, 0%, 100%, 0.25)`,
+          }}
+        >
+          <Icon className="w-7 h-7 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]" strokeWidth={2.5} />
+        </div>
+        <h4 className="font-display text-sm font-bold mb-1">{name}</h4>
+        <p className="text-xs text-muted-foreground">{count} games</p>
       </div>
-      <h4 className="font-display text-sm font-bold mb-1">{name}</h4>
-      <p className="text-xs text-muted-foreground">{count} games</p>
-    </div>
-  </Link>
-);
+    </Link>
+  );
+};
 
 // ─── Main Component ───
 const Index: React.FC = () => {
