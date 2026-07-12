@@ -259,9 +259,22 @@ const CrashIt: React.FC = () => {
     };
     smokePartsRef.current = [];
     sparksRef.current = [];
+    skidsRef.current = [];
     lockRef.current = false;
     shakeRef.current = 0;
+    bodySquashRef.current = { p1: 0, p2: 0 };
     botMemRef.current = { flipDir: 0, flipUntil: 0, recoverUntil: 0, nextDecisionAt: 0 };
+    // regenerate parallax stars for the new arena
+    if (starsRef.current.length === 0) {
+      for (let i = 0; i < 90; i++) {
+        starsRef.current.push({
+          x: Math.random() * WORLD_W,
+          y: Math.random() * WORLD_H * 0.55,
+          r: Math.random() * 1.4 + 0.3,
+          tw: Math.random() * Math.PI * 2,
+        });
+      }
+    }
     setRoundMsg(null);
   }, [arenaIdx, pickRandomArena]);
 
