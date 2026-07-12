@@ -672,7 +672,7 @@ const Tanks: React.FC<TanksProps> = ({ onScoreUpdate }) => {
     gs.current.particles = [];
     gs.current.bulletId = 0;
     gs.current.particleId = 0;
-    gs.current.aiPlan = { move: 1, nextThink: 0, lastShot: 0 };
+    gs.current.aiPlan = { move: 1, nextThink: 0, lastShot: 0, lastPos: { x: ARENA_W - 70, y: ARENA_H - 70 }, stillSince: performance.now(), escapeUntil: 0, escapeTurn: 1, wanderTarget: null };
     gs.current.shake = 0;
     gs.current.difficulty = difficulty;
     gs.current.twoPlayer = twoPlayer;
