@@ -97,7 +97,33 @@ function losClear(a: Vec, b: Vec, walls: Wall[]) {
   return true;
 }
 
+/* ─────────── sensors ─────────── */
+// Returns distance in px until a wall or arena border is hit along a ray.
+function rayDistance(from: Vec, angle: number, walls: Wall[], maxDist = 120): number {
+  const step = 6;
+  const cx = Math.cos(angle), sy = Math.sin(angle);
+  for (let d = 0; d <= maxDist; d += step) {
+    const x = from.x + cx * d;
+    const y = from.y + sy * d;
+    if (x < 4 || x > ARENA_W - 4 || y < 4 || y > ARENA_H - 4) return d;
+    for (const w of walls) {
+      if (x > w.x && x < w.x + w.w && y > w.y && y < w.y + w.h) return d;
+    }
+  }
+  return maxDist;
+}
+
 /* ─────────── shared game state ─────────── */
+interface AiPlan {
+  move: number;
+  nextThink: number;
+  lastShot: number;
+  lastPos: Vec;
+  stillSince: number;
+  escapeUntil: number;
+  escapeTurn: number;   // -1 left, +1 right
+  wanderTarget: Vec | null;
+}
 interface GameStateRef {
   tanks: [Tank, Tank];
   bullets: Bullet[];
@@ -105,7 +131,7 @@ interface GameStateRef {
   walls: Wall[];
   bulletId: number;
   particleId: number;
-  aiPlan: { move: number; nextThink: number; lastShot: number };
+  aiPlan: AiPlan;
   shake: number;
   onHit?: (winnerScores: [number, number]) => void;
   onWin?: (winner: 1 | 2) => void;
