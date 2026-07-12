@@ -546,7 +546,7 @@ const CrashIt: React.FC = () => {
       c.y += c.vy * dt;
       c.angle += c.av * dt;
 
-      // Smoke trail
+      // Smoke trail + skid marks
       c.smokeT += dt;
       const movingFast = Math.abs(c.vx) > 80 && grounded;
       if (movingFast && c.smokeT > 0.05) {
@@ -562,13 +562,15 @@ const CrashIt: React.FC = () => {
           r: 4 + Math.random() * 4,
           c: '#9aa3b2',
         });
+        // Skid trail — appears when braking (input opposite of motion) or during high-speed sliding
+        const braking = (inp.L && c.vx > 200) || (inp.R && c.vx < -200);
+        if (braking || Math.abs(c.vx) > 380) {
+          const wheels3 = carWheelsWorld(c);
+          for (const wp of wheels3) {
+            skidsRef.current.push({ x: wp.x, y: a.ground(wp.x) - 1, t: 0, max: 3.2, a: braking ? 0.55 : 0.32 });
+          }
+        }
       }
-
-      // Walls — kick angular based on rotation direction that would carry the car out
-      const wallL = 30, wallR = WORLD_W - 30;
-      if (c.x < wallL) { c.x = wallL; c.vx = Math.abs(c.vx) * 0.25; c.av += Math.sign(c.vy || 1) * 1.2; try { playSfx('tick'); } catch {/*ignore*/} }
-      if (c.x > wallR) { c.x = wallR; c.vx = -Math.abs(c.vx) * 0.25; c.av -= Math.sign(c.vy || 1) * 1.2; try { playSfx('tick'); } catch {/*ignore*/} }
-      if (c.y < 40) { c.y = 40; c.vy = Math.abs(c.vy) * 0.3; }
 
       // Wheel/terrain resolution
       const wheels2 = carWheelsWorld(c);
@@ -580,18 +582,22 @@ const CrashIt: React.FC = () => {
           c.y -= pen;
           // landing impact effects
           if (c.vy > 240) {
-            for (let k = 0; k < 6; k++) {
+            for (let k = 0; k < 10; k++) {
               smokePartsRef.current.push({
-                x: w.x + (Math.random() - 0.5) * 14, y: g,
-                vx: (Math.random() - 0.5) * 120,
-                vy: -60 - Math.random() * 80,
-                t: 0, max: 0.7, r: 5 + Math.random() * 4,
+                x: w.x + (Math.random() - 0.5) * 18, y: g,
+                vx: (Math.random() - 0.5) * 160,
+                vy: -60 - Math.random() * 100,
+                t: 0, max: 0.8, r: 5 + Math.random() * 5,
                 c: '#d8d2c0',
               });
             }
+            // squash the chassis briefly
+            const squashAmt = Math.min(0.35, c.vy / 1600);
+            if (i === 0) bodySquashRef.current.p1 = squashAmt;
+            else bodySquashRef.current.p2 = squashAmt;
+            shakeRef.current = Math.max(shakeRef.current, Math.min(8, c.vy / 90));
           }
           if (c.vy > 0) c.vy = -c.vy * 0.18;
-          // Apply tangential torque if only one wheel touching → tilt toward slope
           c.av *= 0.55;
         }
       });
