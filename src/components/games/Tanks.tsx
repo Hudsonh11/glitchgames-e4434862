@@ -415,6 +415,10 @@ const GameLoop: React.FC<{
         if (!tankBlocked({ x: t.pos.x, y: ny }, walls)) t.pos.y = ny;
         if (Math.random() < 0.25) spawnParticles(t.pos.x, t.pos.y, '#64748b', 1, 0.4, 0);
       }
+      // hard clamp — never allow leaving the arena regardless of state
+      const half = TANK_SIZE / 2;
+      t.pos.x = Math.max(half, Math.min(ARENA_W - half, t.pos.x));
+      t.pos.y = Math.max(half, Math.min(ARENA_H - half, t.pos.y));
       if (t.input.fire) fire(t);
       if (t.muzzleFlash > 0) t.muzzleFlash -= dt * 16;
       if (t.turretRecoil > 0) t.turretRecoil = Math.max(0, t.turretRecoil - dt * 1.4);
