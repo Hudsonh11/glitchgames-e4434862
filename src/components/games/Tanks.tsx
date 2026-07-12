@@ -422,49 +422,122 @@ const GameLoop: React.FC<{
 
     const aiTick = (bot: Tank, target: Tank) => {
       const st = gs.current.aiPlan;
+      const diffLvl = gs.current.difficulty;
       const dx = target.pos.x - bot.pos.x;
       const dy = target.pos.y - bot.pos.y;
       const dist = Math.hypot(dx, dy);
       const targetAngle = Math.atan2(dy, dx);
-      const clear = losClear(bot.pos, target.pos, walls);
-      let diff = targetAngle - bot.angle;
-      while (diff > Math.PI) diff -= Math.PI * 2;
-      while (diff < -Math.PI) diff += Math.PI * 2;
-      const aimTol = gs.current.difficulty === 'easy' ? 0.14 : gs.current.difficulty === 'medium' ? 0.07 : 0.03;
-      bot.input.left = diff < -aimTol;
-      bot.input.right = diff > aimTol;
-      bot.input.targetAngle = null;
+      const hasLos = losClear(bot.pos, target.pos, walls);
 
-      let dodge = 0;
+      // ---- wall sensors (in pixels of clearance ahead) ----
+      const senseAhead = rayDistance(bot.pos, bot.angle, walls, 90);
+      const senseLeft  = rayDistance(bot.pos, bot.angle - 0.55, walls, 70);
+      const senseRight = rayDistance(bot.pos, bot.angle + 0.55, walls, 70);
+      const senseBack  = rayDistance(bot.pos, bot.angle + Math.PI, walls, 60);
+      const SAFE = TANK_SIZE * 0.9; // ~24px
+
+      // ---- stuck detection ----
+      const moved = Math.hypot(bot.pos.x - st.lastPos.x, bot.pos.y - st.lastPos.y);
+      if (moved > 2) { st.lastPos = { ...bot.pos }; st.stillSince = now; }
+      const stuck = now - st.stillSince > 600;
+      if (stuck && now > st.escapeUntil) {
+        st.escapeUntil = now + 700;
+        st.escapeTurn = Math.random() < 0.5 ? -1 : 1;
+        st.stillSince = now; // avoid re-triggering immediately
+      }
+
+      // ---- bullet dodging ----
+      let dodgePerpendicular = 0;
+      let incomingBullet = false;
       for (const b of gs.current.bullets) {
         if (b.owner === bot.id) continue;
         const bx = b.pos.x - bot.pos.x, by = b.pos.y - bot.pos.y;
-        if (Math.hypot(bx, by) < 90) {
-          const cross = b.vel.x * by - b.vel.y * bx;
-          dodge = cross > 0 ? 1 : -1;
-          break;
+        const d = Math.hypot(bx, by);
+        if (d < 130) {
+          // is bullet roughly heading at us?
+          const bl = Math.hypot(b.vel.x, b.vel.y) || 1;
+          const towards = (-bx * b.vel.x - by * b.vel.y) / (d * bl);
+          if (towards > 0.6) {
+            incomingBullet = true;
+            const cross = b.vel.x * by - b.vel.y * bx;
+            dodgePerpendicular = cross > 0 ? 1 : -1;
+            break;
+          }
         }
       }
 
-      if (now > st.nextThink) {
-        if (dodge !== 0) st.move = dodge;
-        else if (clear && dist < 200) st.move = Math.random() < 0.5 ? -1 : 1;
-        else if (clear && dist < 350) st.move = Math.random() < 0.7 ? 0 : 1;
-        else st.move = 1;
-        st.nextThink = now + (gs.current.difficulty === 'hard' ? 380 : gs.current.difficulty === 'medium' ? 620 : 900);
+      // ---- decide facing ----
+      let desiredAngle = targetAngle;
+      const inEscape = now < st.escapeUntil;
+      if (inEscape) {
+        // face away from closest wall (whichever side has more room)
+        desiredAngle = bot.angle + (senseLeft > senseRight ? -0.9 : 0.9) * st.escapeTurn;
+      } else if (!hasLos) {
+        // pick a wander target near the enemy but reachable
+        if (!st.wanderTarget ||
+            Math.hypot(bot.pos.x - st.wanderTarget.x, bot.pos.y - st.wanderTarget.y) < 40 ||
+            now > st.nextThink) {
+          st.wanderTarget = {
+            x: Math.max(60, Math.min(ARENA_W - 60, target.pos.x + (Math.random() - 0.5) * 260)),
+            y: Math.max(60, Math.min(ARENA_H - 60, target.pos.y + (Math.random() - 0.5) * 260)),
+          };
+          st.nextThink = now + 1200;
+        }
+        desiredAngle = Math.atan2(st.wanderTarget.y - bot.pos.y, st.wanderTarget.x - bot.pos.x);
       }
-      const ahead = { x: bot.pos.x + Math.cos(bot.angle) * 30, y: bot.pos.y + Math.sin(bot.angle) * 30 };
-      if (st.move === 1 && tankBlocked(ahead, walls)) st.move = -1;
-      bot.input.up = st.move === 1;
-      bot.input.down = st.move === -1;
 
-      const aligned = Math.abs(diff) < (gs.current.difficulty === 'hard' ? 0.12 : gs.current.difficulty === 'medium' ? 0.2 : 0.32);
-      const canShoot = now - st.lastShot > (gs.current.difficulty === 'hard' ? 600 : gs.current.difficulty === 'medium' ? 900 : 1300);
-      if (aligned && clear && canShoot) {
+      let diff = desiredAngle - bot.angle;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      const aimTol = diffLvl === 'easy' ? 0.14 : diffLvl === 'medium' ? 0.07 : 0.03;
+      bot.input.left  = diff < -aimTol;
+      bot.input.right = diff > aimTol;
+      bot.input.targetAngle = null;
+
+      // ---- decide movement (never drive into a wall) ----
+      let move = 0;
+      if (inEscape) {
+        // reverse if back is clear, else creep forward slowly
+        move = senseBack > SAFE ? -1 : (senseAhead > SAFE ? 1 : 0);
+      } else if (incomingBullet && dodgePerpendicular !== 0) {
+        // strafe by driving forward at an angle (only if we can)
+        move = senseAhead > SAFE ? 1 : (senseBack > SAFE ? -1 : 0);
+      } else if (hasLos && dist < 220 && Math.abs(diff) < aimTol * 3) {
+        // in optimal range and aimed — hold and shoot
+        move = 0;
+      } else if (hasLos && dist > 340) {
+        move = senseAhead > SAFE ? 1 : 0;
+      } else if (!hasLos) {
+        move = senseAhead > SAFE ? 1 : (senseBack > SAFE ? -1 : 0);
+      } else {
+        // reposition
+        move = senseAhead > SAFE ? 1 : (senseBack > SAFE ? -1 : 0);
+      }
+      // hard safety: never press forward when almost touching a wall
+      if (move === 1 && senseAhead <= SAFE) move = senseBack > SAFE ? -1 : 0;
+      if (move === -1 && senseBack <= SAFE) move = 0;
+
+      bot.input.up = move === 1;
+      bot.input.down = move === -1;
+
+      // ---- shooting ----
+      const aimedAtTarget = (() => {
+        let td = targetAngle - bot.angle;
+        while (td > Math.PI) td -= Math.PI * 2;
+        while (td < -Math.PI) td += Math.PI * 2;
+        return Math.abs(td) < (diffLvl === 'hard' ? 0.10 : diffLvl === 'medium' ? 0.18 : 0.30);
+      })();
+      const canShoot = now - st.lastShot > (diffLvl === 'hard' ? 550 : diffLvl === 'medium' ? 850 : 1250);
+      // don't shoot into a wall you're facing point-blank
+      const shotClear = rayDistance(bot.pos, bot.angle, walls, 400) > TANK_SIZE + 8;
+      if (aimedAtTarget && hasLos && canShoot && shotClear) {
         bot.input.fire = true;
         st.lastShot = now;
-      } else bot.input.fire = false;
+      } else {
+        bot.input.fire = false;
+      }
     };
+
 
     const stepBullets = () => {
       const { bullets, tanks } = gs.current;
