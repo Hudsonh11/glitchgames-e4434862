@@ -729,15 +729,26 @@ const CrashIt: React.FC = () => {
     ctx.translate(ox, oy);
     ctx.scale(s, s);
 
+    // Twinkling parallax stars (visible on darker skies)
+    ctx.save();
+    for (const st of starsRef.current) {
+      const tw = 0.55 + 0.45 * Math.sin(timeRef.current * 1.4 + st.tw);
+      ctx.fillStyle = `rgba(255,255,255,${(0.35 + 0.55 * tw) * 0.7})`;
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.r * (0.8 + tw * 0.6), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
     // Sun / moon
     const sunY = WORLD_H * 0.28;
-    const sunGrad = ctx.createRadialGradient(WORLD_W * 0.78, sunY, 0, WORLD_W * 0.78, sunY, 240);
+    const sunGrad = ctx.createRadialGradient(WORLD_W * 0.78, sunY, 0, WORLD_W * 0.78, sunY, 260);
     sunGrad.addColorStop(0, a.accent);
     sunGrad.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = sunGrad;
     ctx.fillRect(0, 0, WORLD_W, WORLD_H);
     ctx.fillStyle = a.accent;
-    ctx.globalAlpha = 0.85;
+    ctx.globalAlpha = 0.9;
     ctx.beginPath();
     ctx.arc(WORLD_W * 0.78, sunY, 70, 0, Math.PI * 2);
     ctx.fill();
