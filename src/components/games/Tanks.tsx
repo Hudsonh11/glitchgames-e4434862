@@ -898,7 +898,7 @@ const Tanks: React.FC<TanksProps> = ({ onScoreUpdate }) => {
         )}
       </div>
 
-      <div className="flex md:hidden w-full justify-between items-end px-4 mt-2 gap-3">
+      <div className={`${hasTouch ? 'flex' : 'flex md:hidden'} w-full justify-between items-end px-4 mt-2 gap-3`}>
         <Joystick player={1} />
         <div className="flex flex-col items-center gap-2">
           {twoPlayer && <FireBtn player={2} />}
