@@ -654,6 +654,13 @@ const Tanks: React.FC<TanksProps> = ({ onScoreUpdate }) => {
   const [winner, setWinner] = useState<0 | 1 | 2>(0);
   const [, setTick] = useState(0);
   const bump = useCallback(() => setTick((n) => (n + 1) % 1000000), []);
+  const [hasTouch, setHasTouch] = useState(false);
+  useEffect(() => {
+    setHasTouch(
+      typeof window !== 'undefined' &&
+      (('ontouchstart' in window) || (navigator.maxTouchPoints ?? 0) > 0 || window.matchMedia('(pointer: coarse)').matches),
+    );
+  }, []);
 
   const gs = useRef<GameStateRef>({
     tanks: [makeTank(1, 0), makeTank(2, 0)],
