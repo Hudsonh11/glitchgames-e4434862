@@ -230,9 +230,12 @@ const CrashIt: React.FC = () => {
   const timeRef = useRef(0);
   const smokePartsRef = useRef<Array<{ x: number; y: number; vx: number; vy: number; t: number; max: number; r: number; c: string }>>([]);
   const sparksRef = useRef<Array<{ x: number; y: number; vx: number; vy: number; t: number; max: number; c: string }>>([]);
+  const skidsRef = useRef<Array<{ x: number; y: number; t: number; max: number; a: number }>>([]);
+  const starsRef = useRef<Array<{ x: number; y: number; r: number; tw: number }>>([]);
   const runningRef = useRef(false);
   const shakeRef = useRef(0);
   const botMemRef = useRef({ flipDir: 0, flipUntil: 0, recoverUntil: 0, nextDecisionAt: 0 });
+  const bodySquashRef = useRef<{ p1: number; p2: number }>({ p1: 0, p2: 0 });
 
   const pickRandomArena = useCallback((excludeIdx?: number) => {
     let idx = Math.floor(Math.random() * ARENAS.length);
@@ -256,9 +259,22 @@ const CrashIt: React.FC = () => {
     };
     smokePartsRef.current = [];
     sparksRef.current = [];
+    skidsRef.current = [];
     lockRef.current = false;
     shakeRef.current = 0;
+    bodySquashRef.current = { p1: 0, p2: 0 };
     botMemRef.current = { flipDir: 0, flipUntil: 0, recoverUntil: 0, nextDecisionAt: 0 };
+    // regenerate parallax stars for the new arena
+    if (starsRef.current.length === 0) {
+      for (let i = 0; i < 90; i++) {
+        starsRef.current.push({
+          x: Math.random() * WORLD_W,
+          y: Math.random() * WORLD_H * 0.55,
+          r: Math.random() * 1.4 + 0.3,
+          tw: Math.random() * Math.PI * 2,
+        });
+      }
+    }
     setRoundMsg(null);
   }, [arenaIdx, pickRandomArena]);
 
@@ -504,10 +520,15 @@ const CrashIt: React.FC = () => {
           c.av *= Math.pow(0.05, dt);
         }
       } else {
-        // Air control — moderate
+        // Air control — moderate + gentle self-level toward horizontal when no input
         const air = 5.5;
         if (inp.R) c.av += air * dt;
         if (inp.L) c.av -= air * dt;
+        if (!inp.L && !inp.R && c.airT > 0.25) {
+          // find nearest multiple of 2π (upright)
+          const norm = c.angle - Math.round(c.angle / (Math.PI * 2)) * (Math.PI * 2);
+          c.av += -norm * 1.6 * dt;
+        }
         c.av *= Math.pow(0.5, dt);
       }
 
@@ -525,7 +546,7 @@ const CrashIt: React.FC = () => {
       c.y += c.vy * dt;
       c.angle += c.av * dt;
 
-      // Smoke trail
+      // Smoke trail + skid marks
       c.smokeT += dt;
       const movingFast = Math.abs(c.vx) > 80 && grounded;
       if (movingFast && c.smokeT > 0.05) {
@@ -541,13 +562,22 @@ const CrashIt: React.FC = () => {
           r: 4 + Math.random() * 4,
           c: '#9aa3b2',
         });
+        // Skid trail — appears when braking (input opposite of motion) or during high-speed sliding
+        const braking = (inp.L && c.vx > 200) || (inp.R && c.vx < -200);
+        if (braking || Math.abs(c.vx) > 380) {
+          const wheels3 = carWheelsWorld(c);
+          for (const wp of wheels3) {
+            skidsRef.current.push({ x: wp.x, y: a.ground(wp.x) - 1, t: 0, max: 3.2, a: braking ? 0.55 : 0.32 });
+          }
+        }
       }
 
-      // Walls
+      // Walls — kick angular based on rotation direction that would carry the car out
       const wallL = 30, wallR = WORLD_W - 30;
-      if (c.x < wallL) { c.x = wallL; c.vx = Math.abs(c.vx) * 0.25; c.av += 2; }
-      if (c.x > wallR) { c.x = wallR; c.vx = -Math.abs(c.vx) * 0.25; c.av -= 2; }
+      if (c.x < wallL) { c.x = wallL; c.vx = Math.abs(c.vx) * 0.25; c.av += Math.sign(c.vy || 1) * 1.2; try { playSfx('tick'); } catch {/*ignore*/} }
+      if (c.x > wallR) { c.x = wallR; c.vx = -Math.abs(c.vx) * 0.25; c.av -= Math.sign(c.vy || 1) * 1.2; try { playSfx('tick'); } catch {/*ignore*/} }
       if (c.y < 40) { c.y = 40; c.vy = Math.abs(c.vy) * 0.3; }
+
 
       // Wheel/terrain resolution
       const wheels2 = carWheelsWorld(c);
@@ -559,18 +589,22 @@ const CrashIt: React.FC = () => {
           c.y -= pen;
           // landing impact effects
           if (c.vy > 240) {
-            for (let k = 0; k < 6; k++) {
+            for (let k = 0; k < 10; k++) {
               smokePartsRef.current.push({
-                x: w.x + (Math.random() - 0.5) * 14, y: g,
-                vx: (Math.random() - 0.5) * 120,
-                vy: -60 - Math.random() * 80,
-                t: 0, max: 0.7, r: 5 + Math.random() * 4,
+                x: w.x + (Math.random() - 0.5) * 18, y: g,
+                vx: (Math.random() - 0.5) * 160,
+                vy: -60 - Math.random() * 100,
+                t: 0, max: 0.8, r: 5 + Math.random() * 5,
                 c: '#d8d2c0',
               });
             }
+            // squash the chassis briefly
+            const squashAmt = Math.min(0.35, c.vy / 1600);
+            if (i === 0) bodySquashRef.current.p1 = squashAmt;
+            else bodySquashRef.current.p2 = squashAmt;
+            shakeRef.current = Math.max(shakeRef.current, Math.min(8, c.vy / 90));
           }
           if (c.vy > 0) c.vy = -c.vy * 0.18;
-          // Apply tangential torque if only one wheel touching → tilt toward slope
           c.av *= 0.55;
         }
       });
@@ -651,7 +685,10 @@ const CrashIt: React.FC = () => {
       p.vy += 500 * dt;
       return p.t < p.max;
     });
+    skidsRef.current = skidsRef.current.filter((s) => { s.t += dt; return s.t < s.max; });
     if (shakeRef.current > 0) shakeRef.current = Math.max(0, shakeRef.current - dt * 30);
+    bodySquashRef.current.p1 = Math.max(0, bodySquashRef.current.p1 - dt * 2.4);
+    bodySquashRef.current.p2 = Math.max(0, bodySquashRef.current.p2 - dt * 2.4);
   };
 
   const spawnHitFx = (x: number, y: number, color: string) => {
@@ -692,15 +729,26 @@ const CrashIt: React.FC = () => {
     ctx.translate(ox, oy);
     ctx.scale(s, s);
 
+    // Twinkling parallax stars (visible on darker skies)
+    ctx.save();
+    for (const st of starsRef.current) {
+      const tw = 0.55 + 0.45 * Math.sin(timeRef.current * 1.4 + st.tw);
+      ctx.fillStyle = `rgba(255,255,255,${(0.35 + 0.55 * tw) * 0.7})`;
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.r * (0.8 + tw * 0.6), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
     // Sun / moon
     const sunY = WORLD_H * 0.28;
-    const sunGrad = ctx.createRadialGradient(WORLD_W * 0.78, sunY, 0, WORLD_W * 0.78, sunY, 240);
+    const sunGrad = ctx.createRadialGradient(WORLD_W * 0.78, sunY, 0, WORLD_W * 0.78, sunY, 260);
     sunGrad.addColorStop(0, a.accent);
     sunGrad.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = sunGrad;
     ctx.fillRect(0, 0, WORLD_W, WORLD_H);
     ctx.fillStyle = a.accent;
-    ctx.globalAlpha = 0.85;
+    ctx.globalAlpha = 0.9;
     ctx.beginPath();
     ctx.arc(WORLD_W * 0.78, sunY, 70, 0, Math.PI * 2);
     ctx.fill();
@@ -772,6 +820,14 @@ const CrashIt: React.FC = () => {
     }
     ctx.stroke();
 
+    // Skid marks on the track
+    for (const sk of skidsRef.current) {
+      const al = (1 - sk.t / sk.max) * sk.a;
+      ctx.fillStyle = `rgba(10,10,14,${al})`;
+      ctx.fillRect(sk.x - 5, sk.y, 10, 3);
+    }
+
+
     // Walls (with neon edge)
     const wallGrad = ctx.createLinearGradient(0, 0, 30, 0);
     wallGrad.addColorStop(0, 'rgba(0,0,0,0.7)');
@@ -812,9 +868,9 @@ const CrashIt: React.FC = () => {
       ctx.fill();
     });
 
-    // Cars
-    drawCar(ctx, carsRef.current.p1);
-    drawCar(ctx, carsRef.current.p2);
+    // Cars (pass squash amount for landing effect)
+    drawCar(ctx, carsRef.current.p1, bodySquashRef.current.p1);
+    drawCar(ctx, carsRef.current.p2, bodySquashRef.current.p2);
 
     // Sparks (drawn over cars)
     sparksRef.current.forEach((p) => {
@@ -825,19 +881,34 @@ const CrashIt: React.FC = () => {
     });
     ctx.globalAlpha = 1;
 
+    // Horizon haze (atmospheric perspective)
+    const hazeGrad = ctx.createLinearGradient(0, WORLD_H * 0.45, 0, WORLD_H * 0.75);
+    hazeGrad.addColorStop(0, 'rgba(255,255,255,0)');
+    hazeGrad.addColorStop(1, `${a.bgBot}55`);
+    ctx.fillStyle = hazeGrad;
+    ctx.fillRect(0, WORLD_H * 0.45, WORLD_W, WORLD_H * 0.35);
+
     ctx.restore();
+
+    // Vignette (outside world transform)
+    const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.55)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, W, H);
   };
 
-  const drawCar = (ctx: CanvasRenderingContext2D, c: Car) => {
+  const drawCar = (ctx: CanvasRenderingContext2D, c: Car, squash: number = 0) => {
     ctx.save();
     ctx.translate(c.x, c.y);
     ctx.rotate(c.angle);
+    if (squash > 0) ctx.scale(1 + squash * 0.3, 1 - squash * 0.5);
 
     // Car glow
     ctx.shadowColor = c.color;
-    ctx.shadowBlur = 18;
+    ctx.shadowBlur = 20;
 
-    // Chassis (rounded)
+    // Chassis
     const w = CHASSIS_W, h = CHASSIS_H, r = 9;
     ctx.beginPath();
     ctx.moveTo(-w / 2 + r, -h / 2);
@@ -850,14 +921,24 @@ const CrashIt: React.FC = () => {
     ctx.lineTo(-w / 2, -h / 2 + r);
     ctx.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
     ctx.closePath();
+    // metallic 3-stop gradient for pseudo-3D shading
     const chassisGrad = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
-    chassisGrad.addColorStop(0, c.color);
+    chassisGrad.addColorStop(0, '#ffffff');
+    chassisGrad.addColorStop(0.35, c.color);
     chassisGrad.addColorStop(1, '#0c0820');
     ctx.fillStyle = chassisGrad;
     ctx.fill();
     ctx.shadowBlur = 0;
     ctx.lineWidth = 3;
-    ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.65)';
+    ctx.stroke();
+
+    // Top rim highlight
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-w / 2 + r + 2, -h / 2 + 1.5);
+    ctx.lineTo(w / 2 - r - 2, -h / 2 + 1.5);
     ctx.stroke();
 
     // Stripe
@@ -867,51 +948,74 @@ const CrashIt: React.FC = () => {
     // Headlights (front)
     ctx.fillStyle = '#fff7c2';
     ctx.shadowColor = '#fff7c2';
-    ctx.shadowBlur = 14;
+    ctx.shadowBlur = 16;
     ctx.fillRect(w / 2 - 5, -h / 2 + 4, 4, 5);
     ctx.fillRect(w / 2 - 5, h / 2 - 9, 4, 5);
+    ctx.shadowBlur = 0;
+    // Brake lights (rear)
+    ctx.fillStyle = '#ff4d4d';
+    ctx.shadowColor = '#ff4d4d';
+    ctx.shadowBlur = 10;
+    ctx.fillRect(-w / 2 + 1, -h / 2 + 5, 3, 4);
+    ctx.fillRect(-w / 2 + 1, h / 2 - 9, 3, 4);
     ctx.shadowBlur = 0;
 
     // Head
     ctx.beginPath();
     ctx.arc(0, HEAD_DY, HEAD_R, 0, Math.PI * 2);
-    ctx.fillStyle = c.driver;
+    const headGrad = ctx.createRadialGradient(-HEAD_R * 0.4, HEAD_DY - HEAD_R * 0.4, 1, 0, HEAD_DY, HEAD_R);
+    headGrad.addColorStop(0, '#ffffff');
+    headGrad.addColorStop(1, c.driver);
+    ctx.fillStyle = headGrad;
     ctx.fill();
     ctx.lineWidth = 2.5;
-    ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.6)';
     ctx.stroke();
     // Helmet top
     ctx.beginPath();
     ctx.arc(0, HEAD_DY, HEAD_R, Math.PI, 0);
-    ctx.fillStyle = c.color;
+    const helmGrad = ctx.createLinearGradient(0, HEAD_DY - HEAD_R, 0, HEAD_DY);
+    helmGrad.addColorStop(0, '#ffffff');
+    helmGrad.addColorStop(0.4, c.color);
+    helmGrad.addColorStop(1, '#0c0820');
+    ctx.fillStyle = helmGrad;
     ctx.fill();
     // Visor
-    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    ctx.fillStyle = 'rgba(80,220,255,0.75)';
     ctx.fillRect(-HEAD_R * 0.65, HEAD_DY - 2, HEAD_R * 1.3, 3);
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillRect(-HEAD_R * 0.55, HEAD_DY - 1.5, HEAD_R * 0.4, 1);
 
     // Wheels
     [[-WHEEL_DX, WHEEL_DY], [WHEEL_DX, WHEEL_DY]].forEach(([lx, ly]) => {
+      const tireGrad = ctx.createRadialGradient(lx - 3, ly - 3, 1, lx, ly, WHEEL_R);
+      tireGrad.addColorStop(0, '#2a2a35');
+      tireGrad.addColorStop(1, '#08080c');
       ctx.beginPath();
       ctx.arc(lx, ly, WHEEL_R, 0, Math.PI * 2);
-      ctx.fillStyle = '#0c0c12';
+      ctx.fillStyle = tireGrad;
       ctx.fill();
       ctx.beginPath();
       ctx.arc(lx, ly, WHEEL_R * 0.6, 0, Math.PI * 2);
-      ctx.fillStyle = c.color;
+      const rimGrad = ctx.createRadialGradient(lx - 2, ly - 2, 1, lx, ly, WHEEL_R * 0.6);
+      rimGrad.addColorStop(0, '#ffffff');
+      rimGrad.addColorStop(1, c.color);
+      ctx.fillStyle = rimGrad;
       ctx.fill();
       ctx.beginPath();
       ctx.arc(lx, ly, WHEEL_R * 0.25, 0, Math.PI * 2);
       ctx.fillStyle = '#0c0c12';
       ctx.fill();
-      // Spinning spoke (visual)
       ctx.save();
       ctx.translate(lx, ly);
       ctx.rotate((c.x + lx) * 0.05);
-      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+      ctx.strokeStyle = 'rgba(255,255,255,0.55)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(-WHEEL_R * 0.55, 0);
       ctx.lineTo(WHEEL_R * 0.55, 0);
+      ctx.moveTo(0, -WHEEL_R * 0.55);
+      ctx.lineTo(0, WHEEL_R * 0.55);
       ctx.stroke();
       ctx.restore();
     });
