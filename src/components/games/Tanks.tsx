@@ -658,7 +658,7 @@ const Tanks: React.FC<TanksProps> = ({ onScoreUpdate }) => {
     walls: buildMap(),
     bulletId: 0,
     particleId: 0,
-    aiPlan: { move: 1, nextThink: 0, lastShot: 0 },
+    aiPlan: { move: 1, nextThink: 0, lastShot: 0, lastPos: { x: 0, y: 0 }, stillSince: 0, escapeUntil: 0, escapeTurn: 1, wanderTarget: null },
     shake: 0,
     difficulty: 'medium',
     twoPlayer: false,
