@@ -820,6 +820,14 @@ const CrashIt: React.FC = () => {
     }
     ctx.stroke();
 
+    // Skid marks on the track
+    for (const sk of skidsRef.current) {
+      const al = (1 - sk.t / sk.max) * sk.a;
+      ctx.fillStyle = `rgba(10,10,14,${al})`;
+      ctx.fillRect(sk.x - 5, sk.y, 10, 3);
+    }
+
+
     // Walls (with neon edge)
     const wallGrad = ctx.createLinearGradient(0, 0, 30, 0);
     wallGrad.addColorStop(0, 'rgba(0,0,0,0.7)');
