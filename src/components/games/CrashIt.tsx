@@ -572,6 +572,13 @@ const CrashIt: React.FC = () => {
         }
       }
 
+      // Walls — kick angular based on rotation direction that would carry the car out
+      const wallL = 30, wallR = WORLD_W - 30;
+      if (c.x < wallL) { c.x = wallL; c.vx = Math.abs(c.vx) * 0.25; c.av += Math.sign(c.vy || 1) * 1.2; try { playSfx('tick'); } catch {/*ignore*/} }
+      if (c.x > wallR) { c.x = wallR; c.vx = -Math.abs(c.vx) * 0.25; c.av -= Math.sign(c.vy || 1) * 1.2; try { playSfx('tick'); } catch {/*ignore*/} }
+      if (c.y < 40) { c.y = 40; c.vy = Math.abs(c.vy) * 0.3; }
+
+
       // Wheel/terrain resolution
       const wheels2 = carWheelsWorld(c);
       [0, 1].forEach((wi) => {
