@@ -230,9 +230,12 @@ const CrashIt: React.FC = () => {
   const timeRef = useRef(0);
   const smokePartsRef = useRef<Array<{ x: number; y: number; vx: number; vy: number; t: number; max: number; r: number; c: string }>>([]);
   const sparksRef = useRef<Array<{ x: number; y: number; vx: number; vy: number; t: number; max: number; c: string }>>([]);
+  const skidsRef = useRef<Array<{ x: number; y: number; t: number; max: number; a: number }>>([]);
+  const starsRef = useRef<Array<{ x: number; y: number; r: number; tw: number }>>([]);
   const runningRef = useRef(false);
   const shakeRef = useRef(0);
   const botMemRef = useRef({ flipDir: 0, flipUntil: 0, recoverUntil: 0, nextDecisionAt: 0 });
+  const bodySquashRef = useRef<{ p1: number; p2: number }>({ p1: 0, p2: 0 });
 
   const pickRandomArena = useCallback((excludeIdx?: number) => {
     let idx = Math.floor(Math.random() * ARENAS.length);
