@@ -520,10 +520,15 @@ const CrashIt: React.FC = () => {
           c.av *= Math.pow(0.05, dt);
         }
       } else {
-        // Air control — moderate
+        // Air control — moderate + gentle self-level toward horizontal when no input
         const air = 5.5;
         if (inp.R) c.av += air * dt;
         if (inp.L) c.av -= air * dt;
+        if (!inp.L && !inp.R && c.airT > 0.25) {
+          // find nearest multiple of 2π (upright)
+          const norm = c.angle - Math.round(c.angle / (Math.PI * 2)) * (Math.PI * 2);
+          c.av += -norm * 1.6 * dt;
+        }
         c.av *= Math.pow(0.5, dt);
       }
 
