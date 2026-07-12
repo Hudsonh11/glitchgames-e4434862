@@ -685,7 +685,10 @@ const CrashIt: React.FC = () => {
       p.vy += 500 * dt;
       return p.t < p.max;
     });
+    skidsRef.current = skidsRef.current.filter((s) => { s.t += dt; return s.t < s.max; });
     if (shakeRef.current > 0) shakeRef.current = Math.max(0, shakeRef.current - dt * 30);
+    bodySquashRef.current.p1 = Math.max(0, bodySquashRef.current.p1 - dt * 2.4);
+    bodySquashRef.current.p2 = Math.max(0, bodySquashRef.current.p2 - dt * 2.4);
   };
 
   const spawnHitFx = (x: number, y: number, color: string) => {
