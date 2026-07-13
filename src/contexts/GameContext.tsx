@@ -550,25 +550,34 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // Then fetch profiles for those users
       const userIds = [...new Set(statsData.map(s => s.user_id))];
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('user_id, username')
-        .in('user_id', userIds);
+      const [{ data: profilesData }, { data: plusData }] = await Promise.all([
+        supabase.from('profiles').select('user_id, username').in('user_id', userIds),
+        supabase
+          .from('plus_subscriptions')
+          .select('user_id')
+          .in('user_id', userIds)
+          .eq('status', 'active')
+          .gt('expires_at', new Date().toISOString()),
+      ]);
 
       const profileMap = new Map(
         (profilesData || []).map(p => [p.user_id, p.username])
       );
+      const plusSet = new Set((plusData || []).map(p => p.user_id));
 
       const entries: LeaderboardEntry[] = statsData.map((item, index) => {
         const username = profileMap.get(item.user_id) || 'Unknown Player';
         return {
           rank: index + 1,
+          userId: item.user_id,
           username,
           avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
           score: item.high_score,
           gameId: item.game_id,
+          isPlus: plusSet.has(item.user_id),
         };
       });
+
       setLeaderboard(entries);
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
