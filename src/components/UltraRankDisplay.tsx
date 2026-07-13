@@ -7,7 +7,9 @@ interface RankData {
   avatar: string;
   score: number;
   isCurrentUser?: boolean;
+  isPlus?: boolean;
 }
+
 
 interface UltraRankDisplayProps {
   data: RankData;
