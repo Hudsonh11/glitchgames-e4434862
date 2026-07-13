@@ -7,7 +7,9 @@ interface RankData {
   avatar: string;
   score: number;
   isCurrentUser?: boolean;
+  isPlus?: boolean;
 }
+
 
 interface UltraRankDisplayProps {
   data: RankData;
@@ -80,7 +82,9 @@ const UltraRankDisplay: React.FC<UltraRankDisplayProps> = ({
       ${s.container} transition-all duration-300
       ${animated ? `hover:scale-[1.02] ${config.glow}` : ''}
       ${data.isCurrentUser ? 'ring-2 ring-primary' : ''}
+      ${data.isPlus ? 'shadow-[0_0_18px_hsl(var(--warning)/0.35)]' : ''}
     `}>
+
       {/* Shimmer effect for top 3 */}
       {data.rank <= 3 && (
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" />
@@ -114,12 +118,18 @@ const UltraRankDisplay: React.FC<UltraRankDisplayProps> = ({
 
         {/* User info */}
         <div className="flex-1 min-w-0">
-          <p className={`font-display font-bold truncate ${s.text}`}>
-            {data.username}
+          <p className={`font-display font-bold truncate ${s.text} flex items-center gap-1.5`}>
+            <span className="truncate">{data.username}</span>
+            {data.isPlus && (
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-warning/30 to-primary/30 border border-warning/50 text-[10px] text-warning font-bold shrink-0 animate-pulse">
+                <Zap className="w-2.5 h-2.5 fill-warning" /> PLUS
+              </span>
+            )}
             {data.isCurrentUser && (
-              <span className="ml-2 text-xs text-primary">(You)</span>
+              <span className="text-xs text-primary shrink-0">(You)</span>
             )}
           </p>
+
           <div className="flex items-center gap-1 text-muted-foreground">
             <Trophy className="w-3 h-3" />
             <span className={`${size === 'sm' ? 'text-xs' : 'text-sm'}`}>
