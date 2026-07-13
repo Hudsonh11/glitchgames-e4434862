@@ -1,13 +1,15 @@
 import React from 'react';
+import { Zap } from 'lucide-react';
 
 interface UltraAvatarProps {
   src: string;
   alt?: string;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-  border?: 'default' | 'primary' | 'secondary' | 'warning' | 'success' | 'rainbow';
+  border?: 'default' | 'primary' | 'secondary' | 'warning' | 'success' | 'rainbow' | 'plus';
   status?: 'online' | 'offline' | 'away' | 'playing';
   level?: number;
   animated?: boolean;
+  isPlus?: boolean;
 }
 
 const UltraAvatar: React.FC<UltraAvatarProps> = ({
@@ -18,6 +20,7 @@ const UltraAvatar: React.FC<UltraAvatarProps> = ({
   status,
   level,
   animated = true,
+  isPlus = false,
 }) => {
   const sizeClasses = {
     xs: 'w-8 h-8',
@@ -34,6 +37,7 @@ const UltraAvatar: React.FC<UltraAvatarProps> = ({
     warning: 'border-warning',
     success: 'border-success',
     rainbow: 'border-transparent',
+    plus: 'border-transparent',
   };
 
   const statusColors = {
@@ -51,12 +55,30 @@ const UltraAvatar: React.FC<UltraAvatarProps> = ({
     xl: 'w-5 h-5',
   };
 
+  // If isPlus flag is true, upgrade border to plus visual.
+  const effectiveBorder = isPlus ? 'plus' : border;
+
   return (
     <div className="relative inline-block">
       {/* Rainbow border wrapper */}
-      {border === 'rainbow' && (
+      {effectiveBorder === 'rainbow' && (
         <div className={`absolute inset-0 rounded-full bg-gradient-to-r from-primary via-secondary to-warning ${animated ? 'animate-spin-slow' : ''} p-0.5`}>
           <div className={`${sizeClasses[size]} rounded-full bg-background`} />
+        </div>
+      )}
+
+      {/* Plus animated frame — conic gold/cyan sweep */}
+      {effectiveBorder === 'plus' && (
+        <div
+          className={`absolute -inset-1 rounded-full ${animated ? 'animate-spin-slow' : ''}`}
+          style={{
+            background:
+              'conic-gradient(from 0deg, hsl(var(--warning)), hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--warning)))',
+            filter: 'drop-shadow(0 0 6px hsl(var(--warning) / 0.7))',
+          }}
+          aria-hidden
+        >
+          <div className={`${sizeClasses[size]} rounded-full bg-background m-0.5`} />
         </div>
       )}
 
@@ -65,17 +87,24 @@ const UltraAvatar: React.FC<UltraAvatarProps> = ({
         src={src}
         alt={alt}
         className={`
-          ${sizeClasses[size]} rounded-full border-2 ${borderClasses[border]}
+          ${sizeClasses[size]} rounded-full border-2 ${borderClasses[effectiveBorder]}
           object-cover transition-all duration-300
           ${animated ? 'hover:scale-110 hover:shadow-glow' : ''}
-          ${border === 'rainbow' ? 'relative z-10' : ''}
+          ${effectiveBorder === 'rainbow' || effectiveBorder === 'plus' ? 'relative z-10' : ''}
         `}
       />
+
+      {/* Plus zap emblem */}
+      {effectiveBorder === 'plus' && (
+        <div className="absolute -top-1 -right-1 z-20 w-5 h-5 rounded-full bg-gradient-to-br from-warning to-primary flex items-center justify-center border-2 border-background shadow-neon-gold">
+          <Zap className="w-3 h-3 text-background fill-background" />
+        </div>
+      )}
 
       {/* Status indicator */}
       {status && (
         <div className={`
-          absolute bottom-0 right-0 ${statusSize[size]} rounded-full
+          absolute bottom-0 right-0 z-20 ${statusSize[size]} rounded-full
           ${statusColors[status]} border-2 border-background
         `} />
       )}
@@ -83,7 +112,7 @@ const UltraAvatar: React.FC<UltraAvatarProps> = ({
       {/* Level badge */}
       {level && (
         <div className={`
-          absolute -bottom-1 left-1/2 -translate-x-1/2
+          absolute -bottom-1 left-1/2 -translate-x-1/2 z-20
           px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground
           text-xs font-display font-bold border border-background
           ${animated ? 'animate-bounce' : ''}
@@ -96,3 +125,4 @@ const UltraAvatar: React.FC<UltraAvatarProps> = ({
 };
 
 export default UltraAvatar;
+
