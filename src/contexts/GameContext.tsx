@@ -45,11 +45,14 @@ interface SoundSettings {
 
 interface LeaderboardEntry {
   rank: number;
+  userId: string;
   username: string;
   avatar: string;
   score: number;
   gameId: string;
+  isPlus?: boolean;
 }
+
 
 interface GameContextType {
   user: UserProfile | null;
