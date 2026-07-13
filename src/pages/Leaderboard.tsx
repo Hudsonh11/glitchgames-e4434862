@@ -239,9 +239,11 @@ const Leaderboard: React.FC = () => {
                         avatar: entry.avatar,
                         score: entry.score,
                         isCurrentUser: entry.username === user?.username,
+                        isPlus: entry.isPlus,
                       }}
                     />
                   ))
+
                 )}
               </div>
             </>
