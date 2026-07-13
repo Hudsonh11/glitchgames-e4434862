@@ -118,12 +118,18 @@ const UltraRankDisplay: React.FC<UltraRankDisplayProps> = ({
 
         {/* User info */}
         <div className="flex-1 min-w-0">
-          <p className={`font-display font-bold truncate ${s.text}`}>
-            {data.username}
+          <p className={`font-display font-bold truncate ${s.text} flex items-center gap-1.5`}>
+            <span className="truncate">{data.username}</span>
+            {data.isPlus && (
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-warning/30 to-primary/30 border border-warning/50 text-[10px] text-warning font-bold shrink-0 animate-pulse">
+                <Zap className="w-2.5 h-2.5 fill-warning" /> PLUS
+              </span>
+            )}
             {data.isCurrentUser && (
-              <span className="ml-2 text-xs text-primary">(You)</span>
+              <span className="text-xs text-primary shrink-0">(You)</span>
             )}
           </p>
+
           <div className="flex items-center gap-1 text-muted-foreground">
             <Trophy className="w-3 h-3" />
             <span className={`${size === 'sm' ? 'text-xs' : 'text-sm'}`}>
