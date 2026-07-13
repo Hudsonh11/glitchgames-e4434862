@@ -82,7 +82,9 @@ const UltraRankDisplay: React.FC<UltraRankDisplayProps> = ({
       ${s.container} transition-all duration-300
       ${animated ? `hover:scale-[1.02] ${config.glow}` : ''}
       ${data.isCurrentUser ? 'ring-2 ring-primary' : ''}
+      ${data.isPlus ? 'shadow-[0_0_18px_hsl(var(--warning)/0.35)]' : ''}
     `}>
+
       {/* Shimmer effect for top 3 */}
       {data.rank <= 3 && (
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" />
