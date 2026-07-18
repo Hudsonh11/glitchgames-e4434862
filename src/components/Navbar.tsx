@@ -7,19 +7,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import SearchGames from '@/components/SearchGames';
 import Notifications from '@/components/Notifications';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
+import { ALL_GAMES } from '@/lib/gamesCatalog';
 
-const allGames = [
-  { id: 'block-blast', title: 'Block Blast', category: 'Puzzle', rating: 4.8, color: 'hsl(185, 100%, 50%)' },
-  { id: 'tetris', title: 'Tetris', category: 'Puzzle', rating: 4.9, color: 'hsl(280, 100%, 60%)' },
-  { id: 'pac-man', title: 'Pac-Man', category: 'Arcade', rating: 4.9, color: 'hsl(45, 100%, 55%)' },
-  { id: 'snake', title: 'Snake', category: 'Arcade', rating: 4.7, color: 'hsl(142, 76%, 50%)' },
-  { id: 'wordle', title: 'Wordle', category: 'Word', rating: 4.9, color: 'hsl(142, 76%, 40%)' },
-  { id: 'chess', title: 'Chess', category: 'Strategy', rating: 4.9, color: 'hsl(30, 20%, 30%)' },
-  { id: 'geometry-dash', title: 'Geometry Dash', category: 'Action', rating: 4.9, color: 'hsl(320, 100%, 60%)' },
-  { id: '2048', title: '2048', category: 'Puzzle', rating: 4.8, color: 'hsl(30, 100%, 50%)' },
-  { id: 'flappy', title: 'Flappy Bird', category: 'Arcade', rating: 4.6, color: 'hsl(45, 100%, 55%)' },
-  { id: 'sudoku', title: 'Sudoku', category: 'Puzzle', rating: 4.7, color: 'hsl(210, 100%, 45%)' },
-];
+const allGames = ALL_GAMES;
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);

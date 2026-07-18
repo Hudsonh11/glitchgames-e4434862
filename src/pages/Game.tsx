@@ -74,6 +74,16 @@ import FindMatch from '@/components/games/FindMatch';
 import GuessThePerson from '@/components/games/GuessThePerson';
 import CrashIt from '@/components/games/CrashIt';
 import Tanks from '@/components/games/Tanks';
+import AimTrainer from '@/components/games/AimTrainer';
+import PianoTiles from '@/components/games/PianoTiles';
+import SlidingPuzzle from '@/components/games/SlidingPuzzle';
+import EmojiMatch from '@/components/games/EmojiMatch';
+import FallingDodge from '@/components/games/FallingDodge';
+import ColorRush from '@/components/games/ColorRush';
+import HigherLower from '@/components/games/HigherLower';
+import CoinMiner from '@/components/games/CoinMiner';
+import MeteorShower from '@/components/games/MeteorShower';
+import UltraBlitz from '@/components/games/UltraBlitz';
 import { useGame } from '@/contexts/GameContext';
 import { usePlusStatus } from '@/hooks/usePlusStatus';
 import { Zap } from 'lucide-react';
@@ -163,9 +173,19 @@ const games: Record<string, { component: React.FC<any>; title: string; category:
   'guess-the-person': { component: GuessThePerson, title: 'Guess The Person', category: 'Plus' },
   'crash-it': { component: CrashIt, title: 'Crash It', category: 'Multiplayer' },
   'tanks': { component: Tanks, title: 'Tanks', category: 'Plus' },
+  'aim-trainer': { component: AimTrainer, title: 'Aim Trainer', category: 'Skill' },
+  'piano-tiles': { component: PianoTiles, title: 'Piano Tiles', category: 'Skill' },
+  'sliding-puzzle': { component: SlidingPuzzle, title: 'Sliding Puzzle', category: 'Puzzle' },
+  'emoji-match': { component: EmojiMatch, title: 'Emoji Match', category: 'Brain' },
+  'falling-dodge': { component: FallingDodge, title: 'Falling Dodge', category: 'Arcade' },
+  'color-rush': { component: ColorRush, title: 'Color Rush', category: 'Brain' },
+  'higher-lower': { component: HigherLower, title: 'Higher or Lower', category: 'Casual' },
+  'coin-miner': { component: CoinMiner, title: 'Coin Miner', category: 'Puzzle' },
+  'meteor-shower': { component: MeteorShower, title: 'Meteor Shower', category: 'Shooter' },
+  'ultra-blitz': { component: UltraBlitz, title: 'Ultra Blitz', category: 'Plus' },
 };
 
-const PLUS_GAMES = new Set(['guess-the-person', 'tanks']);
+const PLUS_GAMES = new Set(['guess-the-person', 'tanks', 'ultra-blitz']);
 
 
 const Game: React.FC = () => {
