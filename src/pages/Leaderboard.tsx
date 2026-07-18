@@ -85,6 +85,22 @@ const games = [
   { id: 'word-scramble', name: 'Word Scramble', category: 'Word' },
   { id: 'word-search', name: 'Word Search', category: 'Word' },
   { id: 'wordle', name: 'Wordle', category: 'Word' },
+  // Multiplayer & Plus
+  { id: 'find-match', name: 'Find Match', category: 'Multiplayer' },
+  { id: 'crash-it', name: 'Crash It', category: 'Multiplayer' },
+  { id: 'guess-the-person', name: 'Guess The Person', category: 'Plus' },
+  { id: 'tanks', name: 'Tanks', category: 'Plus' },
+  // New batch
+  { id: 'aim-trainer', name: 'Aim Trainer', category: 'Skill' },
+  { id: 'piano-tiles', name: 'Piano Tiles', category: 'Skill' },
+  { id: 'sliding-puzzle', name: 'Sliding Puzzle', category: 'Puzzle' },
+  { id: 'emoji-match', name: 'Emoji Match', category: 'Brain' },
+  { id: 'falling-dodge', name: 'Falling Dodge', category: 'Arcade' },
+  { id: 'color-rush', name: 'Color Rush', category: 'Brain' },
+  { id: 'higher-lower', name: 'Higher or Lower', category: 'Casual' },
+  { id: 'coin-miner', name: 'Coin Miner', category: 'Puzzle' },
+  { id: 'meteor-shower', name: 'Meteor Shower', category: 'Shooter' },
+  { id: 'ultra-blitz', name: 'Ultra Blitz', category: 'Plus' },
 ];
 
 const categories = ['All', ...Array.from(new Set(games.map(g => g.category))).sort()];
