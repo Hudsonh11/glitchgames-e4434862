@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
-import { sfx } from '@/lib/sfx';
+import { playSfx } from '@/lib/sfx';
 
 type Tile = { id: number; col: number; y: number };
 const COLS = 4;
@@ -24,7 +24,7 @@ const PianoTiles: React.FC = () => {
       setTiles((t) => {
         const moved = t.map((x) => ({ ...x, y: x.y + speed }));
         if (moved.some((x) => x.y > 420)) {
-          setPlaying(false); setGameOver(true); sfx.lose();
+          setPlaying(false); setGameOver(true); playSfx('lose');
           return moved;
         }
         return moved.filter((x) => x.y < 500);
@@ -36,7 +36,7 @@ const PianoTiles: React.FC = () => {
   const tap = (id: number) => {
     setTiles((t) => t.filter((x) => x.id !== id));
     setScore((s) => s + 1);
-    sfx.tick();
+    playSfx('tick');
   };
 
   const start = () => {
@@ -45,7 +45,7 @@ const PianoTiles: React.FC = () => {
 
   useEffect(() => {
     if (gameOver) {
-      updateGameStats('piano-tiles', score);
+      updateGameStats('piano-tiles', score, 0);
       addCoins(Math.floor(score / 3));
     }
   }, [gameOver, score, updateGameStats, addCoins]);

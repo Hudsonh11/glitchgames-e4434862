@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
-import { sfx } from '@/lib/sfx';
+import { playSfx } from '@/lib/sfx';
 
 const W = 320, H = 420;
 
@@ -49,8 +49,8 @@ const FallingDodge: React.FC = () => {
       for (const b of s.blocks) {
         const dx = b.x - s.x, dy = b.y - (H - 30);
         if (Math.hypot(dx, dy) < 14 + b.s / 2) {
-          running = false; setPlaying(false); sfx.crash();
-          updateGameStats('falling-dodge', score); addCoins(Math.floor(score / 4));
+          running = false; setPlaying(false); playSfx('crash');
+          updateGameStats('falling-dodge', score, 0); addCoins(Math.floor(score / 4));
           return;
         }
       }

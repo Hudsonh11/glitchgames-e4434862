@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
-import { sfx } from '@/lib/sfx';
+import { playSfx } from '@/lib/sfx';
 
 const EMOJIS = ['🎮','🕹️','🎲','🎯','🏆','⚡','🔥','⭐'];
 
@@ -25,7 +25,7 @@ const EmojiMatch: React.FC = () => {
     setTimeout(() => {
       setCards((c) => {
         const match = c[a].emoji === c[b].emoji;
-        if (match) sfx.success(); else sfx.tick();
+        if (match) playSfx('success'); else playSfx('tick');
         return c.map((card, i) =>
           i === a || i === b
             ? { ...card, matched: match || card.matched, flipped: match ? true : false }
@@ -39,9 +39,9 @@ const EmojiMatch: React.FC = () => {
   useEffect(() => {
     if (cards.length && cards.every((c) => c.matched)) {
       const score = Math.max(200 - moves, 20);
-      updateGameStats('emoji-match', score);
+      updateGameStats('emoji-match', score, 0);
       addCoins(score / 5);
-      sfx.win();
+      playSfx('win');
     }
   }, [cards, moves, updateGameStats, addCoins]);
 

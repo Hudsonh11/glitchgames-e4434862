@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
-import { sfx } from '@/lib/sfx';
+import { playSfx } from '@/lib/sfx';
 
 const AimTrainer: React.FC = () => {
   const areaRef = useRef<HTMLDivElement>(null);
@@ -22,9 +22,9 @@ const AimTrainer: React.FC = () => {
     if (!playing) return;
     if (timeLeft <= 0) {
       setPlaying(false);
-      updateGameStats('aim-trainer', score);
+      updateGameStats('aim-trainer', score, 0);
       addCoins(Math.floor(score / 2));
-      sfx.win();
+      playSfx('win');
       return;
     }
     const t = setTimeout(() => setTimeLeft((s) => s - 1), 1000);
@@ -36,7 +36,7 @@ const AimTrainer: React.FC = () => {
     setTimeout(spawn, 50);
   };
 
-  const hit = () => { setScore((s) => s + 1); sfx.pop(); spawn(); };
+  const hit = () => { setScore((s) => s + 1); playSfx('pop'); spawn(); };
 
   return (
     <div className="w-full max-w-xl">

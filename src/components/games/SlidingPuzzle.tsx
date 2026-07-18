@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
-import { sfx } from '@/lib/sfx';
+import { playSfx } from '@/lib/sfx';
 
 const SIZE = 4;
 
@@ -30,12 +30,12 @@ const SlidingPuzzle: React.FC = () => {
     [b[idx], b[empty]] = [b[empty], b[idx]];
     setBoard(b);
     setMoves((m) => m + 1);
-    sfx.tick();
+    playSfx('tick');
     if (b.every((v, i) => v === (i + 1) % (SIZE * SIZE))) {
       const score = Math.max(500 - moves * 5, 50);
-      updateGameStats('sliding-puzzle', score);
+      updateGameStats('sliding-puzzle', score, 0);
       addCoins(score / 10);
-      sfx.win();
+      playSfx('win');
     }
   };
 

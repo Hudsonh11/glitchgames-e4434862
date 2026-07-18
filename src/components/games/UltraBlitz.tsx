@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
-import { sfx } from '@/lib/sfx';
+import { playSfx } from '@/lib/sfx';
 import { Zap } from 'lucide-react';
 
 const W = 380, H = 480;
@@ -64,8 +64,8 @@ const UltraBlitz: React.FC = () => {
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.px, s.py, 10, 0, Math.PI * 2); ctx.fill();
 
       for (const b of s.bullets) if (Math.hypot(b.x - s.px, b.y - s.py) < 13) {
-        running = false; setPlaying(false); sfx.crash();
-        updateGameStats('ultra-blitz', score); addCoins(score);
+        running = false; setPlaying(false); playSfx('crash');
+        updateGameStats('ultra-blitz', score, 0); addCoins(score);
         return;
       }
       if (s.t % 6 === 0) setScore((v) => v + 1);

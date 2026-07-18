@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
-import { sfx } from '@/lib/sfx';
+import { playSfx } from '@/lib/sfx';
 
 const W = 360, H = 440;
 
@@ -25,12 +25,12 @@ const MeteorShower: React.FC = () => {
       for (let i = 0; i < st.meteors.length; i++) {
         const m = st.meteors[i];
         if (Math.hypot(m.x - x, m.y - y) < m.r) {
-          m.hp -= 1; sfx.pop();
+          m.hp -= 1; playSfx('pop');
           if (m.hp <= 0) { st.meteors.splice(i, 1); setScore((s) => s + 5); }
           return;
         }
       }
-      sfx.tick();
+      playSfx('tick');
     };
     const mc = (e: MouseEvent) => shoot(e.clientX, e.clientY);
     const tc = (e: TouchEvent) => { e.preventDefault(); shoot(e.touches[0].clientX, e.touches[0].clientY); };
@@ -54,7 +54,7 @@ const MeteorShower: React.FC = () => {
         ctx.fillStyle = g; ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2); ctx.fill();
       });
       for (const m of st.meteors) {
-        if (m.y > H - 10) { running = false; setPlaying(false); sfx.lose(); updateGameStats('meteor-shower', score); addCoins(Math.floor(score / 3)); return; }
+        if (m.y > H - 10) { running = false; setPlaying(false); playSfx('lose'); updateGameStats('meteor-shower', score, 0); addCoins(Math.floor(score / 3)); return; }
       }
       raf = requestAnimationFrame(loop);
     };

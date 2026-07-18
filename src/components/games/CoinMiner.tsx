@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
-import { sfx } from '@/lib/sfx';
+import { playSfx } from '@/lib/sfx';
 
 const GRID = 6;
 
@@ -33,16 +33,16 @@ const CoinMiner: React.FC = () => {
     if (revealed[i] || gameOver) return;
     const r = [...revealed]; r[i] = true; setRevealed(r);
     const cell = board[i];
-    if (cell === 'bomb') { sfx.crash(); setGameOver(true); }
-    else if (cell === 'coin') { setScore((s) => s + 10); sfx.coin(); }
-    else if (cell === 'gem') { setScore((s) => s + 50); sfx.success(); }
-    else sfx.tick();
+    if (cell === 'bomb') { playSfx('crash'); setGameOver(true); }
+    else if (cell === 'coin') { setScore((s) => s + 10); playSfx('coin'); }
+    else if (cell === 'gem') { setScore((s) => s + 50); playSfx('success'); }
+    else playSfx('tick');
   };
 
   useEffect(() => {
     if (gameOver && !stored.current) {
       stored.current = true;
-      updateGameStats('coin-miner', score);
+      updateGameStats('coin-miner', score, 0);
       addCoins(Math.floor(score / 5));
     }
   }, [gameOver, score, updateGameStats, addCoins]);

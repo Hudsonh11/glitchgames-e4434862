@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
-import { sfx } from '@/lib/sfx';
+import { playSfx } from '@/lib/sfx';
 
 const roll = () => Math.floor(Math.random() * 100) + 1;
 
@@ -18,10 +18,10 @@ const HigherLower: React.FC = () => {
     setNext(n);
     setTimeout(() => {
       if (win) {
-        setStreak((s) => s + 1); setCurrent(n); setNext(null); sfx.pop();
+        setStreak((s) => s + 1); setCurrent(n); setNext(null); playSfx('pop');
       } else {
-        setGameOver(true); sfx.lose();
-        updateGameStats('higher-lower', streak);
+        setGameOver(true); playSfx('lose');
+        updateGameStats('higher-lower', streak, 0);
         addCoins(streak * 2);
       }
     }, 700);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
-import { sfx } from '@/lib/sfx';
+import { playSfx } from '@/lib/sfx';
 
 const COLORS = [
   { name: 'Red', hsl: 'hsl(0 90% 55%)' },
@@ -27,7 +27,7 @@ const ColorRush: React.FC = () => {
   useEffect(() => {
     if (!playing) return;
     if (time <= 0) {
-      setPlaying(false); updateGameStats('color-rush', score); addCoins(Math.floor(score / 2)); sfx.win();
+      setPlaying(false); updateGameStats('color-rush', score, 0); addCoins(Math.floor(score / 2)); playSfx('win');
       return;
     }
     const t = setTimeout(() => setTime((s) => s - 1), 1000);
@@ -37,7 +37,7 @@ const ColorRush: React.FC = () => {
   const start = () => { setScore(0); setTime(30); setPlaying(true); next(); };
 
   const pick = (i: number) => {
-    if (i === target) { setScore((s) => s + 1); sfx.pop(); } else { setScore((s) => Math.max(0, s - 1)); sfx.error(); }
+    if (i === target) { setScore((s) => s + 1); playSfx('pop'); } else { setScore((s) => Math.max(0, s - 1)); playSfx('error'); }
     next();
   };
 
