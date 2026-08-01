@@ -20,7 +20,7 @@ interface War {
 }
 
 const ClanWars: React.FC = () => {
-  const { user, totalScoreToday } = useGame() as ReturnType<typeof useGame> & { totalScoreToday?: number };
+  const { user } = useGame();
   const { toast } = useToast();
   const [wars, setWars] = useState<War[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
