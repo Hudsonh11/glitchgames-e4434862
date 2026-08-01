@@ -241,8 +241,11 @@ export type Database = {
           challenger_score: number | null
           completed_at: string | null
           created_at: string
+          expires_at: string
           game_id: string
           id: string
+          message: string | null
+          share_token: string | null
           status: string
           wager_coins: number | null
           winner_id: string | null
@@ -254,8 +257,11 @@ export type Database = {
           challenger_score?: number | null
           completed_at?: string | null
           created_at?: string
+          expires_at?: string
           game_id: string
           id?: string
+          message?: string | null
+          share_token?: string | null
           status?: string
           wager_coins?: number | null
           winner_id?: string | null
@@ -267,8 +273,11 @@ export type Database = {
           challenger_score?: number | null
           completed_at?: string | null
           created_at?: string
+          expires_at?: string
           game_id?: string
           id?: string
+          message?: string | null
+          share_token?: string | null
           status?: string
           wager_coins?: number | null
           winner_id?: string | null
@@ -333,6 +342,102 @@ export type Database = {
           {
             foreignKeyName: "clan_members_clan_id_fkey"
             columns: ["clan_id"]
+            isOneToOne: false
+            referencedRelation: "clans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clan_war_contributions: {
+        Row: {
+          clan_id: string
+          created_at: string
+          id: string
+          points: number
+          user_id: string
+          war_id: string
+        }
+        Insert: {
+          clan_id: string
+          created_at?: string
+          id?: string
+          points?: number
+          user_id: string
+          war_id: string
+        }
+        Update: {
+          clan_id?: string
+          created_at?: string
+          id?: string
+          points?: number
+          user_id?: string
+          war_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clan_war_contributions_clan_id_fkey"
+            columns: ["clan_id"]
+            isOneToOne: false
+            referencedRelation: "clans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clan_war_contributions_war_id_fkey"
+            columns: ["war_id"]
+            isOneToOne: false
+            referencedRelation: "clan_wars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clan_wars: {
+        Row: {
+          clan_a: string
+          clan_b: string
+          created_at: string
+          id: string
+          prize_coins: number
+          score_a: number
+          score_b: number
+          status: string
+          week_start: string
+          winner_clan: string | null
+        }
+        Insert: {
+          clan_a: string
+          clan_b: string
+          created_at?: string
+          id?: string
+          prize_coins?: number
+          score_a?: number
+          score_b?: number
+          status?: string
+          week_start: string
+          winner_clan?: string | null
+        }
+        Update: {
+          clan_a?: string
+          clan_b?: string
+          created_at?: string
+          id?: string
+          prize_coins?: number
+          score_a?: number
+          score_b?: number
+          status?: string
+          week_start?: string
+          winner_clan?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clan_wars_clan_a_fkey"
+            columns: ["clan_a"]
+            isOneToOne: false
+            referencedRelation: "clans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clan_wars_clan_b_fkey"
+            columns: ["clan_b"]
             isOneToOne: false
             referencedRelation: "clans"
             referencedColumns: ["id"]
@@ -444,6 +549,54 @@ export type Database = {
         }
         Relationships: []
       }
+      game_achievement_defs: {
+        Row: {
+          achievement_id: string
+          created_at: string
+          description: string
+          game_id: string
+          goal_target: number
+          goal_type: string
+          icon: string
+          id: string
+          reward_coins: number
+          reward_gems: number
+          reward_xp: number
+          tier: string
+          title: string
+        }
+        Insert: {
+          achievement_id: string
+          created_at?: string
+          description: string
+          game_id: string
+          goal_target?: number
+          goal_type?: string
+          icon?: string
+          id?: string
+          reward_coins?: number
+          reward_gems?: number
+          reward_xp?: number
+          tier?: string
+          title: string
+        }
+        Update: {
+          achievement_id?: string
+          created_at?: string
+          description?: string
+          game_id?: string
+          goal_target?: number
+          goal_type?: string
+          icon?: string
+          id?: string
+          reward_coins?: number
+          reward_gems?: number
+          reward_xp?: number
+          tier?: string
+          title?: string
+        }
+        Relationships: []
+      }
       game_config: {
         Row: {
           config: Json
@@ -468,6 +621,60 @@ export type Database = {
           game_id?: string
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      game_of_the_day: {
+        Row: {
+          created_at: string
+          day: string
+          game_id: string
+          id: string
+          reward_multiplier: number
+        }
+        Insert: {
+          created_at?: string
+          day: string
+          game_id: string
+          id?: string
+          reward_multiplier?: number
+        }
+        Update: {
+          created_at?: string
+          day?: string
+          game_id?: string
+          id?: string
+          reward_multiplier?: number
+        }
+        Relationships: []
+      }
+      game_replays: {
+        Row: {
+          created_at: string
+          duration_ms: number
+          frames: Json
+          game_id: string
+          id: string
+          score: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number
+          frames?: Json
+          game_id: string
+          id?: string
+          score: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number
+          frames?: Json
+          game_id?: string
+          id?: string
+          score?: number
+          user_id?: string
         }
         Relationships: []
       }
@@ -525,6 +732,145 @@ export type Database = {
         }
         Relationships: []
       }
+      leaderboard_archive: {
+        Row: {
+          archived_at: string
+          game_id: string
+          id: string
+          rank: number
+          score: number
+          season_id: string | null
+          user_id: string
+          username: string
+        }
+        Insert: {
+          archived_at?: string
+          game_id: string
+          id?: string
+          rank: number
+          score: number
+          season_id?: string | null
+          user_id: string
+          username: string
+        }
+        Update: {
+          archived_at?: string
+          game_id?: string
+          id?: string
+          rank?: number
+          score?: number
+          season_id?: string | null
+          user_id?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leaderboard_archive_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "leaderboard_seasons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leaderboard_seasons: {
+        Row: {
+          active: boolean
+          created_at: string
+          ends_at: string
+          id: string
+          label: string
+          starts_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          ends_at: string
+          id?: string
+          label: string
+          starts_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          ends_at?: string
+          id?: string
+          label?: string
+          starts_at?: string
+        }
+        Relationships: []
+      }
+      match_reactions: {
+        Row: {
+          created_at: string
+          emote: string
+          id: string
+          session_id: string | null
+          target_user_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emote: string
+          id?: string
+          session_id?: string | null
+          target_user_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emote?: string
+          id?: string
+          session_id?: string | null
+          target_user_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_reactions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "match_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      match_sessions: {
+        Row: {
+          allow_spectators: boolean
+          game_id: string
+          host_id: string
+          id: string
+          spectator_count: number
+          started_at: string
+          state: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          allow_spectators?: boolean
+          game_id: string
+          host_id: string
+          id?: string
+          spectator_count?: number
+          started_at?: string
+          state?: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          allow_spectators?: boolean
+          game_id?: string
+          host_id?: string
+          id?: string
+          spectator_count?: number
+          started_at?: string
+          state?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -549,6 +895,36 @@ export type Database = {
           read?: boolean
           receiver_id?: string
           sender_id?: string
+        }
+        Relationships: []
+      }
+      modifier_scores: {
+        Row: {
+          game_id: string
+          high_score: number
+          id: string
+          modifier: string
+          runs: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          game_id: string
+          high_score?: number
+          id?: string
+          modifier: string
+          runs?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          game_id?: string
+          high_score?: number
+          id?: string
+          modifier?: string
+          runs?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -725,6 +1101,113 @@ export type Database = {
           title_id?: string
           unlocked_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      plus_cosmetic_drops: {
+        Row: {
+          border_id: string | null
+          created_at: string
+          description: string
+          id: string
+          month: string
+          name: string
+          theme_id: string | null
+          title_id: string | null
+        }
+        Insert: {
+          border_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          month: string
+          name: string
+          theme_id?: string | null
+          title_id?: string | null
+        }
+        Update: {
+          border_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          month?: string
+          name?: string
+          theme_id?: string | null
+          title_id?: string | null
+        }
+        Relationships: []
+      }
+      plus_drop_claims: {
+        Row: {
+          claimed_at: string
+          drop_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          drop_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          drop_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plus_drop_claims_drop_id_fkey"
+            columns: ["drop_id"]
+            isOneToOne: false
+            referencedRelation: "plus_cosmetic_drops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plus_gifts: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          id: string
+          message: string | null
+          recipient_id: string | null
+          recipient_username: string | null
+          redeem_code: string
+          redeemed_at: string | null
+          sender_id: string
+          status: string
+          stripe_session_id: string | null
+        }
+        Insert: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          message?: string | null
+          recipient_id?: string | null
+          recipient_username?: string | null
+          redeem_code?: string
+          redeemed_at?: string | null
+          sender_id: string
+          status?: string
+          stripe_session_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          message?: string | null
+          recipient_id?: string | null
+          recipient_username?: string | null
+          redeem_code?: string
+          redeemed_at?: string | null
+          sender_id?: string
+          status?: string
+          stripe_session_id?: string | null
         }
         Relationships: []
       }
@@ -971,6 +1454,92 @@ export type Database = {
         }
         Relationships: []
       }
+      score_submissions: {
+        Row: {
+          accepted: boolean
+          created_at: string
+          duration_ms: number
+          game_id: string
+          id: string
+          reason: string | null
+          score: number
+          user_id: string
+        }
+        Insert: {
+          accepted?: boolean
+          created_at?: string
+          duration_ms?: number
+          game_id: string
+          id?: string
+          reason?: string | null
+          score: number
+          user_id: string
+        }
+        Update: {
+          accepted?: boolean
+          created_at?: string
+          duration_ms?: number
+          game_id?: string
+          id?: string
+          reason?: string | null
+          score?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tournament_matches: {
+        Row: {
+          created_at: string
+          id: string
+          player_a: string | null
+          player_b: string | null
+          round: number
+          scheduled_at: string | null
+          score_a: number | null
+          score_b: number | null
+          slot: number
+          status: string
+          tournament_id: string
+          winner_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          player_a?: string | null
+          player_b?: string | null
+          round: number
+          scheduled_at?: string | null
+          score_a?: number | null
+          score_b?: number | null
+          slot: number
+          status?: string
+          tournament_id: string
+          winner_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          player_a?: string | null
+          player_b?: string | null
+          round?: number
+          scheduled_at?: string | null
+          score_a?: number | null
+          score_b?: number | null
+          slot?: number
+          status?: string
+          tournament_id?: string
+          winner_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournament_matches_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tournament_participants: {
         Row: {
           id: string
@@ -1039,6 +1608,27 @@ export type Database = {
           prize_gems?: number
           starts_at?: string | null
           status?: string
+        }
+        Relationships: []
+      }
+      user_milestone_claims: {
+        Row: {
+          claimed_at: string
+          id: string
+          level: number
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          id?: string
+          level: number
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          id?: string
+          level?: number
+          user_id?: string
         }
         Relationships: []
       }
@@ -1129,6 +1719,39 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      xp_milestones: {
+        Row: {
+          created_at: string
+          id: string
+          level: number
+          reward_border: string | null
+          reward_coins: number
+          reward_gems: number
+          reward_title: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          level: number
+          reward_border?: string | null
+          reward_coins?: number
+          reward_gems?: number
+          reward_title?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          level?: number
+          reward_border?: string | null
+          reward_coins?: number
+          reward_gems?: number
+          reward_title?: string | null
+          title?: string
         }
         Relationships: []
       }
