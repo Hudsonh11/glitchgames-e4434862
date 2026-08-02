@@ -321,6 +321,8 @@ const Index: React.FC = () => {
     Skill: Timer, Classic: Globe, Card: Compass, Trivia: MessageSquare,
     Racing: Zap, Idle: Clock, Luck: Gift, '3D': Gem, Action: Flame,
     Multiplayer: Users, Plus: Crown, Sports: Trophy,
+    ASMR: Heart, Destruction: Flame, Casual: Star,
+
   };
 
   const milestones = useMemo(() => [
