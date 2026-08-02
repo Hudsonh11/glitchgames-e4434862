@@ -84,4 +84,13 @@ export const ALL_GAMES = [
   { id: 'coin-miner', title: 'Coin Miner', category: 'Puzzle', rating: 4.7, color: 'hsl(50, 95%, 55%)' },
   { id: 'meteor-shower', title: 'Meteor Shower', category: 'Shooter', rating: 4.8, color: 'hsl(20, 100%, 55%)' },
   { id: 'ultra-blitz', title: 'Ultra Blitz', category: 'Plus', rating: 5.0, color: 'hsl(280, 100%, 60%)' },
+  { id: 'sand-cutting', title: 'Sand Cutting', category: 'ASMR', rating: 4.8, color: 'hsl(28, 70%, 60%)' },
+  { id: 'bubble-wrap', title: 'Bubble Wrap', category: 'ASMR', rating: 4.8, color: 'hsl(190, 85%, 60%)' },
+  { id: 'slime-squish', title: 'Slime Squish', category: 'ASMR', rating: 4.8, color: 'hsl(150, 80%, 55%)' },
+  { id: 'zen-garden', title: 'Zen Garden', category: 'ASMR', rating: 4.8, color: 'hsl(40, 40%, 70%)' },
+  { id: 'water-ripples', title: 'Water Ripples', category: 'ASMR', rating: 4.8, color: 'hsl(195, 90%, 60%)' },
+  { id: 'pressure-wash', title: 'Pressure Wash', category: 'ASMR', rating: 4.8, color: 'hsl(205, 70%, 55%)' },
+  { id: 'soap-carving', title: 'Soap Carving', category: 'Plus', rating: 4.8, color: 'hsl(320, 70%, 65%)' },
+  { id: 'tower-demolition', title: 'Tower Demolition', category: 'Destruction', rating: 4.8, color: 'hsl(20, 90%, 55%)' },
+  { id: 'glass-smash', title: 'Glass Smash', category: 'Destruction', rating: 4.8, color: 'hsl(180, 90%, 60%)' },
 ];

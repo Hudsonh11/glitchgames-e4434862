@@ -101,6 +101,15 @@ const games = [
   { id: 'coin-miner', name: 'Coin Miner', category: 'Puzzle' },
   { id: 'meteor-shower', name: 'Meteor Shower', category: 'Shooter' },
   { id: 'ultra-blitz', name: 'Ultra Blitz', category: 'Plus' },
+  { id: 'sand-cutting', name: 'Sand Cutting', category: 'ASMR' },
+  { id: 'bubble-wrap', name: 'Bubble Wrap', category: 'ASMR' },
+  { id: 'slime-squish', name: 'Slime Squish', category: 'ASMR' },
+  { id: 'zen-garden', name: 'Zen Garden', category: 'ASMR' },
+  { id: 'water-ripples', name: 'Water Ripples', category: 'ASMR' },
+  { id: 'pressure-wash', name: 'Pressure Wash', category: 'ASMR' },
+  { id: 'soap-carving', name: 'Soap Carving', category: 'Plus' },
+  { id: 'tower-demolition', name: 'Tower Demolition', category: 'Destruction' },
+  { id: 'glass-smash', name: 'Glass Smash', category: 'Destruction' },
 ];
 
 const categories = ['All', ...Array.from(new Set(games.map(g => g.category))).sort()];
