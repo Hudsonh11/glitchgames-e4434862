@@ -135,6 +135,15 @@ const games = [
   { id: 'coin-miner', title: 'Coin Miner', description: 'Reveal squares to grab coins and gems — avoid the bombs!', image: 'https://images.unsplash.com/photo-1621504450181-5d356f61d307?w=400&h=300&fit=crop', category: 'Puzzle', rating: 4.7, players: 'NEW', color: 'hsl(50, 95%, 55%)' },
   { id: 'meteor-shower', title: 'Meteor Shower', description: 'Blast incoming meteors before they hit the ground — twice each to destroy!', image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=300&fit=crop', category: 'Shooter', rating: 4.8, players: 'NEW', color: 'hsl(20, 100%, 55%)' },
   { id: 'ultra-blitz', title: 'Ultra Blitz', description: 'Bullet-hell survival with escalating chaos — Glitch Games Plus exclusive! NEW!', image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&h=300&fit=crop', category: 'Plus', rating: 5.0, players: 'PLUS', color: 'hsl(280, 100%, 60%)' },
+  { id: 'sand-cutting', title: 'Kinetic Sand Cutting', description: 'Glide the knife through soft kinetic sand — endless satisfying slices. NEW!', image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=400&h=300&fit=crop', category: 'ASMR', rating: 4.8, players: 'NEW', color: 'hsl(28, 70%, 60%)' },
+  { id: 'bubble-wrap', title: 'Bubble Wrap', description: 'Pop an endless sheet of bubble wrap with layered pop sounds. NEW!', image: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=400&h=300&fit=crop', category: 'ASMR', rating: 4.8, players: 'NEW', color: 'hsl(190, 85%, 60%)' },
+  { id: 'slime-squish', title: 'Slime Squish', description: 'Press, stretch and squish a soft-body slime blob with real spring physics. NEW!', image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop', category: 'ASMR', rating: 4.8, players: 'NEW', color: 'hsl(150, 80%, 55%)' },
+  { id: 'zen-garden', title: 'Zen Garden', description: 'Rake calming ripples into the sand and place stones. No timer, no fail. NEW!', image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&h=300&fit=crop', category: 'ASMR', rating: 4.8, players: 'NEW', color: 'hsl(40, 40%, 70%)' },
+  { id: 'water-ripples', title: 'Water Ripples', description: 'Drop water and hear generative chimes as ripples spread. NEW!', image: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=400&h=300&fit=crop', category: 'ASMR', rating: 4.8, players: 'NEW', color: 'hsl(195, 90%, 60%)' },
+  { id: 'pressure-wash', title: 'Pressure Wash', description: 'Blast grime off brick, stone and wood until it gleams 100%. NEW!', image: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=400&h=300&fit=crop', category: 'ASMR', rating: 4.8, players: 'NEW', color: 'hsl(205, 70%, 55%)' },
+  { id: 'soap-carving', title: 'Soap Carving', description: 'Carve hidden shapes out of scented soap blocks — Glitch Games Plus exclusive! NEW!', image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&h=300&fit=crop', category: 'Plus', rating: 4.8, players: 'PLUS', color: 'hsl(320, 70%, 65%)' },
+  { id: 'tower-demolition', title: 'Tower Demolition', description: 'Swing a wrecking ball and bring whole buildings crashing down in physics glory. NEW!', image: 'https://images.unsplash.com/photo-1487887235947-a955ef187fcc?w=400&h=300&fit=crop', category: 'Destruction', rating: 4.8, players: 'NEW', color: 'hsl(20, 90%, 55%)' },
+  { id: 'glass-smash', title: 'Glass Smash', description: 'Crack and shatter panes of glass into flying shards for combo points. NEW!', image: 'https://images.unsplash.com/photo-1439337153520-7082a56a81f4?w=400&h=300&fit=crop', category: 'Destruction', rating: 4.8, players: 'NEW', color: 'hsl(180, 90%, 60%)' },
 ];
 
 const categories = ['All', ...Array.from(new Set(games.map(g => g.category))).sort()];
@@ -312,6 +321,8 @@ const Index: React.FC = () => {
     Skill: Timer, Classic: Globe, Card: Compass, Trivia: MessageSquare,
     Racing: Zap, Idle: Clock, Luck: Gift, '3D': Gem, Action: Flame,
     Multiplayer: Users, Plus: Crown, Sports: Trophy,
+    ASMR: Heart, Destruction: Flame, Casual: Star,
+
   };
 
   const milestones = useMemo(() => [

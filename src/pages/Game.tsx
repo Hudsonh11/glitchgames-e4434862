@@ -84,6 +84,15 @@ import HigherLower from '@/components/games/HigherLower';
 import CoinMiner from '@/components/games/CoinMiner';
 import MeteorShower from '@/components/games/MeteorShower';
 import UltraBlitz from '@/components/games/UltraBlitz';
+import SandCutting from '@/components/games/SandCutting';
+import BubbleWrap from '@/components/games/BubbleWrap';
+import SlimeSquish from '@/components/games/SlimeSquish';
+import ZenGarden from '@/components/games/ZenGarden';
+import WaterRipples from '@/components/games/WaterRipples';
+import PressureWash from '@/components/games/PressureWash';
+import SoapCarving from '@/components/games/SoapCarving';
+import TowerDemolition from '@/components/games/TowerDemolition';
+import GlassSmash from '@/components/games/GlassSmash';
 import { useGame } from '@/contexts/GameContext';
 import { usePlusStatus } from '@/hooks/usePlusStatus';
 import { Zap } from 'lucide-react';
@@ -183,9 +192,18 @@ const games: Record<string, { component: React.FC<any>; title: string; category:
   'coin-miner': { component: CoinMiner, title: 'Coin Miner', category: 'Puzzle' },
   'meteor-shower': { component: MeteorShower, title: 'Meteor Shower', category: 'Shooter' },
   'ultra-blitz': { component: UltraBlitz, title: 'Ultra Blitz', category: 'Plus' },
+  'sand-cutting': { component: SandCutting, title: 'Sand Cutting', category: 'ASMR' },
+  'bubble-wrap': { component: BubbleWrap, title: 'Bubble Wrap', category: 'ASMR' },
+  'slime-squish': { component: SlimeSquish, title: 'Slime Squish', category: 'ASMR' },
+  'zen-garden': { component: ZenGarden, title: 'Zen Garden', category: 'ASMR' },
+  'water-ripples': { component: WaterRipples, title: 'Water Ripples', category: 'ASMR' },
+  'pressure-wash': { component: PressureWash, title: 'Pressure Wash', category: 'ASMR' },
+  'soap-carving': { component: SoapCarving, title: 'Soap Carving', category: 'Plus' },
+  'tower-demolition': { component: TowerDemolition, title: 'Tower Demolition', category: 'Destruction' },
+  'glass-smash': { component: GlassSmash, title: 'Glass Smash', category: 'Destruction' },
 };
 
-const PLUS_GAMES = new Set(['guess-the-person', 'tanks', 'ultra-blitz']);
+const PLUS_GAMES = new Set(['guess-the-person', 'tanks', 'ultra-blitz', 'soap-carving']);
 
 
 const Game: React.FC = () => {
