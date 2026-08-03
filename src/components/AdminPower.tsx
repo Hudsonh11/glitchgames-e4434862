@@ -46,6 +46,14 @@ const AdminPower: React.FC = () => {
   const [revokePlusUsername, setRevokePlusUsername] = useState('');
   const [revokePlusLoading, setRevokePlusLoading] = useState(false);
 
+  // Password reset
+  const [pwQuery, setPwQuery] = useState('');
+  const [pwTarget, setPwTarget] = useState<ProfileLite | null>(null);
+  const [pwLoading, setPwLoading] = useState(false);
+  const [pwResult, setPwResult] = useState<{
+    masked_email: string; emailed: boolean; recovery_link: string | null;
+  } | null>(null);
+
   // Broadcast
   const [bcTitle, setBcTitle] = useState('');
   const [bcContent, setBcContent] = useState('');
