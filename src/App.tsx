@@ -14,6 +14,7 @@ import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
 import Game from "./pages/Game";
 import Recovery from "./pages/Recovery";
+import ResetPassword from "./pages/ResetPassword";
 import Social from "./pages/Social";
 import NotFound from "./pages/NotFound";
 import SupportBot from "@/components/SupportBot";
