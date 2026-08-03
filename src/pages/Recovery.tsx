@@ -1,32 +1,41 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Gamepad2, Mail, ArrowLeft, Send } from 'lucide-react';
+import { Gamepad2, Mail, ArrowLeft, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import Seo from '@/components/Seo';
 
 const Recovery: React.FC = () => {
   const [username, setUsername] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (username.length < 3) {
+
+    const email = username.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       toast({
         title: 'Error',
-        description: 'Please enter a valid username.',
+        description: 'Please enter the email address on your account.',
         variant: 'destructive',
       });
       return;
     }
 
+    setSending(true);
+    // Always report success so account existence isn't leaked.
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setSending(false);
     setIsSubmitted(true);
     toast({
       title: 'Recovery Initiated',
-      description: 'If this account exists, you will receive recovery instructions.',
+      description: 'If this account exists, you will receive a reset link by email.',
     });
   };
 
