@@ -1,32 +1,41 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Gamepad2, Mail, ArrowLeft, Send } from 'lucide-react';
+import { Gamepad2, Mail, ArrowLeft, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import Seo from '@/components/Seo';
 
 const Recovery: React.FC = () => {
   const [username, setUsername] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (username.length < 3) {
+
+    const email = username.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       toast({
         title: 'Error',
-        description: 'Please enter a valid username.',
+        description: 'Please enter the email address on your account.',
         variant: 'destructive',
       });
       return;
     }
 
+    setSending(true);
+    // Always report success so account existence isn't leaked.
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setSending(false);
     setIsSubmitted(true);
     toast({
       title: 'Recovery Initiated',
-      description: 'If this account exists, you will receive recovery instructions.',
+      description: 'If this account exists, you will receive a reset link by email.',
     });
   };
 
@@ -61,25 +70,26 @@ const Recovery: React.FC = () => {
                 Account Recovery
               </h1>
               <p className="text-muted-foreground text-center mb-6">
-                Enter your username and we'll help you recover your account.
+                Enter your account email and we'll send you a secure reset link.
               </p>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
-                    type="text"
-                    placeholder="Username"
+                    type="email"
+                    placeholder="you@example.com"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     className="pl-10 h-12 bg-muted border-border"
+                    autoComplete="email"
                     required
                   />
                 </div>
 
-                <Button type="submit" variant="gaming" size="lg" className="w-full">
-                  <Send className="w-5 h-5 mr-2" />
-                  Send Recovery Instructions
+                <Button type="submit" variant="gaming" size="lg" className="w-full" disabled={sending}>
+                  {sending ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Send className="w-5 h-5 mr-2" />}
+                  Send Reset Link
                 </Button>
               </form>
             </>
@@ -89,15 +99,11 @@ const Recovery: React.FC = () => {
                 <Mail className="w-8 h-8 text-success" />
               </div>
               <h1 className="font-display text-2xl font-bold mb-2">
-                Check Your Account
+                Check Your Inbox
               </h1>
               <p className="text-muted-foreground mb-6">
-                If the username "{username}" exists, recovery instructions have been sent. 
-                Please check any associated recovery methods.
-              </p>
-              <p className="text-sm text-muted-foreground mb-6">
-                <strong>Note:</strong> This is a demo system. In a real application, 
-                this would send an email or SMS with recovery instructions.
+                If an account exists for "{username}", a password reset link is on its way.
+                The link is single-use and expires in 1 hour.
               </p>
             </div>
           )}

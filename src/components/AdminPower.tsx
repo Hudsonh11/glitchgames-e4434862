@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Crown, Megaphone, ScrollText, Send, Loader2, Search, RefreshCw, Trash2, AlertTriangle, Coins, Zap } from 'lucide-react';
+import { Crown, Megaphone, ScrollText, Send, Loader2, Search, RefreshCw, Trash2, AlertTriangle, Coins, Zap, KeyRound, Copy } from 'lucide-react';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -46,6 +46,14 @@ const AdminPower: React.FC = () => {
   const [revokePlusUsername, setRevokePlusUsername] = useState('');
   const [revokePlusLoading, setRevokePlusLoading] = useState(false);
 
+  // Password reset
+  const [pwQuery, setPwQuery] = useState('');
+  const [pwTarget, setPwTarget] = useState<ProfileLite | null>(null);
+  const [pwLoading, setPwLoading] = useState(false);
+  const [pwResult, setPwResult] = useState<{
+    masked_email: string; emailed: boolean; recovery_link: string | null;
+  } | null>(null);
+
   // Broadcast
   const [bcTitle, setBcTitle] = useState('');
   const [bcContent, setBcContent] = useState('');
@@ -80,6 +88,41 @@ const AdminPower: React.FC = () => {
   const matchedPlusUsers = plusQuery.length >= 2
     ? allUsers.filter(u => u.username.toLowerCase().includes(plusQuery.toLowerCase())).slice(0, 5)
     : [];
+
+  const matchedPwUsers = pwQuery.length >= 2 && !pwTarget
+    ? allUsers.filter(u => u.username.toLowerCase().includes(pwQuery.toLowerCase())).slice(0, 5)
+    : [];
+
+  const sendPasswordReset = async () => {
+    if (!pwTarget) return;
+    setPwLoading(true);
+    setPwResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-password-reset', {
+        body: {
+          user_id: pwTarget.user_id,
+          username: pwTarget.username,
+          redirect_to: `${window.location.origin}/reset-password`,
+        },
+      });
+      if (error) throw error;
+      if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
+      const res = data as { masked_email: string; emailed: boolean; recovery_link: string | null };
+      setPwResult(res);
+      toast({
+        title: res.emailed ? '🔐 Reset email sent' : 'Link generated',
+        description: res.emailed
+          ? `${pwTarget.username} can now reset their password.`
+          : 'Email delivery failed — copy the link and share it securely.',
+      });
+      loadAudit();
+    } catch (e) {
+      toast({ title: 'Reset failed', description: (e as Error).message, variant: 'destructive' });
+    } finally {
+      setPwLoading(false);
+    }
+  };
+
 
   const giftPlus = async () => {
     if (!plusTarget || !user?.id) return;
@@ -385,6 +428,84 @@ const AdminPower: React.FC = () => {
           </AlertDialog>
         </div>
       </UltraCard>
+
+      {/* Password Reset */}
+      <UltraCard variant="glass" className="p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <KeyRound className="w-5 h-5 text-secondary" />
+          <h3 className="font-display text-lg font-bold">Send Password Reset</h3>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          Emails the account owner a single-use reset link (expires in 1 hour). They choose whether to
+          stay signed in on other devices. Max 5 links per hour. Every request is logged.
+        </p>
+        <div className="relative mb-2">
+          <Input
+            placeholder="Search username…"
+            value={pwQuery}
+            onChange={(e) => { setPwQuery(e.target.value); setPwTarget(null); setPwResult(null); }}
+          />
+          {!pwTarget && matchedPwUsers.length > 0 && (
+            <div className="absolute z-20 mt-1 w-full rounded-lg border border-border bg-popover shadow-xl overflow-hidden">
+              {matchedPwUsers.map(u => (
+                <button
+                  key={u.id}
+                  onClick={() => { setPwTarget({ user_id: u.id, username: u.username }); setPwQuery(u.username); }}
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-muted"
+                >
+                  {u.username}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button disabled={!pwTarget || pwLoading} variant="gaming" className="w-full">
+              {pwLoading ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <KeyRound className="w-4 h-4 mr-1" />}
+              Send reset link
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Send a reset link to {pwTarget?.username}?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Their current password keeps working until they set a new one. The link is single-use.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={sendPasswordReset}>Send link</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {pwResult && (
+          <div className="mt-3 p-3 rounded-lg bg-muted/50 space-y-2">
+            <p className="text-xs">
+              {pwResult.emailed
+                ? `Email sent to ${pwResult.masked_email}.`
+                : `Email delivery unavailable — share the link below with ${pwResult.masked_email} securely.`}
+            </p>
+            {pwResult.recovery_link && (
+              <div className="flex gap-2">
+                <Input readOnly value={pwResult.recovery_link} className="text-[10px] font-mono" />
+                <Button
+                  size="icon"
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(pwResult.recovery_link!);
+                    toast({ title: 'Copied', description: 'Recovery link copied to clipboard.' });
+                  }}
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </UltraCard>
+
 
       {/* Reset Battle Pass */}
       <UltraCard variant="glass" className="p-5">
