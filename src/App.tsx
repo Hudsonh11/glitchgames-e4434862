@@ -48,6 +48,7 @@ const App = () => (
               <Route path="/admin" element={<Admin />} />
               <Route path="/game/:id" element={<Game />} />
               <Route path="/recovery" element={<Recovery />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/social" element={<Social />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
