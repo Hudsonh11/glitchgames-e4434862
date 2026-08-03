@@ -89,6 +89,41 @@ const AdminPower: React.FC = () => {
     ? allUsers.filter(u => u.username.toLowerCase().includes(plusQuery.toLowerCase())).slice(0, 5)
     : [];
 
+  const matchedPwUsers = pwQuery.length >= 2 && !pwTarget
+    ? allUsers.filter(u => u.username.toLowerCase().includes(pwQuery.toLowerCase())).slice(0, 5)
+    : [];
+
+  const sendPasswordReset = async () => {
+    if (!pwTarget) return;
+    setPwLoading(true);
+    setPwResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-password-reset', {
+        body: {
+          user_id: pwTarget.user_id,
+          username: pwTarget.username,
+          redirect_to: `${window.location.origin}/reset-password`,
+        },
+      });
+      if (error) throw error;
+      if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
+      const res = data as { masked_email: string; emailed: boolean; recovery_link: string | null };
+      setPwResult(res);
+      toast({
+        title: res.emailed ? '🔐 Reset email sent' : 'Link generated',
+        description: res.emailed
+          ? `${pwTarget.username} can now reset their password.`
+          : 'Email delivery failed — copy the link and share it securely.',
+      });
+      loadAudit();
+    } catch (e) {
+      toast({ title: 'Reset failed', description: (e as Error).message, variant: 'destructive' });
+    } finally {
+      setPwLoading(false);
+    }
+  };
+
+
   const giftPlus = async () => {
     if (!plusTarget || !user?.id) return;
     setPlusLoading(true);
