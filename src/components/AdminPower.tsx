@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Crown, Megaphone, ScrollText, Send, Loader2, Search, RefreshCw, Trash2, AlertTriangle, Coins, Zap } from 'lucide-react';
+import { Crown, Megaphone, ScrollText, Send, Loader2, Search, RefreshCw, Trash2, AlertTriangle, Coins, Zap, KeyRound, Copy } from 'lucide-react';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
