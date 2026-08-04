@@ -327,14 +327,19 @@ const Player: React.FC<{
   const hasCompletedLevel = useRef(false);
   const hasDied = useRef(false);
 
-  // Reset on checkpoint/death change
+  // Keep the latest checkpoint without teleporting the player when it updates.
+  const checkpointRef = useRef<[number, number, number]>(checkpoint);
+  useEffect(() => { checkpointRef.current = checkpoint; }, [checkpoint]);
+
+  // Respawn only when the player actually dies (or the level remounts us).
   useEffect(() => {
-    pos.current.set(...checkpoint);
+    pos.current.set(...checkpointRef.current);
     velocity.current.set(0, 0, 0);
     grounded.current = false;
     hasCompletedLevel.current = false;
     hasDied.current = false;
-  }, [checkpoint, deathCount]);
+  }, [deathCount]);
+
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
