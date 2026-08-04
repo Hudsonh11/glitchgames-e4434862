@@ -479,8 +479,13 @@ const Player: React.FC<{
             pos.current.z += moveDir.z * 3;
           }
           if (p.type === 'checkpoint') {
-            setCheckpoint([px, platTop + 0.9, pz]);
+            const c = checkpointRef.current;
+            if (Math.abs(c[0] - px) > 0.6 || Math.abs(c[2] - pz) > 0.6) {
+              checkpointRef.current = [px, platTop + 0.9, pz];
+              setCheckpoint([px, platTop + 0.9, pz]);
+            }
           }
+
           if (p.type === 'finish') {
             hasCompletedLevel.current = true;
             onLevelComplete();
