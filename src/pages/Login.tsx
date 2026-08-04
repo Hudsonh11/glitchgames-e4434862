@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Gamepad2, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Gamepad2, Mail, Lock, User, ArrowRight, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useGame } from '@/contexts/GameContext';
