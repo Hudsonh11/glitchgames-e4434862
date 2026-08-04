@@ -211,12 +211,16 @@ const Login: React.FC = () => {
             <div className="mt-4">
               <Button asChild variant="outline" size="lg" className="w-full">
                 <Link to="/recovery">
-                  <KeyRound className="w-4 h-4 mr-2" />
-                  Forgot password? Email me a reset link
+                  <KeyRound className="w-4 h-4 mr-2 shrink-0" />
+                  <span className="truncate">Forgot password?</span>
                 </Link>
               </Button>
+              <p className="mt-2 text-xs text-muted-foreground text-center">
+                We'll email you a secure link to reset it.
+              </p>
             </div>
           )}
+
 
 
           {/* Info */}
