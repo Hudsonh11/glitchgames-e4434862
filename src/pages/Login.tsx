@@ -208,12 +208,16 @@ const Login: React.FC = () => {
           </div>
 
           {isLogin && (
-            <div className="mt-4 text-center">
-              <Link to="/recovery" className="text-sm text-muted-foreground hover:text-primary">
-                Forgot your password?
-              </Link>
+            <div className="mt-4">
+              <Button asChild variant="outline" size="lg" className="w-full">
+                <Link to="/recovery">
+                  <KeyRound className="w-4 h-4 mr-2" />
+                  Forgot password? Email me a reset link
+                </Link>
+              </Button>
             </div>
           )}
+
 
           {/* Info */}
           <div className="mt-6 p-4 rounded-xl bg-muted/50 border border-border">
