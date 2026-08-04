@@ -33,24 +33,20 @@ const buildRound = (level: number) => {
   const wires: Wire[] = shuffle(PALETTE).slice(0, count).map((w) => ({ ...w, cut: false }));
   const safe = Math.floor(Math.random() * wires.length);
 
-  // Build a deterministic clue set that always points at exactly one wire.
+  // Clues always narrow the wires down to exactly one safe choice.
   const clues: string[] = [];
-  clues.push(`The safe wire is NOT ${wires.filter((_, i) => i !== safe).slice(0, 1)[0]?.label ?? 'unknown'}... wait — that one is a decoy.`);
-  clues[0] = `Serial ends in ${safe % 2 === 0 ? 'an even digit' : 'an odd digit'} — cut a wire in an ${safe % 2 === 0 ? 'even' : 'odd'} position (counting from 1: ${safe % 2 === 0 ? 'odd' : 'even'} index).`;
-  clues[0] = `Position parity: the safe wire sits at position ${safe + 1 <= wires.length ? (safe + 1) % 2 === 1 ? 'an ODD number' : 'an EVEN number' : ''} from the top.`;
-  clues.push(`The safe wire is ${wires[safe].label}.`.replace(wires[safe].label, '???'));
-  const others = wires.map((w, i) => i).filter((i) => i !== safe);
-  const eliminated = shuffle(others).slice(0, Math.max(1, wires.length - 2));
-  clues.push(`Defusal manual: never cut ${eliminated.map((i) => wires[i].label).join(', ')}.`);
+  clues.push(`Position parity: the safe wire sits at ${(safe + 1) % 2 === 1 ? 'an ODD' : 'an EVEN'} position from the top.`);
+
+  const others = wires.map((_, i) => i).filter((i) => i !== safe);
+  const eliminated = shuffle(others).slice(0, Math.max(1, others.length - 1));
+  clues.push(`Never cut: ${eliminated.map((i) => wires[i].label).join(', ')}.`);
+
   const remaining = wires.map((_, i) => i).filter((i) => !eliminated.includes(i));
-  if (remaining.length > 1) {
-    const other = remaining.find((i) => i !== safe)!;
-    clues.push(
-      Math.random() > 0.5
-        ? `The safe wire is ${safe < other ? 'ABOVE' : 'BELOW'} the ${wires[other].label} wire.`
-        : `The ${wires[other].label} wire is a trap.`,
-    );
+  const other = remaining.find((i) => i !== safe);
+  if (other !== undefined) {
+    clues.push(`The safe wire is ${safe < other ? 'ABOVE' : 'BELOW'} the ${wires[other].label} wire.`);
   }
+
   return { wires, safe, clues };
 };
 
