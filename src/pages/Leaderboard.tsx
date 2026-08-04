@@ -110,6 +110,9 @@ const games = [
   { id: 'soap-carving', name: 'Soap Carving', category: 'Plus' },
   { id: 'tower-demolition', name: 'Tower Demolition', category: 'Destruction' },
   { id: 'glass-smash', name: 'Glass Smash', category: 'Destruction' },
+  { id: 'reversi', name: 'Reversi', category: 'Strategy' },
+  { id: 'cup-shuffle', name: 'Cup Shuffle', category: 'Skill' },
+  { id: 'bomb-defuse', name: 'Bomb Defuse', category: 'Brain' },
 ];
 
 const categories = ['All', ...Array.from(new Set(games.map(g => g.category))).sort()];

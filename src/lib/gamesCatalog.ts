@@ -93,4 +93,7 @@ export const ALL_GAMES = [
   { id: 'soap-carving', title: 'Soap Carving', category: 'Plus', rating: 4.8, color: 'hsl(320, 70%, 65%)' },
   { id: 'tower-demolition', title: 'Tower Demolition', category: 'Destruction', rating: 4.8, color: 'hsl(20, 90%, 55%)' },
   { id: 'glass-smash', title: 'Glass Smash', category: 'Destruction', rating: 4.8, color: 'hsl(180, 90%, 60%)' },
+  { id: 'reversi', title: 'Reversi', category: 'Strategy', rating: 4.7, color: 'hsl(142, 70%, 45%)' },
+  { id: 'cup-shuffle', title: 'Cup Shuffle', category: 'Skill', rating: 4.6, color: 'hsl(45, 100%, 55%)' },
+  { id: 'bomb-defuse', title: 'Bomb Defuse', category: 'Brain', rating: 4.8, color: 'hsl(0, 85%, 55%)' },
 ];

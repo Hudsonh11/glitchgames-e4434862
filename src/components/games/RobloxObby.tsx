@@ -3,6 +3,8 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Sky, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useGame } from '@/contexts/GameContext';
+import { playSfx } from '@/lib/sfx';
 
 // ─── Types ───
 interface PlatformData {
@@ -327,14 +329,19 @@ const Player: React.FC<{
   const hasCompletedLevel = useRef(false);
   const hasDied = useRef(false);
 
-  // Reset on checkpoint/death change
+  // Keep the latest checkpoint without teleporting the player when it updates.
+  const checkpointRef = useRef<[number, number, number]>(checkpoint);
+  useEffect(() => { checkpointRef.current = checkpoint; }, [checkpoint]);
+
+  // Respawn only when the player actually dies (or the level remounts us).
   useEffect(() => {
-    pos.current.set(...checkpoint);
+    pos.current.set(...checkpointRef.current);
     velocity.current.set(0, 0, 0);
     grounded.current = false;
     hasCompletedLevel.current = false;
     hasDied.current = false;
-  }, [checkpoint, deathCount]);
+  }, [deathCount]);
+
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -474,8 +481,13 @@ const Player: React.FC<{
             pos.current.z += moveDir.z * 3;
           }
           if (p.type === 'checkpoint') {
-            setCheckpoint([px, platTop + 0.9, pz]);
+            const c = checkpointRef.current;
+            if (Math.abs(c[0] - px) > 0.6 || Math.abs(c[2] - pz) > 0.6) {
+              checkpointRef.current = [px, platTop + 0.9, pz];
+              setCheckpoint([px, platTop + 0.9, pz]);
+            }
           }
+
           if (p.type === 'finish') {
             hasCompletedLevel.current = true;
             onLevelComplete();
@@ -566,6 +578,7 @@ const ObbyScene: React.FC<{
       ))}
 
       <Player
+        key={level}
         platforms={platforms}
         onLevelComplete={onComplete}
         onDeath={onDeath}
@@ -734,6 +747,7 @@ const RobloxObby: React.FC = () => {
   const isMobile = useIsMobile();
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const mobileInput = useRef({ x: 0, z: 0, jump: false, cameraAngle: 0 });
+  const { updateGameStats, addCoins } = useGame();
 
   useEffect(() => {
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
@@ -741,8 +755,13 @@ const RobloxObby: React.FC = () => {
 
   const showTouchControls = isMobile || isTouchDevice;
 
-  const handleComplete = useCallback(() => { setShowComplete(true); }, []);
-  const handleDeath = useCallback(() => { setDeaths(d => d + 1); }, []);
+  const handleComplete = useCallback(() => {
+    setShowComplete(true);
+    playSfx('win');
+    updateGameStats('roblox-obby', level, 0);
+    addCoins(20 + level * 5);
+  }, [level, updateGameStats, addCoins]);
+  const handleDeath = useCallback(() => { setDeaths(d => d + 1); playSfx('lose'); }, []);
 
   const nextLevel = () => {
     if (level < totalLevels) {

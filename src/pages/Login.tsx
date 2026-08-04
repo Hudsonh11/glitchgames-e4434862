@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Gamepad2, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Gamepad2, Mail, Lock, User, ArrowRight, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useGame } from '@/contexts/GameContext';
@@ -208,12 +208,20 @@ const Login: React.FC = () => {
           </div>
 
           {isLogin && (
-            <div className="mt-4 text-center">
-              <Link to="/recovery" className="text-sm text-muted-foreground hover:text-primary">
-                Forgot your password?
-              </Link>
+            <div className="mt-4">
+              <Button asChild variant="outline" size="lg" className="w-full">
+                <Link to="/recovery">
+                  <KeyRound className="w-4 h-4 mr-2 shrink-0" />
+                  <span className="truncate">Forgot password?</span>
+                </Link>
+              </Button>
+              <p className="mt-2 text-xs text-muted-foreground text-center">
+                We'll email you a secure link to reset it.
+              </p>
             </div>
           )}
+
+
 
           {/* Info */}
           <div className="mt-6 p-4 rounded-xl bg-muted/50 border border-border">

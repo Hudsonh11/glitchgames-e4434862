@@ -93,6 +93,9 @@ import PressureWash from '@/components/games/PressureWash';
 import SoapCarving from '@/components/games/SoapCarving';
 import TowerDemolition from '@/components/games/TowerDemolition';
 import GlassSmash from '@/components/games/GlassSmash';
+import Reversi from '@/components/games/Reversi';
+import CupShuffle from '@/components/games/CupShuffle';
+import BombDefuse from '@/components/games/BombDefuse';
 import { useGame } from '@/contexts/GameContext';
 import { usePlusStatus } from '@/hooks/usePlusStatus';
 import { Zap } from 'lucide-react';
@@ -201,6 +204,9 @@ const games: Record<string, { component: React.FC<any>; title: string; category:
   'soap-carving': { component: SoapCarving, title: 'Soap Carving', category: 'Plus' },
   'tower-demolition': { component: TowerDemolition, title: 'Tower Demolition', category: 'Destruction' },
   'glass-smash': { component: GlassSmash, title: 'Glass Smash', category: 'Destruction' },
+  'reversi': { component: Reversi, title: 'Reversi', category: 'Strategy' },
+  'cup-shuffle': { component: CupShuffle, title: 'Cup Shuffle', category: 'Skill' },
+  'bomb-defuse': { component: BombDefuse, title: 'Bomb Defuse', category: 'Brain' },
 };
 
 const PLUS_GAMES = new Set(['guess-the-person', 'tanks', 'ultra-blitz', 'soap-carving']);
