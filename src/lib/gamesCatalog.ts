@@ -95,5 +95,6 @@ export const ALL_GAMES = [
   { id: 'glass-smash', title: 'Glass Smash', category: 'Destruction', rating: 4.8, color: 'hsl(180, 90%, 60%)' },
   { id: 'reversi', title: 'Reversi', category: 'Strategy', rating: 4.7, color: 'hsl(142, 70%, 45%)' },
   { id: 'cup-shuffle', title: 'Cup Shuffle', category: 'Skill', rating: 4.6, color: 'hsl(45, 100%, 55%)' },
+  { id: 'ring-ball', title: 'Ring Ball', category: 'Arcade', rating: 4.9, color: 'hsl(300, 100%, 60%)' },
   { id: 'bomb-defuse', title: 'Bomb Defuse', category: 'Brain', rating: 4.8, color: 'hsl(0, 85%, 55%)' },
 ];

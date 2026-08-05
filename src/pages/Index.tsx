@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Gamepad2, Zap, Trophy, Gift, Sparkles, Star, Crown, Rocket, Heart, 
   TrendingUp, Users, Clock, Target, Flame, Play, Shield, Gem, Award,
-  Search, ChevronRight, ArrowRight, Eye, Swords, Timer, Layers,
+  Search, ChevronRight, ChevronDown, ArrowRight, Eye, Swords, Timer, Layers,
   Compass, BarChart3, Globe, Headphones, MessageSquare, BookOpen,
   Newspaper, Quote, Palette, Music, Cpu, Map, Crosshair, Dices
 } from 'lucide-react';
@@ -146,6 +146,7 @@ const games = [
   { id: 'glass-smash', title: 'Glass Smash', description: 'Crack and shatter panes of glass into flying shards for combo points. NEW!', image: 'https://images.unsplash.com/photo-1439337153520-7082a56a81f4?w=400&h=300&fit=crop', category: 'Destruction', rating: 4.8, players: 'NEW', color: 'hsl(180, 90%, 60%)' },
   { id: 'reversi', title: 'Reversi', description: 'Outflank the bot and flip its discs in this classic Othello board duel. NEW!', image: 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=400&h=300&fit=crop', category: 'Strategy', rating: 4.7, players: 'NEW', color: 'hsl(142, 70%, 45%)' },
   { id: 'cup-shuffle', title: 'Cup Shuffle', description: 'Track the golden ball as the cups swap faster and faster every round. NEW!', image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=300&fit=crop', category: 'Skill', rating: 4.6, players: 'NEW', color: 'hsl(45, 100%, 55%)' },
+  { id: 'ring-ball', title: 'Ring Ball', description: 'Steer a black hole around a neon ring and swallow splitting balls for huge combos. NEW!', image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&h=300&fit=crop', category: 'Arcade', rating: 4.9, players: 'NEW', color: 'hsl(300, 100%, 60%)' },
   { id: 'bomb-defuse', title: 'Bomb Defuse', description: 'Read the manual and cut the one safe wire before the timer hits zero. NEW!', image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&h=300&fit=crop', category: 'Brain', rating: 4.8, players: 'NEW', color: 'hsl(0, 85%, 55%)' },
 ];
 
@@ -276,6 +277,7 @@ const Index: React.FC = () => {
   const { isLoggedIn, gamesShutdown, user, currentStreak, lastClaimDate, gameStats, leaderboard } = useGame();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showAllGames, setShowAllGames] = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
   const today = new Date().toISOString().split('T')[0];
   const hasReward = lastClaimDate !== today;
@@ -478,7 +480,6 @@ const Index: React.FC = () => {
         <div className="container mx-auto max-w-6xl space-y-8">
           <QuickPlayCarousel games={puzzleGames} title="🧩 Puzzle Games" />
           <QuickPlayCarousel games={arcadeGames} title="🕹️ Arcade Classics" />
-          <QuickPlayCarousel games={recentlyAdded} title="🆕 Recently Added" />
         </div>
       </section>
 
@@ -534,7 +535,7 @@ const Index: React.FC = () => {
       </section>
 
       {/* ═══ TOP RATED + MOST POPULAR + STAFF PICKS ═══ */}
-      <section className="py-8 px-4 relative z-10">
+      {showMore && <section className="py-8 px-4 relative z-10">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="glass-panel rounded-2xl p-6">
@@ -556,7 +557,7 @@ const Index: React.FC = () => {
             <StaffPicks games={games} />
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* ═══ NEW THIS WEEK ═══ */}
       <section className="py-12 px-4 relative z-10">
@@ -674,12 +675,12 @@ const Index: React.FC = () => {
       </section>
 
       {/* ═══ PLAYER TESTIMONIALS ═══ */}
-      <section className="py-12 px-4 relative z-10">
+      {showMore && <section className="py-12 px-4 relative z-10">
         <div className="container mx-auto max-w-6xl">
           <SectionHeader icon={MessageSquare} title="What Players Say" subtitle="Real reviews from our community" iconColor="text-secondary" />
           <PlayerTestimonials />
         </div>
-      </section>
+      </section>}
 
       {/* ═══ SOCIAL - FRIEND ACTIVITY + STATS ═══ */}
       {isLoggedIn && (
@@ -704,7 +705,7 @@ const Index: React.FC = () => {
       )}
 
       {/* ═══ WHY CHOOSE GLITCH GAMES ═══ */}
-      <section className="py-16 px-4 relative overflow-hidden">
+      {showMore && <section className="py-16 px-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/50 to-transparent" />
         <UltraParticles count={10} className="opacity-30" />
         <div className="container mx-auto max-w-6xl relative z-10">
@@ -725,12 +726,24 @@ const Index: React.FC = () => {
               gradient="from-secondary/20 to-secondary/5" stat="99.9%" statLabel="uptime" />
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* ═══ PLATFORM STATS ═══ */}
-      <section className="py-12 px-4 relative z-10">
-        <div className="container mx-auto max-w-5xl">
-          <PlatformStats />
+      {showMore && (
+        <section className="py-12 px-4 relative z-10">
+          <div className="container mx-auto max-w-5xl">
+            <PlatformStats />
+          </div>
+        </section>
+      )}
+
+      {/* ═══ SHOW MORE TOGGLE ═══ */}
+      <section className="py-8 px-4 relative z-10">
+        <div className="container mx-auto max-w-6xl text-center">
+          <Button variant="outline" size="lg" className="gap-2" onClick={() => setShowMore(v => !v)}>
+            <ChevronDown className={`w-4 h-4 transition-transform ${showMore ? 'rotate-180' : ''}`} />
+            {showMore ? 'Show less' : 'More from Glitch Games'}
+          </Button>
         </div>
       </section>
 
