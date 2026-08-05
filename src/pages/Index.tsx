@@ -146,6 +146,7 @@ const games = [
   { id: 'glass-smash', title: 'Glass Smash', description: 'Crack and shatter panes of glass into flying shards for combo points. NEW!', image: 'https://images.unsplash.com/photo-1439337153520-7082a56a81f4?w=400&h=300&fit=crop', category: 'Destruction', rating: 4.8, players: 'NEW', color: 'hsl(180, 90%, 60%)' },
   { id: 'reversi', title: 'Reversi', description: 'Outflank the bot and flip its discs in this classic Othello board duel. NEW!', image: 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=400&h=300&fit=crop', category: 'Strategy', rating: 4.7, players: 'NEW', color: 'hsl(142, 70%, 45%)' },
   { id: 'cup-shuffle', title: 'Cup Shuffle', description: 'Track the golden ball as the cups swap faster and faster every round. NEW!', image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=300&fit=crop', category: 'Skill', rating: 4.6, players: 'NEW', color: 'hsl(45, 100%, 55%)' },
+  { id: 'ring-ball', title: 'Ring Ball', description: 'Steer a black hole around a neon ring and swallow splitting balls for huge combos. NEW!', image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&h=300&fit=crop', category: 'Arcade', rating: 4.9, players: 'NEW', color: 'hsl(300, 100%, 60%)' },
   { id: 'bomb-defuse', title: 'Bomb Defuse', description: 'Read the manual and cut the one safe wire before the timer hits zero. NEW!', image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&h=300&fit=crop', category: 'Brain', rating: 4.8, players: 'NEW', color: 'hsl(0, 85%, 55%)' },
 ];
 
