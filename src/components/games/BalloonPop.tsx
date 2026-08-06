@@ -12,7 +12,11 @@ interface Balloon {
 
 const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'];
 
-const BalloonPop: React.FC = () => {
+interface BalloonPopProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const BalloonPop: React.FC<BalloonPopProps> = ({ onScoreUpdate }) => {
   const [balloons, setBalloons] = useState<Balloon[]>([]);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
@@ -48,6 +52,10 @@ const BalloonPop: React.FC = () => {
     }, 30);
     return () => clearInterval(interval);
   }, [gameOver]);
+
+  useEffect(() => {
+    onScoreUpdate?.(score);
+  }, [score, onScoreUpdate]);
 
   useEffect(() => {
     if (gameOver) return;

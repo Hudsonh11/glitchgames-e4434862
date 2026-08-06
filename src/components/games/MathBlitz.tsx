@@ -3,7 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Play, RotateCcw, Zap } from 'lucide-react';
 
-const MathBlitz: React.FC = () => {
+interface MathBlitzProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const MathBlitz: React.FC<MathBlitzProps> = ({ onScoreUpdate }) => {
   const [question, setQuestion] = useState({ a: 0, b: 0, op: '+', answer: 0 });
   const [userAnswer, setUserAnswer] = useState('');
   const [score, setScore] = useState(0);
@@ -67,6 +71,7 @@ const MathBlitz: React.FC = () => {
       setTimeLeft(t => {
         if (t <= 1) {
           setGameActive(false);
+          setScore(s => { onScoreUpdate?.(s); return s; });
           return 0;
         }
         return t - 1;
@@ -82,7 +87,11 @@ const MathBlitz: React.FC = () => {
     
     if (num === question.answer) {
       const points = 10 + streak * 2;
-      setScore(s => s + points);
+      setScore(s => {
+        const newScore = s + points;
+        onScoreUpdate?.(newScore);
+        return newScore;
+      });
       setStreak(s => s + 1);
       setFeedback('correct');
     } else {

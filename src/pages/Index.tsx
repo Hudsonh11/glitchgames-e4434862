@@ -45,6 +45,9 @@ import GamingNews from '@/components/GamingNews';
 import QuickAccessBar from '@/components/QuickAccessBar';
 import StaffPicks from '@/components/StaffPicks';
 import DailyBonus from '@/components/DailyBonus';
+import ContinuePlaying from '@/components/ContinuePlaying';
+import RecommendedForYou from '@/components/RecommendedForYou';
+import DailyGoal from '@/components/DailyGoal';
 import { useGame } from '@/contexts/GameContext';
 import { Progress } from '@/components/ui/progress';
 import { getCurrentSeason } from '@/lib/season';
@@ -454,14 +457,23 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* ═══ DAILY BONUS (logged in) ═══ */}
+      {/* ═══ DAILY BONUS + DAILY GOAL (logged in) ═══ */}
       {isLoggedIn && (
         <section className="py-4 px-4 relative z-10">
-          <div className="container mx-auto max-w-6xl">
-            <DailyBonus />
+          <div className="container mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2"><DailyBonus /></div>
+            <DailyGoal />
           </div>
         </section>
       )}
+
+      {/* ═══ CONTINUE PLAYING + RECOMMENDED ═══ */}
+      <section className="py-4 px-4 relative z-10">
+        <div className="container mx-auto max-w-6xl space-y-6">
+          <ContinuePlaying />
+          <RecommendedForYou />
+        </div>
+      </section>
 
       {/* ═══ SPOTLIGHT GAMES ═══ */}
       <section className="py-12 px-4 relative z-10">
@@ -476,12 +488,13 @@ const Index: React.FC = () => {
       </section>
 
       {/* ═══ QUICK PLAY CAROUSELS ═══ */}
-      <section className="py-8 px-4 relative z-10">
+      {showMore && <section className="py-8 px-4 relative z-10">
         <div className="container mx-auto max-w-6xl space-y-8">
           <QuickPlayCarousel games={puzzleGames} title="🧩 Puzzle Games" />
           <QuickPlayCarousel games={arcadeGames} title="🕹️ Arcade Classics" />
         </div>
-      </section>
+      </section>}
+
 
       {/* ═══ GAME OF THE DAY + POPULAR NOW + NEWS ═══ */}
       <section className="py-8 px-4 relative z-10">
@@ -504,7 +517,7 @@ const Index: React.FC = () => {
       </section>
 
       {/* ═══ QUICK CATEGORIES ═══ */}
-      <section className="py-8 px-4 relative z-10">
+      {showMore && <section className="py-8 px-4 relative z-10">
         <div className="container mx-auto max-w-6xl">
           <SectionHeader icon={Compass} title="Browse Categories" subtitle="Find your perfect game genre" />
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-3">
@@ -515,7 +528,8 @@ const Index: React.FC = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section>}
+
 
       {/* ═══ TRENDING + LEADERBOARD + RECENT WINNERS ═══ */}
       <section className="py-8 px-4 relative z-10">

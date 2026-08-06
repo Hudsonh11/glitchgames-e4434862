@@ -8,7 +8,11 @@ interface Difference {
   found: boolean;
 }
 
-const SpotDifference: React.FC = () => {
+interface SpotDifferenceProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const SpotDifference: React.FC<SpotDifferenceProps> = ({ onScoreUpdate }) => {
   const [differences, setDifferences] = useState<Difference[]>([]);
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
@@ -60,6 +64,7 @@ const SpotDifference: React.FC = () => {
       setTimeLeft(t => {
         if (t <= 1) {
           setGameActive(false);
+          onScoreUpdate?.(score);
           return 0;
         }
         return t - 1;
@@ -84,7 +89,11 @@ const SpotDifference: React.FC = () => {
         setDifferences(prev => prev.map(d => 
           d === foundDiff ? { ...d, found: true } : d
         ));
-        setScore(s => s + 50);
+        setScore(s => {
+          const next = s + 50;
+          onScoreUpdate?.(next);
+          return next;
+        });
         
         // Check if all found
         if (differences.filter(d => !d.found).length === 1) {
@@ -93,7 +102,11 @@ const SpotDifference: React.FC = () => {
         }
       } else {
         setWrongClicks(w => w + 1);
-        setScore(s => Math.max(0, s - 10));
+        setScore(s => {
+          const next = Math.max(0, s - 10);
+          onScoreUpdate?.(next);
+          return next;
+        });
       }
     }
   };

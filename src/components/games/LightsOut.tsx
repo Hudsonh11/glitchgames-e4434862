@@ -23,7 +23,11 @@ const toggleAt = (board: boolean[][], r: number, c: number) => {
   });
 };
 
-const LightsOut: React.FC = () => {
+interface LightsOutProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const LightsOut: React.FC<LightsOutProps> = ({ onScoreUpdate }) => {
   const [board, setBoard] = useState(generateBoard);
   const [moves, setMoves] = useState(0);
   const [won, setWon] = useState(false);
@@ -41,9 +45,12 @@ const LightsOut: React.FC = () => {
 
   useEffect(() => {
     if (board.every(row => row.every(cell => !cell))) {
-      if (moves > 0) setWon(true);
+      if (moves > 0) {
+        setWon(true);
+        onScoreUpdate?.(Math.max(50, level * 100 - moves));
+      }
     }
-  }, [board, moves]);
+  }, [board, moves, level, onScoreUpdate]);
 
   const nextLevel = () => {
     setBoard(generateBoard());

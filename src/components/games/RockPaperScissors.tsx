@@ -5,7 +5,11 @@ import { RotateCcw } from 'lucide-react';
 type Choice = 'rock' | 'paper' | 'scissors';
 type Result = 'win' | 'lose' | 'draw';
 
-const RockPaperScissors: React.FC = () => {
+interface RockPaperScissorsProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const RockPaperScissors: React.FC<RockPaperScissorsProps> = ({ onScoreUpdate }) => {
   const [playerChoice, setPlayerChoice] = useState<Choice | null>(null);
   const [cpuChoice, setCpuChoice] = useState<Choice | null>(null);
   const [result, setResult] = useState<Result | null>(null);
@@ -35,7 +39,11 @@ const RockPaperScissors: React.FC = () => {
         gameResult = 'draw';
       } else if (choices.find(c => c.choice === choice)?.beats === cpu) {
         gameResult = 'win';
-        setScore(s => ({ ...s, player: s.player + 1 }));
+        setScore(s => {
+          const next = { ...s, player: s.player + 1 };
+          onScoreUpdate?.(next.player * 100);
+          return next;
+        });
       } else {
         gameResult = 'lose';
         setScore(s => ({ ...s, cpu: s.cpu + 1 }));
@@ -51,6 +59,7 @@ const RockPaperScissors: React.FC = () => {
     setCpuChoice(null);
     setResult(null);
     setScore({ player: 0, cpu: 0 });
+    onScoreUpdate?.(0);
   };
   
   const getEmoji = (choice: Choice) => choices.find(c => c.choice === choice)?.emoji;

@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
 
-const SpinWheel: React.FC = () => {
+interface SpinWheelProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const SpinWheel: React.FC<SpinWheelProps> = ({ onScoreUpdate }) => {
   const { addCoins } = useGame();
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
@@ -40,6 +44,7 @@ const SpinWheel: React.FC = () => {
       await addCoins(prize.value);
       setSpinsUsed(s => s + 1);
       setSpinning(false);
+      onScoreUpdate?.(prize.value);
     }, 4000);
   };
   

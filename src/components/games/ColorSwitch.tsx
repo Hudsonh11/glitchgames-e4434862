@@ -10,7 +10,11 @@ interface Obstacle {
   gapColor: string;
 }
 
-const ColorSwitch: React.FC = () => {
+interface ColorSwitchProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const ColorSwitch: React.FC<ColorSwitchProps> = ({ onScoreUpdate }) => {
   const [playerY, setPlayerY] = useState(70);
   const [playerColor, setPlayerColor] = useState(colors[0]);
   const [velocity, setVelocity] = useState(0);
@@ -19,6 +23,10 @@ const ColorSwitch: React.FC = () => {
   const [gameActive, setGameActive] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   
+  useEffect(() => {
+    onScoreUpdate?.(score);
+  }, [score, onScoreUpdate]);
+
   const startGame = () => {
     setPlayerY(70);
     setPlayerColor(colors[0]);

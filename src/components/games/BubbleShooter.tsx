@@ -4,7 +4,11 @@ import { RotateCcw } from 'lucide-react';
 
 const colors = ['#ef4444', '#22c55e', '#3b82f6', '#eab308', '#a855f7', '#ec4899'];
 
-const BubbleShooter: React.FC = () => {
+interface BubbleShooterProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const BubbleShooter: React.FC<BubbleShooterProps> = ({ onScoreUpdate }) => {
   const [score, setScore] = useState(0);
   const [grid, setGrid] = useState<(string | null)[][]>([]);
   const [currentBubble, setCurrentBubble] = useState(colors[0]);
@@ -33,6 +37,10 @@ const BubbleShooter: React.FC = () => {
   useEffect(() => {
     initGame();
   }, [initGame]);
+  
+  useEffect(() => {
+    onScoreUpdate?.(score);
+  }, [score, onScoreUpdate]);
   
   const handleShoot = (col: number) => {
     if (gameOver) return;

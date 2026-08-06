@@ -22,13 +22,14 @@ const iconMap = {
   target: Target,
 };
 
-const UltraBadge: React.FC<UltraBadgeProps> = ({
+const UltraBadge = React.forwardRef<HTMLSpanElement, UltraBadgeProps & React.HTMLAttributes<HTMLSpanElement>>(({
   variant = 'default',
   children,
   icon,
   animated = false,
   size = 'md',
-}) => {
+  ...rest
+}, ref) => {
   const variantClasses = {
     default: 'bg-muted text-muted-foreground border-border',
     premium: 'bg-gradient-to-r from-primary to-secondary text-primary-foreground border-primary/50 shadow-glow',
@@ -56,6 +57,8 @@ const UltraBadge: React.FC<UltraBadgeProps> = ({
 
   return (
     <span
+      ref={ref}
+      {...rest}
       className={`
         inline-flex items-center font-display font-bold uppercase tracking-wider
         rounded-full border transition-all duration-300
@@ -70,6 +73,7 @@ const UltraBadge: React.FC<UltraBadgeProps> = ({
       {children}
     </span>
   );
-};
+});
+UltraBadge.displayName = 'UltraBadge';
 
 export default UltraBadge;

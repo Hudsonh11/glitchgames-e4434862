@@ -10,7 +10,11 @@ interface FallingItem {
   emoji: string;
 }
 
-const CatchGame: React.FC = () => {
+interface CatchGameProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const CatchGame: React.FC<CatchGameProps> = ({ onScoreUpdate }) => {
   const [basketX, setBasketX] = useState(50);
   const [items, setItems] = useState<FallingItem[]>([]);
   const [score, setScore] = useState(0);
@@ -22,6 +26,10 @@ const CatchGame: React.FC = () => {
   
   const goodItems = ['🍎', '🍊', '🍋', '🍇', '🍓', '⭐', '💎'];
   const badItems = ['💣', '☠️', '🔥'];
+  
+  useEffect(() => {
+    onScoreUpdate?.(score);
+  }, [score, onScoreUpdate]);
   
   const startGame = () => {
     setScore(0);

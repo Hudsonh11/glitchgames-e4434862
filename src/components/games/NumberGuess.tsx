@@ -3,7 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RotateCcw, ArrowUp, ArrowDown, Check } from 'lucide-react';
 
-const NumberGuess: React.FC = () => {
+interface NumberGuessProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const NumberGuess: React.FC<NumberGuessProps> = ({ onScoreUpdate }) => {
   const [target, setTarget] = useState(0);
   const [guess, setGuess] = useState('');
   const [attempts, setAttempts] = useState<{ num: number; result: 'high' | 'low' | 'correct' }[]>([]);
@@ -29,6 +33,7 @@ const NumberGuess: React.FC = () => {
     if (num === target) {
       result = 'correct';
       setWon(true);
+      onScoreUpdate?.(Math.max(50, maxNumber - attempts.length * 5));
     } else if (num > target) {
       result = 'high';
     } else {

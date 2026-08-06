@@ -39,7 +39,11 @@ const generatePuzzle = () => {
   return grid;
 };
 
-const PipeConnect: React.FC = () => {
+interface PipeConnectProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const PipeConnect: React.FC<PipeConnectProps> = ({ onScoreUpdate }) => {
   const [grid, setGrid] = useState(generatePuzzle);
   const [moves, setMoves] = useState(0);
   const [level, setLevel] = useState(1);
@@ -57,6 +61,7 @@ const PipeConnect: React.FC = () => {
   };
 
   const nextLevel = () => {
+    onScoreUpdate?.(Math.max(50, level * 100 - moves));
     setGrid(generatePuzzle());
     setMoves(0);
     setLevel(l => l + 1);

@@ -4,7 +4,11 @@ import { RotateCcw, Zap } from 'lucide-react';
 
 type GameState = 'waiting' | 'ready' | 'go' | 'result' | 'tooSoon';
 
-const ReactionTest: React.FC = () => {
+interface ReactionTestProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const ReactionTest: React.FC<ReactionTestProps> = ({ onScoreUpdate }) => {
   const [state, setState] = useState<GameState>('waiting');
   const [reactionTime, setReactionTime] = useState<number | null>(null);
   const [attempts, setAttempts] = useState<number[]>([]);
@@ -32,6 +36,7 @@ const ReactionTest: React.FC = () => {
       setReactionTime(time);
       setAttempts(prev => [...prev.slice(-4), time]);
       setState('result');
+      onScoreUpdate?.(Math.max(0, 1000 - time));
     } else if (state === 'result' || state === 'tooSoon') {
       startTest();
     }

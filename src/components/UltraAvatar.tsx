@@ -12,7 +12,7 @@ interface UltraAvatarProps {
   isPlus?: boolean;
 }
 
-const UltraAvatar: React.FC<UltraAvatarProps> = ({
+const UltraAvatar = React.forwardRef<HTMLDivElement, UltraAvatarProps & React.HTMLAttributes<HTMLDivElement>>(({
   src,
   alt = 'Avatar',
   size = 'md',
@@ -21,7 +21,8 @@ const UltraAvatar: React.FC<UltraAvatarProps> = ({
   level,
   animated = true,
   isPlus = false,
-}) => {
+  ...rest
+}, ref) => {
   const sizeClasses = {
     xs: 'w-8 h-8',
     sm: 'w-10 h-10',
@@ -59,7 +60,7 @@ const UltraAvatar: React.FC<UltraAvatarProps> = ({
   const effectiveBorder = isPlus ? 'plus' : border;
 
   return (
-    <div className="relative inline-block">
+    <div ref={ref} {...rest} className="relative inline-block">
       {/* Rainbow border wrapper */}
       {effectiveBorder === 'rainbow' && (
         <div className={`absolute inset-0 rounded-full bg-gradient-to-r from-primary via-secondary to-warning ${animated ? 'animate-spin-slow' : ''} p-0.5`}>
@@ -122,7 +123,8 @@ const UltraAvatar: React.FC<UltraAvatarProps> = ({
       )}
     </div>
   );
-};
+});
+UltraAvatar.displayName = 'UltraAvatar';
 
 export default UltraAvatar;
 

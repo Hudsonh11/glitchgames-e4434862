@@ -20,7 +20,11 @@ const colors = [
   'from-pink-500 to-pink-600',
 ];
 
-const TowerStack: React.FC = () => {
+interface TowerStackProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const TowerStack: React.FC<TowerStackProps> = ({ onScoreUpdate }) => {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [currentBlock, setCurrentBlock] = useState<Block | null>(null);
   const [direction, setDirection] = useState<1 | -1>(1);
@@ -77,6 +81,7 @@ const TowerStack: React.FC = () => {
     if (overlapWidth <= 0) {
       setGameActive(false);
       setGameOver(true);
+      onScoreUpdate?.(score);
       return;
     }
     
@@ -89,7 +94,11 @@ const TowerStack: React.FC = () => {
     };
     
     setBlocks(prev => [...prev, newBlock]);
-    setScore(s => s + 1);
+    setScore(s => {
+      const next = s + 1;
+      onScoreUpdate?.(next);
+      return next;
+    });
     
     // Create next moving block
     const nextId = currentBlock.id + 1;
@@ -99,7 +108,7 @@ const TowerStack: React.FC = () => {
       width: overlapWidth,
       color: colors[nextId % colors.length],
     });
-  }, [gameActive, currentBlock, blocks]);
+  }, [gameActive, currentBlock, blocks, score, onScoreUpdate]);
   
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

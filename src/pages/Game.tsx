@@ -110,6 +110,8 @@ import UltraLoadingSpinner from '@/components/UltraLoadingSpinner';
 import GamePauseMenu from '@/components/GamePauseMenu';
 import GameSuggestion from '@/components/GameSuggestion';
 import GameTimer from '@/components/GameTimer';
+import GameScoreBridge from '@/components/GameScoreBridge';
+
 
 const games: Record<string, { component: React.FC<any>; title: string; category: string }> = {
   'block-blast': { component: BlockBlast, title: 'Block Blast', category: 'Puzzle' },
@@ -302,8 +304,9 @@ const Game: React.FC = () => {
           </div>
 
           <div className="flex justify-center rounded-2xl overflow-hidden border border-border bg-card p-4">
-            <GameComponent />
+            <GameScoreBridge gameId={id!} component={GameComponent} />
           </div>
+
 
           {/* Next game suggestion */}
           <div className="mt-6">

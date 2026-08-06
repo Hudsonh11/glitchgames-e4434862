@@ -14,7 +14,11 @@ const sentences = [
   "We promptly judged antique ivory buckles for the next prize.",
 ];
 
-const TypeRacer: React.FC = () => {
+interface TypeRacerProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const TypeRacer: React.FC<TypeRacerProps> = ({ onScoreUpdate }) => {
   const [currentSentence, setCurrentSentence] = useState('');
   const [userInput, setUserInput] = useState('');
   const [started, setStarted] = useState(false);
@@ -41,7 +45,9 @@ const TypeRacer: React.FC = () => {
       setFinished(true);
       const timeElapsed = (Date.now() - (startTime || Date.now())) / 1000 / 60;
       const words = currentSentence.split(' ').length;
-      setWpm(Math.round(words / timeElapsed));
+      const finalWpm = Math.round(words / timeElapsed);
+      setWpm(finalWpm);
+      onScoreUpdate?.(finalWpm * 10);
     }
   }, [userInput, currentSentence, started, startTime]);
   
