@@ -31,7 +31,11 @@ const generateLevel = (n: number): Cell[][] => {
 
 for (let i = 1; i < 20; i++) LEVELS.push(generateLevel(i));
 
-const IceSlider: React.FC = () => {
+interface IceSliderProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const IceSlider: React.FC<IceSliderProps> = ({ onScoreUpdate }) => {
   const [level, setLevel] = useState(0);
   const [grid, setGrid] = useState<Cell[][]>(LEVELS[0].map(r => [...r]));
   const [playerPos, setPlayerPos] = useState<[number, number]>([1, 1]);
@@ -59,7 +63,7 @@ const IceSlider: React.FC = () => {
       while (true) {
         const nr = r + dr, nc = c + dc;
         if (nr < 0 || nr >= g.length || nc < 0 || nc >= g[0].length || g[nr][nc] === 'wall') break;
-        if (g[nr][nc] === 'goal') { r = nr; c = nc; setWon(true); break; }
+        if (g[nr][nc] === 'goal') { r = nr; c = nc; setWon(true); onScoreUpdate?.(Math.max(50, (level + 1) * 100 - moves)); break; }
         r = nr; c = nc;
       }
       g[r][c] = 'player';

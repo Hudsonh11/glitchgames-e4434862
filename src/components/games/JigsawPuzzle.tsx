@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, Shuffle } from 'lucide-react';
 
-const JigsawPuzzle: React.FC = () => {
+interface JigsawPuzzleProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const JigsawPuzzle: React.FC<JigsawPuzzleProps> = ({ onScoreUpdate }) => {
   const gridSize = 4;
   const [pieces, setPieces] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
@@ -46,8 +50,9 @@ const JigsawPuzzle: React.FC = () => {
   useEffect(() => {
     if (pieces.length > 0 && pieces.every((p, i) => p === i)) {
       setCompleted(true);
+      onScoreUpdate?.(Math.max(50, 500 - moves * 5));
     }
-  }, [pieces]);
+  }, [pieces, moves, onScoreUpdate]);
   
   const handleDragStart = (index: number) => {
     setDraggedPiece(index);

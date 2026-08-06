@@ -9,7 +9,11 @@ interface Platform {
   width: number;
 }
 
-const PlatformJump: React.FC = () => {
+interface PlatformJumpProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const PlatformJump: React.FC<PlatformJumpProps> = ({ onScoreUpdate }) => {
   const [playerX, setPlayerX] = useState(50);
   const [playerY, setPlayerY] = useState(80);
   const [velocityY, setVelocityY] = useState(0);
@@ -73,7 +77,11 @@ const PlatformJump: React.FC = () => {
               playerX >= plat.x - 5 && playerX <= plat.x + plat.width + 5
             ) {
               setVelocityY(-10); // Bounce
-              setScore(s => s + 10);
+              setScore(s => {
+                const newScore = s + 10;
+                onScoreUpdate?.(newScore);
+                return newScore;
+              });
               return plat.y - 3;
             }
           }
@@ -83,6 +91,7 @@ const PlatformJump: React.FC = () => {
         if (newY > 100) {
           setGameActive(false);
           setGameOver(true);
+          setScore(s => { onScoreUpdate?.(s); return s; });
           return y;
         }
         

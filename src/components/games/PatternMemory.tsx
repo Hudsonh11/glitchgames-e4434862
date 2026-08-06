@@ -2,7 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Play, RotateCcw } from 'lucide-react';
 
-const PatternMemory: React.FC = () => {
+interface PatternMemoryProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const PatternMemory: React.FC<PatternMemoryProps> = ({ onScoreUpdate }) => {
   const gridSize = 4;
   const [pattern, setPattern] = useState<number[]>([]);
   const [userPattern, setUserPattern] = useState<number[]>([]);
@@ -59,12 +63,17 @@ const PatternMemory: React.FC = () => {
     const currentIndex = newUserPattern.length - 1;
     if (newUserPattern[currentIndex] !== pattern[currentIndex]) {
       setGameState('fail');
+      onScoreUpdate?.(score);
       return;
     }
     
     // Check if complete
     if (newUserPattern.length === pattern.length) {
-      setScore(s => s + level * 10);
+      setScore(s => {
+        const newScore = s + level * 10;
+        onScoreUpdate?.(newScore);
+        return newScore;
+      });
       setGameState('success');
       setTimeout(() => {
         setLevel(l => l + 1);
