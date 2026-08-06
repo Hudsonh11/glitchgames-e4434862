@@ -23,12 +23,15 @@ interface Props {
 }
 
 const GameScoreBridge: React.FC<Props> = ({ gameId, component: GameComponent }) => {
-  const { updateGameStats, addCoins } = useGame();
+  const { updateGameStats, addCoins, gameStats } = useGame();
   const best = useRef(0);
   const persisted = useRef(0);
   const coinsAwarded = useRef(0);
   const startedAt = useRef(Date.now());
   const timer = useRef<ReturnType<typeof setTimeout>>();
+  const previousBest = useRef<number>(gameStats?.[gameId]?.highScore || 0);
+  const celebrated = useRef(false);
+  const [celebrate, setCelebrate] = useState(false);
 
   const flush = useCallback(async () => {
     const score = best.current;
@@ -50,6 +53,16 @@ const GameScoreBridge: React.FC<Props> = ({ gameId, component: GameComponent }) 
     const score = Math.floor(Number(raw));
     if (!Number.isFinite(score) || score <= 0 || score <= best.current) return;
     best.current = score;
+
+    // Personal-best celebration (once per session).
+    if (!celebrated.current && previousBest.current > 0 && score > previousBest.current) {
+      celebrated.current = true;
+      setCelebrate(true);
+      playSfx('win');
+      toast.success(`New personal best — ${score.toLocaleString()} points!`);
+      setTimeout(() => setCelebrate(false), 3500);
+    }
+
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => { void flush(); }, FLUSH_MS);
   }, [flush]);
@@ -62,7 +75,13 @@ const GameScoreBridge: React.FC<Props> = ({ gameId, component: GameComponent }) 
     };
   }, [flush]);
 
-  return <GameComponent onScoreUpdate={handleScore} />;
+  return (
+    <>
+      <UltraConfetti active={celebrate} />
+      <GameComponent onScoreUpdate={handleScore} />
+    </>
+  );
 };
+
 
 export default GameScoreBridge;
