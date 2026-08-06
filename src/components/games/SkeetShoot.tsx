@@ -2,7 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 interface Target { id: number; x: number; y: number; size: number; speed: number; dx: number; dy: number; type: 'normal' | 'gold' | 'bomb'; }
 
-const SkeetShoot: React.FC = () => {
+interface SkeetShootProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const SkeetShoot: React.FC<SkeetShootProps> = ({ onScoreUpdate }) => {
   const [targets, setTargets] = useState<Target[]>([]);
   const [score, setScore] = useState(0);
   const [shots, setShots] = useState(0);
@@ -41,7 +45,7 @@ const SkeetShoot: React.FC = () => {
   useEffect(() => {
     if (gameOver) return;
     const timer = setInterval(() => {
-      setTimeLeft(prev => { if (prev <= 1) { setGameOver(true); return 0; } return prev - 1; });
+      setTimeLeft(prev => { if (prev <= 1) { setGameOver(true); onScoreUpdate?.(score); return 0; } return prev - 1; });
     }, 1000);
     return () => clearInterval(timer);
   }, [gameOver]);
@@ -50,9 +54,17 @@ const SkeetShoot: React.FC = () => {
     setShots(s => s + 1);
     setTargets(prev => prev.filter(t => t.id !== id));
     if (type === 'bomb') {
-      setScore(s => Math.max(0, s - 50));
+      setScore(s => {
+        const next = Math.max(0, s - 50);
+        onScoreUpdate?.(next);
+        return next;
+      });
     } else {
-      setScore(s => s + (type === 'gold' ? 50 : 10));
+      setScore(s => {
+        const next = s + (type === 'gold' ? 50 : 10);
+        onScoreUpdate?.(next);
+        return next;
+      });
     }
     setHits(prev => [...prev, { x, y, id }]);
     setTimeout(() => setHits(prev => prev.filter(h => h.id !== id)), 300);

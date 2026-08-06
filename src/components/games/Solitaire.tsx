@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, Play } from 'lucide-react';
 
-const Solitaire: React.FC = () => {
+interface SolitaireProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const Solitaire: React.FC<SolitaireProps> = ({ onScoreUpdate }) => {
   const [score, setScore] = useState(0);
   const [moves, setMoves] = useState(0);
   const [gameWon, setGameWon] = useState(false);
@@ -48,6 +52,12 @@ const Solitaire: React.FC = () => {
   useEffect(() => {
     initGame();
   }, []);
+
+  useEffect(() => {
+    if (gameWon) {
+      onScoreUpdate?.(score);
+    }
+  }, [gameWon, score, onScoreUpdate]);
   
   const getCardColor = (card: string) => {
     return card.includes('♥') || card.includes('♦') ? 'text-red-500' : 'text-foreground';
@@ -60,7 +70,11 @@ const Solitaire: React.FC = () => {
       newTableau[pileIndex][cardIndex].faceUp = true;
       setTableau(newTableau);
       setMoves(m => m + 1);
-      setScore(s => s + 5);
+      setScore(s => {
+        const next = s + 5;
+        onScoreUpdate?.(next);
+        return next;
+      });
     }
   };
   

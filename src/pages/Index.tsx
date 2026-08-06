@@ -476,12 +476,13 @@ const Index: React.FC = () => {
       </section>
 
       {/* ═══ QUICK PLAY CAROUSELS ═══ */}
-      <section className="py-8 px-4 relative z-10">
+      {showMore && <section className="py-8 px-4 relative z-10">
         <div className="container mx-auto max-w-6xl space-y-8">
           <QuickPlayCarousel games={puzzleGames} title="🧩 Puzzle Games" />
           <QuickPlayCarousel games={arcadeGames} title="🕹️ Arcade Classics" />
         </div>
-      </section>
+      </section>}
+
 
       {/* ═══ GAME OF THE DAY + POPULAR NOW + NEWS ═══ */}
       <section className="py-8 px-4 relative z-10">
