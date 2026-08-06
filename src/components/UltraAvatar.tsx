@@ -123,7 +123,8 @@ const UltraAvatar = React.forwardRef<HTMLDivElement, UltraAvatarProps & React.HT
       )}
     </div>
   );
-};
+});
+UltraAvatar.displayName = 'UltraAvatar';
 
 export default UltraAvatar;
 
