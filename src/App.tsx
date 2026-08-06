@@ -24,6 +24,7 @@ import CookieConsent from "@/components/CookieConsent";
 import BackToTop from "@/components/BackToTop";
 import InstallPrompt from "@/components/InstallPrompt";
 import OnboardingTour from "@/components/OnboardingTour";
+import CommandPalette from "@/components/CommandPalette";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
           <Sonner />
           <OnlineStatus />
           <KeyboardShortcuts />
+          <CommandPalette />
           <main>
             <Routes>
               <Route path="/" element={<Index />} />
