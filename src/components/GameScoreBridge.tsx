@@ -1,5 +1,9 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useGame } from '@/contexts/GameContext';
+import UltraConfetti from '@/components/UltraConfetti';
+import { toast } from 'sonner';
+import { playSfx } from '@/lib/sfx';
+
 
 /**
  * Bridges legacy games that report progress through an `onScoreUpdate` prop
