@@ -16,7 +16,11 @@ const scramble = (word: string): string => {
   return arr.join('') === word ? scramble(word) : arr.join('');
 };
 
-const WordScramble: React.FC = () => {
+interface WordScrambleProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const WordScramble: React.FC<WordScrambleProps> = ({ onScoreUpdate }) => {
   const [currentWord, setCurrentWord] = useState('');
   const [scrambled, setScrambled] = useState('');
   const [guess, setGuess] = useState('');
@@ -40,7 +44,11 @@ const WordScramble: React.FC = () => {
   const checkGuess = () => {
     if (guess.toUpperCase() === currentWord) {
       setFeedback('correct');
-      setScore(s => s + 100 + streak * 25);
+      setScore(s => {
+        const next = s + 100 + streak * 25;
+        onScoreUpdate?.(next);
+        return next;
+      });
       setStreak(s => s + 1);
       setRound(r => r + 1);
       setTimeout(newWord, 1000);
@@ -54,7 +62,11 @@ const WordScramble: React.FC = () => {
   const showHint = () => {
     const revealed = currentWord.slice(0, Math.min(hint.length + 1, currentWord.length - 1));
     setHint(revealed);
-    setScore(s => Math.max(0, s - 20));
+    setScore(s => {
+      const next = Math.max(0, s - 20);
+      onScoreUpdate?.(next);
+      return next;
+    });
   };
 
   return (
