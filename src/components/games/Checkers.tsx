@@ -54,15 +54,7 @@ const Checkers: React.FC<CheckersProps> = ({ onScoreUpdate }) => {
           setBoard(newBoard);
           setTurn(turn === 'red' ? 'black' : 'red');
           
-          // Check for captures (jump moves) and win condition
-          if (Math.abs(rowDiff) === 2) {
-            setScore(prevScore => {
-              const newScore = { ...prevScore, [selPiece.includes('red') ? 'red' : 'black']: prevScore[selPiece.includes('red') ? 'red' : 'black'] + 1 };
-              onScoreUpdate?.(newScore.red * 10 + newScore.black * 10);
-              return newScore;
-            });
-          }
-          
+          // Report win when an opponent has no pieces left
           const remainingRed = newBoard.flat().filter(p => p && p.includes('red')).length;
           const remainingBlack = newBoard.flat().filter(p => p && p.includes('black')).length;
           if (remainingRed === 0 || remainingBlack === 0) {
