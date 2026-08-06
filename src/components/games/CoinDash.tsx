@@ -2,7 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 interface Entity { x: number; y: number; id: number; }
 
-const CoinDash: React.FC = () => {
+interface CoinDashProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const CoinDash: React.FC<CoinDashProps> = ({ onScoreUpdate }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -13,6 +17,10 @@ const CoinDash: React.FC = () => {
   const keysRef = useRef<Set<string>>(new Set());
   const frameRef = useRef(0);
   const nextIdRef = useRef(0);
+
+  useEffect(() => {
+    onScoreUpdate?.(score);
+  }, [score, onScoreUpdate]);
 
   const reset = () => {
     playerRef.current = { x: 200, y: 350 };

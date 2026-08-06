@@ -1,6 +1,10 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 
-const GravityRunner: React.FC = () => {
+interface GravityRunnerProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const GravityRunner: React.FC<GravityRunnerProps> = ({ onScoreUpdate }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
@@ -18,6 +22,10 @@ const GravityRunner: React.FC = () => {
     window.addEventListener('click', handleClick);
     return () => { window.removeEventListener('keydown', handleKey); window.removeEventListener('click', handleClick); };
   }, [flip]);
+
+  useEffect(() => {
+    onScoreUpdate?.(score);
+  }, [score, onScoreUpdate]);
 
   const reset = () => {
     stateRef.current = { y: 200, vy: 0, gravity: 0.5, flipped: false, obstacles: [], speed: 3, frame: 0, alive: true };

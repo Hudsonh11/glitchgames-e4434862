@@ -505,7 +505,7 @@ const Index: React.FC = () => {
       </section>
 
       {/* ═══ QUICK CATEGORIES ═══ */}
-      <section className="py-8 px-4 relative z-10">
+      {showMore && <section className="py-8 px-4 relative z-10">
         <div className="container mx-auto max-w-6xl">
           <SectionHeader icon={Compass} title="Browse Categories" subtitle="Find your perfect game genre" />
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-3">
@@ -516,7 +516,8 @@ const Index: React.FC = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section>}
+
 
       {/* ═══ TRENDING + LEADERBOARD + RECENT WINNERS ═══ */}
       <section className="py-8 px-4 relative z-10">

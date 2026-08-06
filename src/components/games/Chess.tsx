@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { RotateCcw } from 'lucide-react';
 
-const Chess: React.FC = () => {
+interface ChessProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const Chess: React.FC<ChessProps> = ({ onScoreUpdate }) => {
   const initialBoard = [
     ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
     ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
@@ -31,12 +35,19 @@ const Chess: React.FC = () => {
       
       // Simple move validation
       if (row !== selRow || col !== selCol) {
+        const capturedPiece = board[row][col];
         const newBoard = board.map(r => [...r]);
         newBoard[row][col] = selPiece;
         newBoard[selRow][selCol] = '';
         setBoard(newBoard);
         setTurn(turn === 'white' ? 'black' : 'white');
         setMoves(m => m + 1);
+        if (capturedPiece) {
+          onScoreUpdate?.(moves * 5 + 20);
+        }
+        if (capturedPiece === '♔' || capturedPiece === '♚') {
+          onScoreUpdate?.(100);
+        }
       }
       setSelected(null);
     } else if (piece) {

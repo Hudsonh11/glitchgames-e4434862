@@ -24,7 +24,11 @@ const addRandom = (grid: Cell[][]) => {
   grid[r][c] = Math.random() > 0.9 ? 4 : 2;
 };
 
-const HexMerge: React.FC = () => {
+interface HexMergeProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const HexMerge: React.FC<HexMergeProps> = ({ onScoreUpdate }) => {
   const [grid, setGrid] = useState(initGrid);
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(0);
@@ -60,6 +64,10 @@ const HexMerge: React.FC = () => {
       return newGrid;
     });
   };
+
+  React.useEffect(() => {
+    onScoreUpdate?.(score);
+  }, [score, onScoreUpdate]);
 
   React.useEffect(() => {
     const handler = (e: KeyboardEvent) => {
