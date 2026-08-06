@@ -4,7 +4,11 @@ import { RotateCcw } from 'lucide-react';
 
 type Piece = 'red' | 'black' | 'red-king' | 'black-king' | null;
 
-const Checkers: React.FC = () => {
+interface CheckersProps {
+  onScoreUpdate?: (score: number) => void;
+}
+
+const Checkers: React.FC<CheckersProps> = ({ onScoreUpdate }) => {
   const createInitialBoard = (): Piece[][] => {
     const board: Piece[][] = Array(8).fill(null).map(() => Array(8).fill(null));
     for (let row = 0; row < 3; row++) {
@@ -49,6 +53,21 @@ const Checkers: React.FC = () => {
           
           setBoard(newBoard);
           setTurn(turn === 'red' ? 'black' : 'red');
+          
+          // Check for captures (jump moves) and win condition
+          if (Math.abs(rowDiff) === 2) {
+            setScore(prevScore => {
+              const newScore = { ...prevScore, [selPiece.includes('red') ? 'red' : 'black']: prevScore[selPiece.includes('red') ? 'red' : 'black'] + 1 };
+              onScoreUpdate?.(newScore.red * 10 + newScore.black * 10);
+              return newScore;
+            });
+          }
+          
+          const remainingRed = newBoard.flat().filter(p => p && p.includes('red')).length;
+          const remainingBlack = newBoard.flat().filter(p => p && p.includes('black')).length;
+          if (remainingRed === 0 || remainingBlack === 0) {
+            onScoreUpdate?.(100);
+          }
         }
       }
       setSelected(null);
