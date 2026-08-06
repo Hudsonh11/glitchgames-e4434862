@@ -302,8 +302,9 @@ const Game: React.FC = () => {
           </div>
 
           <div className="flex justify-center rounded-2xl overflow-hidden border border-border bg-card p-4">
-            <GameComponent />
+            <GameScoreBridge gameId={id!} component={GameComponent} />
           </div>
+
 
           {/* Next game suggestion */}
           <div className="mt-6">
