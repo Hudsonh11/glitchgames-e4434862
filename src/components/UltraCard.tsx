@@ -9,15 +9,18 @@ interface UltraCardProps {
   className?: string;
 }
 
-const UltraCard: React.FC<UltraCardProps> = ({
+const UltraCard = React.forwardRef<HTMLDivElement, UltraCardProps & React.HTMLAttributes<HTMLDivElement>>(({
   children,
   variant = 'default',
   hover = true,
   glow = false,
   tilt = false,
   className = '',
-}) => {
-  const cardRef = useRef<HTMLDivElement>(null);
+  ...rest
+}, forwardedRef) => {
+  const innerRef = useRef<HTMLDivElement>(null);
+  const cardRef = innerRef;
+  React.useImperativeHandle(forwardedRef, () => innerRef.current as HTMLDivElement);
   const [transform, setTransform] = useState({ rotateX: 0, rotateY: 0 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -64,6 +67,7 @@ const UltraCard: React.FC<UltraCardProps> = ({
       }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      {...rest}
     >
       {/* Shine effect on hover */}
       {hover && (
@@ -78,6 +82,7 @@ const UltraCard: React.FC<UltraCardProps> = ({
       {children}
     </div>
   );
-};
+});
+UltraCard.displayName = 'UltraCard';
 
 export default UltraCard;
