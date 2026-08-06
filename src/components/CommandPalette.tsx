@@ -35,6 +35,8 @@ const CommandPalette: React.FC = () => {
     { label: 'Settings', path: '/settings', icon: SettingsIcon },
   ]), []);
 
+  if (!open) return null;
+
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput placeholder="Search games or jump to a page…" />
