@@ -14,7 +14,7 @@ const CENTER = SIZE / 2;
 const RING_RADIUS = 290;
 const BASE_HOLE_RADIUS = 35;
 const BALL_RADIUS = 16;
-const MAX_BALLS = 90; // perf guard — the original had "no limits" and eventually froze
+// no ball limit — collisions use a spatial grid so the arena can fill up freely
 const ROUND_SECONDS = 75;
 
 interface Ball {
@@ -260,7 +260,7 @@ const RingBall: React.FC = () => {
               playSfx(b.gold ? 'coin' : 'pop');
               setCombo(s.combo);
               const spawn = b.gold ? 4 : 2;
-              for (let n = 0; n < spawn && balls.length < MAX_BALLS; n++) {
+              for (let n = 0; n < spawn; n++) {
                 balls.push(makeBall(s.hole.x, s.hole.y, 1 + s.score / 20000));
               }
             }
