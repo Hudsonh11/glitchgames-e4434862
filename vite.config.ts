@@ -29,9 +29,9 @@ export default defineConfig(({ mode }) => ({
         skipWaiting: true,
         runtimeCaching: [
           {
-            urlPattern: ({ request, url }) =>
+            urlPattern: ({ request, url, sameOrigin }) =>
               request.mode === "navigate" &&
-              url.origin === self.location.origin &&
+              sameOrigin &&
               !url.pathname.startsWith("/~oauth"),
             handler: "NetworkFirst",
             options: {
@@ -41,8 +41,8 @@ export default defineConfig(({ mode }) => ({
             },
           },
           {
-            urlPattern: ({ url, request }) =>
-              url.origin === self.location.origin &&
+            urlPattern: ({ request, sameOrigin }) =>
+              sameOrigin &&
               ["style", "script", "worker", "font", "image"].includes(request.destination),
             handler: "CacheFirst",
             options: {
