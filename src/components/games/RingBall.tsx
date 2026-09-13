@@ -14,7 +14,7 @@ const CENTER = SIZE / 2;
 const RING_RADIUS = 290;
 const BASE_HOLE_RADIUS = 35;
 const BALL_RADIUS = 16;
-const MAX_BALLS = 90; // perf guard — the original had "no limits" and eventually froze
+// no ball limit — collisions use a spatial grid so the arena can fill up freely
 const ROUND_SECONDS = 75;
 
 interface Ball {
@@ -200,23 +200,40 @@ const RingBall: React.FC = () => {
           }
         }
 
-        // ball-to-ball elastic collisions
-        for (let i = 0; i < balls.length; i++) {
-          for (let j = i + 1; j < balls.length; j++) {
-            const a = balls[i], b = balls[j];
+        // ball-to-ball elastic collisions (spatial hash grid — scales to unlimited balls)
+        {
+          const cell = 32;
+          const grid = new Map<number, number[]>();
+          for (let i = 0; i < balls.length; i++) {
+            const b = balls[i];
+            const key = ((b.x / cell) | 0) * 100000 + ((b.y / cell) | 0);
+            const bucket = grid.get(key);
+            if (bucket) bucket.push(i); else grid.set(key, [i]);
+          }
+          const resolve = (a: typeof balls[number], b: typeof balls[number]) => {
             const dx = b.x - a.x, dy = b.y - a.y;
-            let dist = Math.hypot(dx, dy);
+            const dist = Math.hypot(dx, dy);
             const min = a.r + b.r;
-            if (dist < min) {
-              if (dist === 0) { a.x += (Math.random() - 0.5); a.y += (Math.random() - 0.5); continue; }
-              const overlap = (min - dist) / 2;
-              const nx = dx / dist, ny = dy / dist;
-              a.x -= nx * overlap; a.y -= ny * overlap;
-              b.x += nx * overlap; b.y += ny * overlap;
-              const p = nx * (a.vx - b.vx) + ny * (a.vy - b.vy);
-              if (p > 0) {
-                a.vx -= p * nx; a.vy -= p * ny;
-                b.vx += p * nx; b.vy += p * ny;
+            if (dist >= min) return;
+            if (dist === 0) { a.x += (Math.random() - 0.5); a.y += (Math.random() - 0.5); return; }
+            const overlap = (min - dist) / 2;
+            const nx = dx / dist, ny = dy / dist;
+            a.x -= nx * overlap; a.y -= ny * overlap;
+            b.x += nx * overlap; b.y += ny * overlap;
+            const p = nx * (a.vx - b.vx) + ny * (a.vy - b.vy);
+            if (p > 0) {
+              a.vx -= p * nx; a.vy -= p * ny;
+              b.vx += p * nx; b.vy += p * ny;
+            }
+          };
+          for (let i = 0; i < balls.length; i++) {
+            const a = balls[i];
+            const cx = (a.x / cell) | 0, cy = (a.y / cell) | 0;
+            for (let ox = -1; ox <= 1; ox++) {
+              for (let oy = -1; oy <= 1; oy++) {
+                const bucket = grid.get((cx + ox) * 100000 + (cy + oy));
+                if (!bucket) continue;
+                for (const j of bucket) if (j > i) resolve(a, balls[j]);
               }
             }
           }
@@ -243,7 +260,7 @@ const RingBall: React.FC = () => {
               playSfx(b.gold ? 'coin' : 'pop');
               setCombo(s.combo);
               const spawn = b.gold ? 4 : 2;
-              for (let n = 0; n < spawn && balls.length < MAX_BALLS; n++) {
+              for (let n = 0; n < spawn; n++) {
                 balls.push(makeBall(s.hole.x, s.hole.y, 1 + s.score / 20000));
               }
             }
