@@ -1487,6 +1487,66 @@ export type Database = {
         }
         Relationships: []
       }
+      support_agents: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          id: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          id?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          id?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      support_calls: {
+        Row: {
+          agent_id: string | null
+          agent_name: string | null
+          answered_at: string | null
+          created_at: string
+          ended_at: string | null
+          id: string
+          status: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          agent_name?: string | null
+          answered_at?: string | null
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          status?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          agent_name?: string | null
+          answered_at?: string | null
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          status?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       tournament_matches: {
         Row: {
           created_at: string
@@ -1768,6 +1828,7 @@ export type Database = {
         Returns: boolean
       }
       is_plus_active: { Args: { _user_id: string }; Returns: boolean }
+      is_support_agent: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
