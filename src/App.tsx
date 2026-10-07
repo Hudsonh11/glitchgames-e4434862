@@ -16,6 +16,8 @@ import Game from "./pages/Game";
 import Recovery from "./pages/Recovery";
 import ResetPassword from "./pages/ResetPassword";
 import Social from "./pages/Social";
+import SupportDesk from "./pages/SupportDesk";
+import AgentHub from "@/components/support/AgentHub";
 import NotFound from "./pages/NotFound";
 import SupportBot from "@/components/SupportBot";
 import OnlineStatus from "@/components/OnlineStatus";
@@ -52,10 +54,12 @@ const App = () => (
               <Route path="/recovery" element={<Recovery />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/social" element={<Social />} />
+              <Route path="/support" element={<SupportDesk />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
           <SupportBot />
+          <AgentHub />
           <CookieConsent />
           <BackToTop />
           <InstallPrompt />
