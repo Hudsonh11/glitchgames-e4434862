@@ -53,7 +53,7 @@ export function startHoldMusic(): () => void {
   return () => { window.clearInterval(id); ctx.close().catch(() => {}); };
 }
 
-const levelOf = (an: AnalyserNode, buf: Uint8Array) => {
+const levelOf = (an: AnalyserNode, buf: Uint8Array<ArrayBuffer>) => {
   an.getByteTimeDomainData(buf);
   let sum = 0;
   for (let i = 0; i < buf.length; i++) { const v = (buf[i] - 128) / 128; sum += v * v; }
@@ -112,7 +112,7 @@ export function useVoiceCall(callId: string | null, role: CallRole, active: bool
     const actx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     let localAn: AnalyserNode | null = null;
     let remoteAn: AnalyserNode | null = null;
-    const buf = new Uint8Array(256);
+    const buf = new Uint8Array(new ArrayBuffer(256));
 
     const channel = supabase.channel(`support-call-${callId}`, { config: { broadcast: { self: false } } });
     const send = (s: Signal) => { channel.send({ type: 'broadcast', event: 'signal', payload: s }); };
